@@ -53,7 +53,7 @@ namespace MatthiWare.CommandLine
             return builder;
         }
 
-        public TSource Parse(string[] args)
+        public IParserResult<TSource> Parse(string[] args)
         {
             throw new NotImplementedException();
         }

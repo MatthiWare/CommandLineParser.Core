@@ -18,7 +18,7 @@ namespace MatthiWare.CommandLine.Abstractions
 
         #region Parsing
 
-        T Parse(string[] args);
+        IParserResult<T> Parse(string[] args);
 
         #endregion
 
