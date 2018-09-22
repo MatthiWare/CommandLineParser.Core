@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>MatthiWare.CommandLine</RootNamespace>
+    <PackageId>MatthiWare.CommandLineParser</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Matthias Beerens</Authors>
+    <Company>MatthiWare</Company>
+    <Product>Command Line Parser</Product>
+    <Description>Command Line Parser for .Net Core</Description>
+    <PackageProjectUrl>https://github.com/MatthiWare/CommandLineParser.Core</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/MatthiWare/CommandLineParser.Core/blob/master/LICENSE</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.1" />
+  </ItemGroup>
+
+</Project>
