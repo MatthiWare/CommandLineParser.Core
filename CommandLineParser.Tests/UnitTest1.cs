@@ -23,7 +23,7 @@ namespace CommandLineParser.Tests
 
             Assert.NotNull(parsed);
 
-            Assert.Equal("test", parsed.Message);
+            Assert.Equal("test", parsed.Result.Message);
         }
 
         [Fact]

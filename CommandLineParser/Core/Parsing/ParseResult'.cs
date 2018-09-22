@@ -20,10 +20,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private ParseResult() { }
 
-        public static ParseResult<T> FromResult<T>(T result)
-            => new ParseResult<T>() { Result = result };
+        public static ParseResult<TResult> FromResult(TResult result)
+            => new ParseResult<TResult>() { Result = result };
 
-        public static ParseResult<T> FromError<T>(Exception error)
-            => new ParseResult<T>() { Error = error };
+        public static ParseResult<TResult> FromError(Exception error)
+            => new ParseResult<TResult>() { Error = error };
     }
 }
