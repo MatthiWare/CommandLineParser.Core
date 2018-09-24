@@ -6,11 +6,16 @@ using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
-    public class ResolverFactory : IResolverFactory
+    internal class ResolverFactory : IResolverFactory
     {
-
         private IDictionary<Type, Type> m_types = new Dictionary<Type, Type>();
         private IDictionary<Type, object> m_cache = new Dictionary<Type, object>();
+
+        public ResolverFactory()
+        {
+            Register<string, StringResolver>();
+            Register<bool, BoolResolver>();
+        }
 
         public bool Contains<T>()
             => Contains(typeof(T));

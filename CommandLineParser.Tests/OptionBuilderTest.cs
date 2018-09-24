@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using Moq;
 using Xunit;
@@ -14,8 +15,9 @@ namespace CommandLineParser.Tests
         [Fact]
         public void OptionBuilderConfiguresOptionCorrectly()
         {
-            var optionMock = new Mock<ICommandLineArgumentOption<string>>();
-            var builder = new OptionBuilder<object, string>(new object(), optionMock.Object, obj => obj.ToString());
+            var resolverMock = new Mock<ICommandLineArgumentResolver<string>>();
+            var option = new CommandLineArgumentOption<object, string>(new object(), o => o.ToString(), resolverMock.Object);
+            var builder = option as IOptionBuilder<string>;
 
             string sDefault = "default";
             string sHelp = "help";
@@ -29,12 +31,17 @@ namespace CommandLineParser.Tests
                 .ShortName(sShort)
                 .Required();
 
-            optionMock.VerifySet(opt => opt.ShortName = sShort, Times.Once);
-            optionMock.VerifySet(opt => opt.LongName = sLong, Times.Once);
-            optionMock.VerifySet(opt => opt.DefaultValue = sDefault, Times.Once);
-            optionMock.VerifySet(opt => opt.HelpText = sHelp, Times.Once);
-            optionMock.VerifySet(opt => opt.IsRequired = true, Times.Once);
-        }
+            Assert.True(option.HasDefault);
+            Assert.Equal(sDefault, option.DefaultValue);
 
+            Assert.True(option.HasLongName);
+            Assert.Equal(sLong, option.LongName);
+
+            Assert.Equal(sHelp, option.HelpText);
+
+            Assert.True(option.HasShortName);
+            Assert.Equal(sShort, option.ShortName);
+
+        }
     }
 }

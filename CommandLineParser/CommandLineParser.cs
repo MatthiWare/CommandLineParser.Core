@@ -8,6 +8,7 @@ using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Parsing;
+using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -17,11 +18,10 @@ namespace MatthiWare.CommandLine
     {
         private readonly TSource m_option;
         private readonly List<ICommandLineArgumentOption> m_options;
-        private readonly IResolverFactory resolverFactory;
 
         public IReadOnlyList<ICommandLineArgumentOption> Options => m_options.AsReadOnly();
 
-        public IResolverFactory ResolverFactory => throw new NotImplementedException();
+        public IResolverFactory ResolverFactory { get; }
 
         public CommandLineParser(Func<TSource> creator)
             : this(creator())
@@ -35,7 +35,7 @@ namespace MatthiWare.CommandLine
         {
             m_option = obj ?? throw new ArgumentNullException(nameof(obj));
             m_options = new List<ICommandLineArgumentOption>();
-            resolverFactory = new ResolverFactory();
+            ResolverFactory = new ResolverFactory();
         }
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
@@ -45,17 +45,40 @@ namespace MatthiWare.CommandLine
 
         private IOptionBuilder<TProperty> ConfigureInternal<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
-            var option = new CommandLineArgumentOption<TProperty>();
-            var builder = new OptionBuilder<TSource, TProperty>(m_option, option, selector);
+            var option = new CommandLineArgumentOption<TSource, TProperty>(m_option, selector, ResolverFactory.CreateResolver<TProperty>());
 
             m_options.Add(option);
 
-            return builder;
+            return option;
         }
 
         public IParserResult<TSource> Parse(string[] args)
         {
-            throw new NotImplementedException();
+            var lstArgs = new List<string>(args);
+            var errors = new List<Exception>();
+
+            string dash = "-";
+            string doubleDash = "--";
+
+            foreach (ICommandLineArgumentOption option in m_options)
+            {
+                int idx = lstArgs.FindIndex(arg =>
+                    (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
+                    (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+
+                if (idx < 0 && option.IsRequired)
+                {
+                    errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found"));
+                    continue;
+                }
+
+                //var arg = 
+            }
+
+            if (errors.Any())
+                return ParseResult<TSource>.FromError(errors.Count > 1 ? new AggregateException(errors) : errors[0]);
+
+            return ParseResult<TSource>.FromResult(m_option);
         }
     }
 }

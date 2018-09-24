@@ -11,5 +11,7 @@ namespace MatthiWare.CommandLine.Abstractions
         string HelpText { get; set; }
         bool IsRequired { get; set; }
         bool HasDefault { get; }
+        bool HasShortName { get; }
+        bool HasLongName { get; }
     }
 }

@@ -17,8 +17,6 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
         {
             var factory = new ResolverFactory();
 
-            factory.Register<string, StringResolver>();
-
             Assert.True(factory.Contains<string>());
             Assert.False(factory.Contains<int>());
         }
@@ -30,7 +28,6 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 
             var factory = new ResolverFactory();
 
-            factory.Register<string, StringResolver>();
             factory.Register(typeof(string), mockResolver.Object.GetType(), true);
             factory.Register<string, StringResolver>(true);
         }
@@ -42,7 +39,6 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 
             var factory = new ResolverFactory();
 
-            factory.Register<string, StringResolver>();
             Assert.Throws<ArgumentException>(() => factory.Register<string, StringResolver>());
         }
 
