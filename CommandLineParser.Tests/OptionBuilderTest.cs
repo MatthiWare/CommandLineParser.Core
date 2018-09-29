@@ -7,7 +7,7 @@ using MatthiWare.CommandLine.Core;
 using Moq;
 using Xunit;
 
-namespace CommandLineParser.Tests
+namespace MatthiWare.CommandLineParser.Tests
 {
     public class OptionBuilderTest
     {

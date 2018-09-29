@@ -44,12 +44,11 @@ namespace MatthiWare.CommandLine.Core
 
         public bool HasLongName => !string.IsNullOrWhiteSpace(LongName);
 
+        public bool CanParse(ArgumentModel model)
+            => resolver.CanResolve(model);
+
         public void Parse(ArgumentModel model)
-        {
-            if (!resolver.CanResolve(model)) throw new ArgumentException("Invalid argument option", nameof(model));
-
-
-        }
+            => AssignValue(resolver.Resolve(model));
 
         IOptionBuilder<TProperty> IOptionBuilder<TProperty>.Default(TProperty defaultValue)
         {

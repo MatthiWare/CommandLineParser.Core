@@ -4,25 +4,13 @@ using System.Text;
 
 namespace MatthiWare.CommandLine.Abstractions.Models
 {
-    public class ArgumentModel
+    public struct ArgumentModel
     {
-        private string m_value = null;
-
-
         public string Key { get; set; }
 
+        public string Value { get; set; }
 
-        public string Value
-        {
-            get => m_value;
-            set
-            {
-                HasValue = true;
-                m_value = value;
-            }
-        }
-
-        public bool HasValue { get; private set; }
+        public bool HasValue => Value != null;
 
         public ArgumentModel(string key, string value)
         {
@@ -30,9 +18,10 @@ namespace MatthiWare.CommandLine.Abstractions.Models
             this.Value = value;
         }
 
-        public ArgumentModel()
+        public ArgumentModel(string key)
         {
-
+            this.Key = key;
+            this.Value = null;
         }
 
     }

@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Parsing;
@@ -66,13 +67,27 @@ namespace MatthiWare.CommandLine
                     (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
                     (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
 
-                if (idx < 0 && option.IsRequired)
+                if ((idx < 0 || idx > lstArgs.Count) && option.IsRequired)
                 {
                     errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found"));
                     continue;
                 }
 
-                var argument = lstArgs[idx];
+                var key = lstArgs[idx];
+                var value = ++idx < lstArgs.Count ? lstArgs[idx] : null;
+
+                var argModel = new ArgumentModel(key, value);
+
+                var parser = option as IParser;
+
+                if (!parser.CanParse(argModel))
+                {
+                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'"));
+
+                    continue;
+                }
+
+                parser.Parse(argModel);
             }
 
             if (errors.Any())

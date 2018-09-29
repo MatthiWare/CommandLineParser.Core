@@ -5,9 +5,9 @@ using MatthiWare.CommandLine.Core;
 using Moq;
 using Xunit;
 
-namespace CommandLineParser.Tests
+namespace MatthiWare.CommandLineParser.Tests
 {
-    public class UnitTest1
+    public class ExtensionsTests
     {
         [Fact]
         public void Test1()
@@ -72,7 +72,7 @@ namespace CommandLineParser.Tests
         {
             var testString = "this is my test string \"with some quotes\" the end. '\"Here is some literal\"' ";
 
-            var resultArr = new string[] { "this", "is", "my", "test", "string", "with some quotes", "the", "end.", "\"Here is some literal\"" };
+            var resultArr = new string[] { "this", "is", "my", "test", "string", "with some quotes", "the", "end.", "\"Here is some literal\"", " " };
 
             int i = 0;
             foreach (var token in Extensions.SplitOnWhitespace(testString))
@@ -86,6 +86,7 @@ namespace CommandLineParser.Tests
         [Theory]
         [InlineData("\"with some quotes\"", "with some quotes")]
         [InlineData("'\"with some quotes\"'", "\"with some quotes\"")]
+        [InlineData("test", "test")]
         public void TestRemoveLiteralAndDoubleQuotes(string input, string result)
         {
             Assert.Equal(result, input.AsSpan().RemoveLiteralsAndQuotes());

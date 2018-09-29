@@ -78,7 +78,7 @@ namespace MatthiWare.CommandLine.Core
                 }
             }
 
-            return null;
+            return src.ToString();
         }
 
         public static ReadOnlySpan<char> Substring(this ReadOnlySpan<char> src, int start, int len)
@@ -95,11 +95,15 @@ namespace MatthiWare.CommandLine.Core
             int startTrim = 0, endTrim = 0;
             int len = value.Length - 1;
 
+            if (value.Length == 0) return new string(value.ToArray());
+
             if (value[0] == DoubleQuote || value[0] == SingleQuote)
                 startTrim = 1;
 
             if (value[len] == DoubleQuote || value[len] == SingleQuote)
                 endTrim = 1;
+
+            if (startTrim == 0 && endTrim == 0) return new string(value.ToArray());
 
             return new string(value.Substring(startTrim, len - endTrim).ToArray());
         }
