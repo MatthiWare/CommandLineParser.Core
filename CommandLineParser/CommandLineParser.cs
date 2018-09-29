@@ -72,7 +72,7 @@ namespace MatthiWare.CommandLine
                     continue;
                 }
 
-                //var arg = 
+                var argument = lstArgs[idx];
             }
 
             if (errors.Any())
