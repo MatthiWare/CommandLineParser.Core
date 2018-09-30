@@ -15,6 +15,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
         {
             Register<string, StringResolver>();
             Register<bool, BoolResolver>();
+            Register<int, IntResolver>();
+            Register<double, DoubleResolver>();
         }
 
         public bool Contains<T>()
