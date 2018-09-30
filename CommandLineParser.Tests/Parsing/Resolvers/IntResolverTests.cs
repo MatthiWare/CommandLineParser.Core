@@ -7,30 +7,32 @@ using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 {
-    public class StringResovlerTests
+
+    public class IntResolverTests
     {
 
         [Theory]
-        [InlineData(true, "-m", "test")]
-        [InlineData(true, "-m", "my string")]
+        [InlineData(true, "-m", "5")]
+        [InlineData(false, "-m", "false")]
         public void TestCanResolve(bool expected, string key, string value)
         {
-            var resolver = new StringResolver();
+            var resolver = new IntResolver();
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.CanResolve(model));
         }
 
         [Theory]
-        [InlineData("test", "-m", "test")]
-        [InlineData("my string", "-m", "my string")]
-        public void TestResolve(string expected, string key, string value)
+        [InlineData(5, "-m", "5")]
+        [InlineData(-5, "-m", "-5")]
+        public void TestResolve(int expected, string key, string value)
         {
-            var resolver = new StringResolver();
+            var resolver = new IntResolver();
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.Resolve(model));
         }
+
 
     }
 }

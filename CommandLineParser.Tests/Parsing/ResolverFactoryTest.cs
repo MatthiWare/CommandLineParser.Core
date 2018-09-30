@@ -12,13 +12,18 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
     public class ResolverFactoryTest
     {
 
+        private class RandomType { }
+
         [Fact]
         public void ContainsWork()
         {
             var factory = new ResolverFactory();
 
             Assert.True(factory.Contains<string>());
-            Assert.False(factory.Contains<int>());
+            Assert.True(factory.Contains<int>());
+            Assert.True(factory.Contains<int>());
+
+            Assert.False(factory.Contains<RandomType>());
         }
 
         [Fact]
