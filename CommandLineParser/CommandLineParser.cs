@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
+using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Parsing;
-using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -20,10 +19,13 @@ namespace MatthiWare.CommandLine
     {
         private readonly TSource m_option;
         private readonly List<ICommandLineArgumentOption> m_options;
+        private readonly List<ICommandLineCommand> m_commands;
 
         public IReadOnlyList<ICommandLineArgumentOption> Options => m_options.AsReadOnly();
 
         public IResolverFactory ResolverFactory { get; }
+
+        public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
         public CommandLineParser(Func<TSource> creator)
             : this(creator())
@@ -95,6 +97,15 @@ namespace MatthiWare.CommandLine
                 return ParseResult<TSource>.FromError(errors.Count > 1 ? new AggregateException(errors) : errors[0]);
 
             return ParseResult<TSource>.FromResult(m_option);
+        }
+
+        public ICommandBuilder<TCommandOption> AddCommand<TCommandOption>()
+        {
+            var command = new CommandLineCommand<TCommandOption>(ResolverFactory, m_commands);
+
+            m_commands.Add(command);
+
+            return command;
         }
     }
 }
