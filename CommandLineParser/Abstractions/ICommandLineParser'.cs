@@ -29,7 +29,7 @@ namespace MatthiWare.CommandLine.Abstractions
 
         IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<Tsource, TProperty>> selector);
 
-        ICommandBuilder<TCommandOption> AddCommand<TCommandOption>();
+        ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new();
 
         #endregion
 

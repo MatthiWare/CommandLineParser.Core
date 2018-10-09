@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -15,10 +15,10 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly List<ICommandLineArgumentOption> options;
         private TSource source;
 
-        public CommandLineCommand(IResolverFactory resolverFactory, List<ICommandLineArgumentOption> options)
+        public CommandLineCommand(IResolverFactory resolverFactory)
         {
             this.resolverFactory = resolverFactory;
-            this.options = options;
+            this.options = new List<ICommandLineArgumentOption>();
             this.source = new TSource();
         }
 
@@ -31,6 +31,8 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public bool HasLongName => LongName != null;
 
+        public IReadOnlyCollection<ICommandLineArgumentOption> Options => options.AsReadOnly();
+
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
             var option = new CommandLineArgumentOption<TSource, TProperty>(source, selector, resolverFactory.CreateResolver<TProperty>());
@@ -38,14 +40,13 @@ namespace MatthiWare.CommandLine.Core.Command
             options.Add(option);
 
             return option;
-
         }
 
         public void Execute() => execution(source);
 
         public ICommandBuilder<TSource> OnExecuting(Action<TSource> action)
         {
-            this.execution = action;
+            execution = action;
 
             return this;
         }

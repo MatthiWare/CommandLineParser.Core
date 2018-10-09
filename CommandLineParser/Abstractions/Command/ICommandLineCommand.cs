@@ -13,6 +13,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         bool IsRequired { get; set; }
         bool HasShortName { get; }
         bool HasLongName { get; }
+        IReadOnlyCollection<ICommandLineArgumentOption> Options { get; }
         void Execute();
     }
 }

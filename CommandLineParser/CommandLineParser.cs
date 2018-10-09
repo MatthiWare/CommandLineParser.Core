@@ -27,18 +27,13 @@ namespace MatthiWare.CommandLine
 
         public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
-        public CommandLineParser(Func<TSource> creator)
-            : this(creator())
-        { }
-
         public CommandLineParser()
-            : this(new TSource())
-        { }
-
-        public CommandLineParser(TSource obj)
         {
-            m_option = obj ?? throw new ArgumentNullException(nameof(obj));
+            m_option = new TSource();
+
             m_options = new List<ICommandLineArgumentOption>();
+            m_commands = new List<ICommandLineCommand>();
+
             ResolverFactory = new ResolverFactory();
         }
 
@@ -64,20 +59,22 @@ namespace MatthiWare.CommandLine
             string dash = "-";
             string doubleDash = "--";
 
-            foreach (ICommandLineArgumentOption option in m_options)
+            foreach (var option in m_options)
             {
                 int idx = lstArgs.FindIndex(arg =>
                     (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
                     (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
 
-                if ((idx < 0 || idx > lstArgs.Count) && option.IsRequired)
+                if (idx < 0 || idx > lstArgs.Count)
                 {
-                    errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found"));
+                    if (option.IsRequired)
+                        errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!"));
+
                     continue;
                 }
 
-                var key = lstArgs[idx];
-                var value = ++idx < lstArgs.Count ? lstArgs[idx] : null;
+                var key = GetArgumentAndRemove(ref lstArgs, idx);
+                var value = GetArgumentAndRemove(ref lstArgs, idx);
 
                 var argModel = new ArgumentModel(key, value);
 
@@ -85,7 +82,7 @@ namespace MatthiWare.CommandLine
 
                 if (!parser.CanParse(argModel))
                 {
-                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'"));
+                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'."));
 
                     continue;
                 }
@@ -93,15 +90,76 @@ namespace MatthiWare.CommandLine
                 parser.Parse(argModel);
             }
 
+            foreach (var cmd in m_commands)
+            {
+                int idx = lstArgs.FindIndex(arg =>
+                    (cmd.HasShortName && string.Equals(cmd.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
+                    (cmd.HasLongName && string.Equals(cmd.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+
+                if (idx < 0 || idx > lstArgs.Count)
+                {
+                    if (cmd.IsRequired)
+                        errors.Add(new KeyNotFoundException($"Required command '{cmd.HasShortName}' or '{cmd.LongName}' not found!"));
+
+                    continue;
+                }
+
+                foreach (var option in cmd.Options)
+                {
+                    idx = lstArgs.FindIndex(arg =>
+                        (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
+                        (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+
+                    if (idx < 0 || idx > lstArgs.Count)
+                    {
+                        if (option.IsRequired)
+                            errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!"));
+
+                        continue;
+                    }
+
+                    var key = GetArgumentAndRemove(ref lstArgs, idx);
+                    var value = GetArgumentAndRemove(ref lstArgs, idx);
+
+                    var argModel = new ArgumentModel(key, value);
+
+                    var parser = option as IParser;
+
+                    if (!parser.CanParse(argModel))
+                    {
+                        errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'."));
+
+                        continue;
+                    }
+
+                    parser.Parse(argModel);
+                }
+
+                if (!errors.Any())
+                    cmd.Execute();
+            }
+
             if (errors.Any())
                 return ParseResult<TSource>.FromError(errors.Count > 1 ? new AggregateException(errors) : errors[0]);
+
+
 
             return ParseResult<TSource>.FromResult(m_option);
         }
 
-        public ICommandBuilder<TCommandOption> AddCommand<TCommandOption>()
+        private string GetArgumentAndRemove(ref List<string> args, int index)
         {
-            var command = new CommandLineCommand<TCommandOption>(ResolverFactory, m_commands);
+            string value = index < args.Count ? args[index] : null;
+
+            if (value != null)
+                args.RemoveAt(index);
+
+            return value;
+        }
+
+        public ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
+        {
+            var command = new CommandLineCommand<TCommandOption>(ResolverFactory);
 
             m_commands.Add(command);
 

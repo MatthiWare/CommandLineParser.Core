@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace MatthiWare.CommandLine.Abstractions.Command
 {
-    public interface ICommandBuilder<Tsource>
+    public interface ICommandBuilder<Tsource> where Tsource : class, new()
     {
         ICommandBuilder<Tsource> Required(bool required = true);
 

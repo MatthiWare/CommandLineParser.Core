@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using MatthiWare.CommandLine;
 using Xunit;
+using static MatthiWare.CommandLineParser.Tests.XUnitExtensions;
 
 namespace MatthiWare.CommandLineParser.Tests
 {
@@ -11,20 +13,61 @@ namespace MatthiWare.CommandLineParser.Tests
         [Fact]
         public void ParseTests()
         {
-
             var parser = new CommandLineParser<Options>();
 
-            parser.Configure(opt => opt.Message)
-                .ShortName("-m")
-                .LongName("--message")
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-o")
                 .Default("Default message")
                 .Required();
 
-            var parsed = parser.Parse(new string[] { "app.exe", "-m", "test" });
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test" });
 
             Assert.NotNull(parsed);
 
-            Assert.Equal("test", parsed.Result.Message);
+            Assert.False(parsed.HasErrors);
+
+            Assert.Equal("test", parsed.Result.Option1);
+        }
+
+        [Fact]
+        public void ParseWithCommandTests()
+        {
+            var wait = new ManualResetEvent(false);
+
+            var parser = new CommandLineParser<Options>();
+
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-o")
+                .Default("Default message")
+                .Required();
+
+            bool set = false;
+
+            var addCmd = parser.AddCommand<AddOption>()
+                .ShortName("-A")
+                .LongName("--Add")
+                .OnExecuting(x =>
+                {
+                    Assert.Equal("my message", x.Message);
+                    set = true;
+                    wait.Set();
+                });
+
+
+            addCmd.Configure(opt => opt.Message)
+                .LongName("--message")
+                .ShortName("-m")
+                .Required();
+
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "--Add", "-m", "my message" });
+
+            Assert.False(parsed.HasErrors);
+
+            Assert.NotNull(parsed);
+
+            Assert.Equal("test", parsed.Result.Option1);
+
+            Assert.True(wait.WaitOne(2000));
         }
 
         [Fact]
@@ -32,9 +75,9 @@ namespace MatthiWare.CommandLineParser.Tests
         {
             var parser = new CommandLineParser<Options>();
 
-            parser.Configure(opt => opt.Message)
-                .ShortName("-m")
-                .LongName("--message")
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-o")
+                .LongName("--opt")
                 .Default("Default message")
                 .Required();
 
@@ -51,8 +94,8 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.NotNull(message);
             Assert.NotNull(option);
 
-            Assert.Equal("-m", message.ShortName);
-            Assert.Equal("--message", message.LongName);
+            Assert.Equal("-o", message.ShortName);
+            Assert.Equal("--opt", message.LongName);
             Assert.True(message.HasDefault);
 
             Assert.Equal("-x", option.ShortName);
@@ -60,9 +103,13 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.False(option.HasDefault);
         }
 
-        private class Options
+        private class AddOption
         {
             public string Message { get; set; }
+        }
+        private class Options
+        {
+            public string Option1 { get; set; }
             public bool Option2 { get; set; }
         }
     }
