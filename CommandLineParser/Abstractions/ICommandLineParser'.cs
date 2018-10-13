@@ -8,7 +8,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
-    public interface ICommandLineParser<Tsource>
+    public interface ICommandLineParser<TSource>
     {
 
         #region Properties
@@ -21,13 +21,13 @@ namespace MatthiWare.CommandLine.Abstractions
 
         #region Parsing
 
-        IParserResult<Tsource> Parse(string[] args);
+        IParserResult<TSource> Parse(string[] args);
 
         #endregion
 
         #region Configuration
 
-        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<Tsource, TProperty>> selector);
+        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
 
         ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new();
 

@@ -41,15 +41,12 @@ namespace MatthiWare.CommandLineParser.Tests
                 .Default("Default message")
                 .Required();
 
-            bool set = false;
-
             var addCmd = parser.AddCommand<AddOption>()
                 .ShortName("-A")
                 .LongName("--Add")
                 .OnExecuting(x =>
                 {
                     Assert.Equal("my message", x.Message);
-                    set = true;
                     wait.Set();
                 });
 
@@ -66,6 +63,8 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.NotNull(parsed);
 
             Assert.Equal("test", parsed.Result.Option1);
+
+            parsed.ExecuteCommands();
 
             Assert.True(wait.WaitOne(2000));
         }

@@ -4,34 +4,25 @@ using System.Linq;
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
-    internal class CommandLineCommand<TSource> : ICommandLineCommand, ICommandBuilder<TSource> where TSource : class, new()
+    internal class CommandLineCommand<TSource> :
+        CommandLineCommandBase,
+        ICommandBuilder<TSource> where TSource : class, new()
     {
+        private readonly TSource source;
         private readonly IResolverFactory resolverFactory;
         private Action<TSource> execution;
-        private readonly List<ICommandLineArgumentOption> options;
-        private TSource source;
 
         public CommandLineCommand(IResolverFactory resolverFactory)
         {
             this.resolverFactory = resolverFactory;
-            this.options = new List<ICommandLineArgumentOption>();
-            this.source = new TSource();
+            source = new TSource();
         }
-
-        public string ShortName { get; set; }
-        public string LongName { get; set; }
-        public string HelpText { get; set; }
-        public bool IsRequired { get; set; }
-
-        public bool HasShortName => ShortName != null;
-
-        public bool HasLongName => LongName != null;
-
-        public IReadOnlyCollection<ICommandLineArgumentOption> Options => options.AsReadOnly();
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
@@ -42,7 +33,48 @@ namespace MatthiWare.CommandLine.Core.Command
             return option;
         }
 
-        public void Execute() => execution(source);
+        public override void Execute() => execution(source);
+
+        public override ICommandParserResult Parse(List<string> lstArgs)
+        {
+            var result = new CommandParserResult(this);
+            var errors = new List<Exception>();
+
+            foreach (var option in Options)
+            {
+                int idx = lstArgs.FindIndex(arg =>
+                    (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
+                    (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+
+                if (idx < 0 || idx > lstArgs.Count)
+                {
+                    if (option.IsRequired)
+                        errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!"));
+
+                    continue;
+                }
+
+                var key = lstArgs.GetAndRemove(idx);
+                var value = lstArgs.GetAndRemove(idx);
+
+                var argModel = new ArgumentModel(key, value);
+
+                var parser = option as IParser;
+
+                if (!parser.CanParse(argModel))
+                {
+                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'."));
+
+                    continue;
+                }
+
+                parser.Parse(argModel);
+            }
+
+            result.MergeResult(errors);
+
+            return result;
+        }
 
         public ICommandBuilder<TSource> OnExecuting(Action<TSource> action)
         {
@@ -78,5 +110,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return this;
         }
+
+
     }
 }

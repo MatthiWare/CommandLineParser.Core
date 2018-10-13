@@ -7,13 +7,12 @@ namespace MatthiWare.CommandLine.Abstractions.Command
 {
     public interface ICommandLineCommand
     {
-        string ShortName { get; set; }
-        string LongName { get; set; }
-        string HelpText { get; set; }
-        bool IsRequired { get; set; }
+        string ShortName { get; }
+        string LongName { get; }
+        string HelpText { get; }
+        bool IsRequired { get; }
         bool HasShortName { get; }
         bool HasLongName { get; }
-        IReadOnlyCollection<ICommandLineArgumentOption> Options { get; }
         void Execute();
     }
 }

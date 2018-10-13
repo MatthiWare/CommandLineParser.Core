@@ -8,8 +8,8 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 namespace MatthiWare.CommandLine.Core
 {
     internal class CommandLineArgumentOption<TSource, TProperty> :
+        CommandLineArgumentOptionBase,
         ICommandLineArgumentOption<TProperty>,
-        IParser,
         IOptionBuilder<TProperty> where TSource : class
     {
         private readonly TSource source;
@@ -34,20 +34,12 @@ namespace MatthiWare.CommandLine.Core
             }
         }
 
-        public string ShortName { get; set; }
-        public string LongName { get; set; }
-        public string HelpText { get; set; }
-        public bool IsRequired { get; set; }
-        public bool HasDefault { get; private set; }
 
-        public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName);
 
-        public bool HasLongName => !string.IsNullOrWhiteSpace(LongName);
-
-        public bool CanParse(ArgumentModel model)
+        public override bool CanParse(ArgumentModel model)
             => resolver.CanResolve(model);
 
-        public void Parse(ArgumentModel model)
+        public override void Parse(ArgumentModel model)
             => AssignValue(resolver.Resolve(model));
 
         IOptionBuilder<TProperty> IOptionBuilder<TProperty>.Default(TProperty defaultValue)
