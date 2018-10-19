@@ -24,6 +24,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public abstract void Execute();
 
-        public abstract ICommandParserResult Parse(List<string> args);
+        public abstract ICommandParserResult Parse(List<string> args, int startIndex);
     }
 }

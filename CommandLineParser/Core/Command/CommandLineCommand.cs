@@ -35,14 +35,14 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override void Execute() => execution(source);
 
-        public override ICommandParserResult Parse(List<string> lstArgs)
+        public override ICommandParserResult Parse(List<string> lstArgs, int startIndex)
         {
             var result = new CommandParserResult(this);
             var errors = new List<Exception>();
 
             foreach (var option in Options)
             {
-                int idx = lstArgs.FindIndex(arg =>
+                int idx = lstArgs.FindIndex(startIndex, arg =>
                     (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
                     (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
 

@@ -38,7 +38,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
             }
         }
 
-        public IReadOnlyCollection<ICommandParserResult> CommandResults => commandParserResults.AsReadOnly();
+        public IReadOnlyList<ICommandParserResult> CommandResults => commandParserResults.AsReadOnly();
 
         #endregion
 

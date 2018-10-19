@@ -37,6 +37,6 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// Read-only collection that contains the parsed commands' results. 
         /// <see cref="ICommandParserResult"/>
         /// </summary>
-        IReadOnlyCollection<ICommandParserResult> CommandResults { get; }
+        IReadOnlyList<ICommandParserResult> CommandResults { get; }
     }
 }

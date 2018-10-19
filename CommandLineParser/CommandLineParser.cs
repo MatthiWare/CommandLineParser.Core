@@ -56,6 +56,23 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TSource>();
 
+            foreach (var cmd in m_commands)
+            {
+                int idx = lstArgs.FindIndex(arg =>
+                    (cmd.HasShortName && string.Equals(cmd.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
+                    (cmd.HasLongName && string.Equals(cmd.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+
+                if (idx < 0 || idx > lstArgs.Count)
+                {
+                    if (cmd.IsRequired)
+                        errors.Add(new KeyNotFoundException($"Required command '{cmd.HasShortName}' or '{cmd.LongName}' not found!"));
+
+                    continue;
+                }
+
+                result.MergeResult(cmd.Parse(lstArgs, idx));
+            }
+
             foreach (var option in m_options)
             {
                 int idx = lstArgs.FindIndex(arg =>
@@ -86,23 +103,6 @@ namespace MatthiWare.CommandLine
             }
 
             result.MergeResult(m_option);
-
-            foreach (var cmd in m_commands)
-            {
-                int idx = lstArgs.FindIndex(arg =>
-                    (cmd.HasShortName && string.Equals(cmd.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (cmd.HasLongName && string.Equals(cmd.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
-
-                if (idx < 0 || idx > lstArgs.Count)
-                {
-                    if (cmd.IsRequired)
-                        errors.Add(new KeyNotFoundException($"Required command '{cmd.HasShortName}' or '{cmd.LongName}' not found!"));
-
-                    continue;
-                }
-
-                result.MergeResult(cmd.Parse(lstArgs));
-            }
 
             return result;
         }
