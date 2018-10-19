@@ -9,7 +9,7 @@ namespace MatthiWare.CommandLine.Core
 {
     internal class CommandLineArgumentOption<TSource, TProperty> :
         CommandLineArgumentOptionBase,
-        ICommandLineArgumentOption<TProperty>,
+        ICommandLineOption<TProperty>,
         IOptionBuilder<TProperty> where TSource : class
     {
         private readonly TSource source;

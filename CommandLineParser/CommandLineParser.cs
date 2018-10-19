@@ -9,6 +9,7 @@ using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Command;
+using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
@@ -21,7 +22,7 @@ namespace MatthiWare.CommandLine
         private readonly List<CommandLineArgumentOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
 
-        public IReadOnlyList<ICommandLineArgumentOption> Options => m_options.AsReadOnly();
+        public IReadOnlyList<ICommandLineOption> Options => m_options.AsReadOnly();
 
         public IResolverFactory ResolverFactory { get; }
 
@@ -65,12 +66,17 @@ namespace MatthiWare.CommandLine
                 if (idx < 0 || idx > lstArgs.Count)
                 {
                     if (cmd.IsRequired)
-                        errors.Add(new KeyNotFoundException($"Required command '{cmd.HasShortName}' or '{cmd.LongName}' not found!"));
+                        errors.Add(new CommandNotFoundException(cmd));
 
                     continue;
                 }
 
-                result.MergeResult(cmd.Parse(lstArgs, idx));
+                var cmdParseResult = cmd.Parse(lstArgs, idx);
+
+                if (cmdParseResult.HasErrors)
+                    errors.Add(new CommandParseException(cmd, cmdParseResult.Error));
+
+                result.MergeResult(cmdParseResult);
             }
 
             foreach (var option in m_options)
@@ -82,7 +88,7 @@ namespace MatthiWare.CommandLine
                 if (idx < 0 || idx > lstArgs.Count)
                 {
                     if (option.IsRequired)
-                        errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!"));
+                        errors.Add(new OptionNotFoundException(option));
 
                     continue;
                 }
@@ -94,7 +100,7 @@ namespace MatthiWare.CommandLine
 
                 if (!option.CanParse(argModel))
                 {
-                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'."));
+                    errors.Add(new OptionParseException(option, argModel));
 
                     continue;
                 }

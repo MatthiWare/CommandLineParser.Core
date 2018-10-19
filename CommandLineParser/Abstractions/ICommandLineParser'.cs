@@ -14,7 +14,7 @@ namespace MatthiWare.CommandLine.Abstractions
         #region Properties
 
         IReadOnlyList<ICommandLineCommand> Commands { get; }
-        IReadOnlyList<ICommandLineArgumentOption> Options { get; }
+        IReadOnlyList<ICommandLineOption> Options { get; }
         IResolverFactory ResolverFactory { get; }
 
         #endregion

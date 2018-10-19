@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
-    public interface ICommandLineArgumentOption
+    public interface ICommandLineOption
     {
         string ShortName { get; }
         string LongName { get; }

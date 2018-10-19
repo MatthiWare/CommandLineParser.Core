@@ -11,9 +11,9 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandLineCommandParser,
         ICommandLineCommand
     {
-        protected readonly List<ICommandLineArgumentOption> options = new List<ICommandLineArgumentOption>();
+        protected readonly List<ICommandLineOption> options = new List<ICommandLineOption>();
 
-        public IReadOnlyList<ICommandLineArgumentOption> Options => options.AsReadOnly();
+        public IReadOnlyList<ICommandLineOption> Options => options.AsReadOnly();
 
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }

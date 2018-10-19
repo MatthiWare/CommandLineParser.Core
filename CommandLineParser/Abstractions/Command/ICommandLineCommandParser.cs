@@ -8,7 +8,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
 {
     public interface ICommandLineCommandParser
     {
-        IReadOnlyList<ICommandLineArgumentOption> Options { get; }
+        IReadOnlyList<ICommandLineOption> Options { get; }
         ICommandParserResult Parse(List<string> args, int startIndex);
     }
 }
