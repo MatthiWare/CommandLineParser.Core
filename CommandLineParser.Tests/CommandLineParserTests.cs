@@ -29,6 +29,40 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.Equal("test", parsed.Result.Option1);
         }
 
+        [Theory]
+        [InlineData(new[] { "app.exe", "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "app.exe", "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "app.exe", "-1", "-2", "-3" }, "message1", "message2", "message3")]
+        public void ParseWithDefaults(string[] args, string result1, string result2, string result3)
+        {
+            var parser = new CommandLineParser<OptionsWithThreeParams>();
+
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-1")
+                .Default(result1)
+                .Required();
+
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-2")
+                .Default(result2)
+                .Required();
+
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-3")
+                .Default(result3)
+                .Required();
+
+            var parsed = parser.Parse(args);
+
+            Assert.NotNull(parsed);
+
+            Assert.False(parsed.HasErrors);
+
+            Assert.Equal(result1, parsed.Result.Option1);
+            Assert.Equal(result2, parsed.Result.Option2);
+            Assert.Equal(result3, parsed.Result.Option3);
+        }
+
         [Fact]
         public void ParseWithCommandTests()
         {
@@ -67,6 +101,37 @@ namespace MatthiWare.CommandLineParser.Tests
             parsed.ExecuteCommands();
 
             Assert.True(wait.WaitOne(2000));
+        }
+
+        [Theory]
+        [InlineData(new[] { "app.exe", "--Add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "-m", "message1", "--Add", "-m", "message2" }, "message1", "message2")]
+        public void ParseCommandTests(string[] args, string result1, string result2)
+        {
+            var parser = new CommandLineParser<AddOption>();
+
+            parser.AddCommand<AddOption>()
+                .LongName("--add")
+                .ShortName("-a")
+                .Required()
+                .OnExecuting(r => Assert.Equal(result2, r.Message))
+                .Configure(c => c.Message)
+                    .LongName("--message")
+                    .ShortName("-m")
+                    .Required();
+
+            parser.Configure(opt => opt.Message)
+                .LongName("--message")
+                .ShortName("-m")
+                .Required();
+
+            var result = parser.Parse(args);
+
+            Assert.False(result.HasErrors);
+
+            result.ExecuteCommands();
+
+            Assert.Equal(result1, result.Result.Message);
         }
 
         [Fact]
@@ -110,6 +175,12 @@ namespace MatthiWare.CommandLineParser.Tests
         {
             public string Option1 { get; set; }
             public bool Option2 { get; set; }
+        }
+        private class OptionsWithThreeParams
+        {
+            public string Option1 { get; set; }
+            public string Option2 { get; set; }
+            public string Option3 { get; set; }
         }
     }
 }
