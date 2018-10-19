@@ -16,7 +16,7 @@ namespace MatthiWare.CommandLineParser.Tests
         public void OptionBuilderConfiguresOptionCorrectly()
         {
             var resolverMock = new Mock<ICommandLineArgumentResolver<string>>();
-            var option = new CommandLineArgumentOption<object, string>(new object(), o => o.ToString(), resolverMock.Object);
+            var option = new CommandLineOption<object, string>(new object(), o => o.ToString(), resolverMock.Object);
             var builder = option as IOptionBuilder<string>;
 
             string sDefault = "default";

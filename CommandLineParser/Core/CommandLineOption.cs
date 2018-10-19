@@ -7,8 +7,8 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core
 {
-    internal class CommandLineArgumentOption<TSource, TProperty> :
-        CommandLineArgumentOptionBase,
+    internal class CommandLineOption<TSource, TProperty> :
+        CommandLineOptionBase,
         ICommandLineOption<TProperty>,
         IOptionBuilder<TProperty> where TSource : class
     {
@@ -17,7 +17,7 @@ namespace MatthiWare.CommandLine.Core
         private TProperty m_defaultValue = default(TProperty);
         private readonly ICommandLineArgumentResolver<TProperty> resolver;
 
-        public CommandLineArgumentOption(TSource source, Expression<Func<TSource, TProperty>> selector, ICommandLineArgumentResolver<TProperty> resolver)
+        public CommandLineOption(TSource source, Expression<Func<TSource, TProperty>> selector, ICommandLineArgumentResolver<TProperty> resolver)
         {
             this.source = source ?? throw new ArgumentNullException(nameof(source));
             this.selector = selector ?? throw new ArgumentNullException(nameof(selector));

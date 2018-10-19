@@ -1,17 +1,12 @@
-﻿using System;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
-    public interface ICommandLineOption
+    public interface ICommandLineOption : ICommandLineCommand
     {
-        string ShortName { get; }
-        string LongName { get; }
-        string HelpText { get; }
-        bool IsRequired { get; }
-        bool HasDefault { get; }
-        bool HasShortName { get; }
-        bool HasLongName { get; }
+        
     }
 }

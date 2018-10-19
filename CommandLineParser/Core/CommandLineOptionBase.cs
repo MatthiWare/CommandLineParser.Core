@@ -9,7 +9,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 namespace MatthiWare.CommandLine.Core
 {
     [DebuggerDisplay("Cmd Option {ShortName ?? LongName}, Req: {IsRequired}, HasDefault: {HasDefault}")]
-    internal abstract class CommandLineArgumentOptionBase : IParser, ICommandLineOption
+    internal abstract class CommandLineOptionBase : IParser, ICommandLineOption
     {
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }

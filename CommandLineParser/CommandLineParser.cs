@@ -19,7 +19,7 @@ namespace MatthiWare.CommandLine
     public sealed class CommandLineParser<TSource> : ICommandLineParser<TSource> where TSource : class, new()
     {
         private readonly TSource m_option;
-        private readonly List<CommandLineArgumentOptionBase> m_options;
+        private readonly List<CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
 
         public IReadOnlyList<ICommandLineOption> Options => m_options.AsReadOnly();
@@ -32,7 +32,7 @@ namespace MatthiWare.CommandLine
         {
             m_option = new TSource();
 
-            m_options = new List<CommandLineArgumentOptionBase>();
+            m_options = new List<CommandLineOptionBase>();
             m_commands = new List<CommandLineCommandBase>();
 
             ResolverFactory = new ResolverFactory();
@@ -43,7 +43,7 @@ namespace MatthiWare.CommandLine
 
         private IOptionBuilder<TProperty> ConfigureInternal<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
-            var option = new CommandLineArgumentOption<TSource, TProperty>(m_option, selector, ResolverFactory.CreateResolver<TProperty>());
+            var option = new CommandLineOption<TSource, TProperty>(m_option, selector, ResolverFactory.CreateResolver<TProperty>());
 
             m_options.Add(option);
 
@@ -59,9 +59,7 @@ namespace MatthiWare.CommandLine
 
             foreach (var cmd in m_commands)
             {
-                int idx = lstArgs.FindIndex(arg =>
-                    (cmd.HasShortName && string.Equals(cmd.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (cmd.HasLongName && string.Equals(cmd.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+                
 
                 if (idx < 0 || idx > lstArgs.Count)
                 {
@@ -81,9 +79,7 @@ namespace MatthiWare.CommandLine
 
             foreach (var option in m_options)
             {
-                int idx = lstArgs.FindIndex(arg =>
-                    (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
+                
 
                 if (idx < 0 || idx > lstArgs.Count)
                 {

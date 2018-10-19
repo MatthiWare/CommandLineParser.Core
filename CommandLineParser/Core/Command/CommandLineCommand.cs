@@ -26,7 +26,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
-            var option = new CommandLineArgumentOption<TSource, TProperty>(source, selector, resolverFactory.CreateResolver<TProperty>());
+            var option = new CommandLineOption<TSource, TProperty>(source, selector, resolverFactory.CreateResolver<TProperty>());
 
             options.Add(option);
 
