@@ -42,12 +42,12 @@ namespace MatthiWare.CommandLineParser.Tests
                 .Default(result1)
                 .Required();
 
-            parser.Configure(opt => opt.Option1)
+            parser.Configure(opt => opt.Option2)
                 .ShortName("-2")
                 .Default(result2)
                 .Required();
 
-            parser.Configure(opt => opt.Option1)
+            parser.Configure(opt => opt.Option3)
                 .ShortName("-3")
                 .Default(result3)
                 .Required();

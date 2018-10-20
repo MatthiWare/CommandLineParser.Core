@@ -34,7 +34,8 @@ namespace MatthiWare.CommandLine.Core
             }
         }
 
-
+        public override void UseDefault()
+            => AssignValue(DefaultValue);
 
         public override bool CanParse(ArgumentModel model)
             => resolver.CanResolve(model);

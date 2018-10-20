@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 
 namespace MatthiWare.CommandLine.Core.Command
@@ -11,9 +12,9 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandLineCommandParser,
         ICommandLineCommand
     {
-        protected readonly List<ICommandLineOption> options = new List<ICommandLineOption>();
+        protected readonly List<CommandLineOptionBase> m_options = new List<CommandLineOptionBase>();
 
-        public IReadOnlyList<ICommandLineOption> Options => options.AsReadOnly();
+        public IReadOnlyList<ICommandLineOption> Options => m_options.AsReadOnly();
 
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }
@@ -25,6 +26,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public abstract void Execute();
 
-        public abstract ICommandParserResult Parse(List<string> args, int startIndex);
+        public abstract ICommandParserResult Parse(IArgumentManager argumentManager);
     }
 }

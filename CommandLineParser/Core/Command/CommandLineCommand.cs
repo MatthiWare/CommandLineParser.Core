@@ -7,6 +7,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
+using MatthiWare.CommandLine.Core.Exceptions;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
@@ -28,47 +29,40 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             var option = new CommandLineOption<TSource, TProperty>(source, selector, resolverFactory.CreateResolver<TProperty>());
 
-            options.Add(option);
+            m_options.Add(option);
 
             return option;
         }
 
         public override void Execute() => execution(source);
 
-        public override ICommandParserResult Parse(List<string> lstArgs, int startIndex)
+        public override ICommandParserResult Parse(IArgumentManager argumentManager)
         {
             var result = new CommandParserResult(this);
             var errors = new List<Exception>();
 
-            foreach (var option in Options)
+            foreach (var option in m_options)
             {
-                int idx = lstArgs.FindIndex(startIndex, arg =>
-                    (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
-
-                if (idx < 0 || idx > lstArgs.Count)
+                if (!argumentManager.TryGetValue(option, out ArgumentModel model) && option.IsRequired)
                 {
-                    if (option.IsRequired)
-                        errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!"));
+                    errors.Add(new OptionNotFoundException(option));
+
+                    continue;
+                }
+                else if (!model.HasValue && option.HasDefault)
+                {
+                    option.UseDefault();
+
+                    continue;
+                }
+                else if (!option.CanParse(model))
+                {
+                    errors.Add(new OptionParseException(option, model));
 
                     continue;
                 }
 
-                var key = lstArgs.GetAndRemove(idx);
-                var value = lstArgs.GetAndRemove(idx);
-
-                var argModel = new ArgumentModel(key, value);
-
-                var parser = option as IParser;
-
-                if (!parser.CanParse(argModel))
-                {
-                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'."));
-
-                    continue;
-                }
-
-                parser.Parse(argModel);
+                option.Parse(model);
             }
 
             result.MergeResult(errors);

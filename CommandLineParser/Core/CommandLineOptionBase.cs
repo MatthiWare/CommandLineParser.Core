@@ -22,5 +22,7 @@ namespace MatthiWare.CommandLine.Core
         public abstract bool CanParse(ArgumentModel model);
 
         public abstract void Parse(ArgumentModel model);
+
+        public abstract void UseDefault();
     }
 }
