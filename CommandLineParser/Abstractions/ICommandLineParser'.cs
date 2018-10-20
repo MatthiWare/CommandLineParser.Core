@@ -3,29 +3,33 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Text;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
-    public interface ICommandLineParser<T>
+    public interface ICommandLineParser<TSource>
     {
 
         #region Properties
 
-        IReadOnlyList<ICommandLineArgumentOption> Options { get; }
+        IReadOnlyList<ICommandLineCommand> Commands { get; }
+        IReadOnlyList<ICommandLineOption> Options { get; }
         IResolverFactory ResolverFactory { get; }
 
         #endregion
 
         #region Parsing
 
-        IParserResult<T> Parse(string[] args);
+        IParserResult<TSource> Parse(string[] args);
 
         #endregion
 
         #region Configuration
 
-        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<T, TProperty>> selector);
+        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+
+        ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new();
 
         #endregion
 

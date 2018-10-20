@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using MatthiWare.CommandLine;
 using Xunit;
+using static MatthiWare.CommandLineParser.Tests.XUnitExtensions;
 
 namespace MatthiWare.CommandLineParser.Tests
 {
@@ -11,20 +13,125 @@ namespace MatthiWare.CommandLineParser.Tests
         [Fact]
         public void ParseTests()
         {
-
             var parser = new CommandLineParser<Options>();
 
-            parser.Configure(opt => opt.Message)
-                .ShortName("-m")
-                .LongName("--message")
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-o")
                 .Default("Default message")
                 .Required();
 
-            var parsed = parser.Parse(new string[] { "app.exe", "-m", "test" });
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test" });
 
             Assert.NotNull(parsed);
 
-            Assert.Equal("test", parsed.Result.Message);
+            Assert.False(parsed.HasErrors);
+
+            Assert.Equal("test", parsed.Result.Option1);
+        }
+
+        [Theory]
+        [InlineData(new[] { "app.exe", "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "app.exe", "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "app.exe", "-1", "-2", "-3" }, "message1", "message2", "message3")]
+        public void ParseWithDefaults(string[] args, string result1, string result2, string result3)
+        {
+            var parser = new CommandLineParser<OptionsWithThreeParams>();
+
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-1")
+                .Default(result1)
+                .Required();
+
+            parser.Configure(opt => opt.Option2)
+                .ShortName("-2")
+                .Default(result2)
+                .Required();
+
+            parser.Configure(opt => opt.Option3)
+                .ShortName("-3")
+                .Default(result3)
+                .Required();
+
+            var parsed = parser.Parse(args);
+
+            Assert.NotNull(parsed);
+
+            Assert.False(parsed.HasErrors);
+
+            Assert.Equal(result1, parsed.Result.Option1);
+            Assert.Equal(result2, parsed.Result.Option2);
+            Assert.Equal(result3, parsed.Result.Option3);
+        }
+
+        [Fact]
+        public void ParseWithCommandTests()
+        {
+            var wait = new ManualResetEvent(false);
+
+            var parser = new CommandLineParser<Options>();
+
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-o")
+                .Default("Default message")
+                .Required();
+
+            var addCmd = parser.AddCommand<AddOption>()
+                .ShortName("-A")
+                .LongName("--Add")
+                .OnExecuting(x =>
+                {
+                    Assert.Equal("my message", x.Message);
+                    wait.Set();
+                });
+
+
+            addCmd.Configure(opt => opt.Message)
+                .LongName("--message")
+                .ShortName("-m")
+                .Required();
+
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "--Add", "-m", "my message" });
+
+            Assert.False(parsed.HasErrors);
+
+            Assert.NotNull(parsed);
+
+            Assert.Equal("test", parsed.Result.Option1);
+
+            parsed.ExecuteCommands();
+
+            Assert.True(wait.WaitOne(2000));
+        }
+
+        [Theory]
+        [InlineData(new[] { "app.exe", "--Add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "-m", "message1", "--Add", "-m", "message2" }, "message1", "message2")]
+        public void ParseCommandTests(string[] args, string result1, string result2)
+        {
+            var parser = new CommandLineParser<AddOption>();
+
+            parser.AddCommand<AddOption>()
+                .LongName("--add")
+                .ShortName("-a")
+                .Required()
+                .OnExecuting(r => Assert.Equal(result2, r.Message))
+                .Configure(c => c.Message)
+                    .LongName("--message")
+                    .ShortName("-m")
+                    .Required();
+
+            parser.Configure(opt => opt.Message)
+                .LongName("--message")
+                .ShortName("-m")
+                .Required();
+
+            var result = parser.Parse(args);
+
+            Assert.False(result.HasErrors);
+
+            result.ExecuteCommands();
+
+            Assert.Equal(result1, result.Result.Message);
         }
 
         [Fact]
@@ -32,9 +139,9 @@ namespace MatthiWare.CommandLineParser.Tests
         {
             var parser = new CommandLineParser<Options>();
 
-            parser.Configure(opt => opt.Message)
-                .ShortName("-m")
-                .LongName("--message")
+            parser.Configure(opt => opt.Option1)
+                .ShortName("-o")
+                .LongName("--opt")
                 .Default("Default message")
                 .Required();
 
@@ -51,8 +158,8 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.NotNull(message);
             Assert.NotNull(option);
 
-            Assert.Equal("-m", message.ShortName);
-            Assert.Equal("--message", message.LongName);
+            Assert.Equal("-o", message.ShortName);
+            Assert.Equal("--opt", message.LongName);
             Assert.True(message.HasDefault);
 
             Assert.Equal("-x", option.ShortName);
@@ -60,10 +167,20 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.False(option.HasDefault);
         }
 
-        private class Options
+        private class AddOption
         {
             public string Message { get; set; }
+        }
+        private class Options
+        {
+            public string Option1 { get; set; }
             public bool Option2 { get; set; }
+        }
+        private class OptionsWithThreeParams
+        {
+            public string Option1 { get; set; }
+            public string Option2 { get; set; }
+            public string Option3 { get; set; }
         }
     }
 }

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
+using MatthiWare.CommandLine.Core.Command;
+using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
-using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -19,35 +19,31 @@ namespace MatthiWare.CommandLine
     public sealed class CommandLineParser<TSource> : ICommandLineParser<TSource> where TSource : class, new()
     {
         private readonly TSource m_option;
-        private readonly List<ICommandLineArgumentOption> m_options;
+        private readonly List<CommandLineOptionBase> m_options;
+        private readonly List<CommandLineCommandBase> m_commands;
 
-        public IReadOnlyList<ICommandLineArgumentOption> Options => m_options.AsReadOnly();
+        public IReadOnlyList<ICommandLineOption> Options => m_options.AsReadOnly();
 
         public IResolverFactory ResolverFactory { get; }
 
-        public CommandLineParser(Func<TSource> creator)
-            : this(creator())
-        { }
+        public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
         public CommandLineParser()
-            : this(new TSource())
-        { }
-
-        public CommandLineParser(TSource obj)
         {
-            m_option = obj ?? throw new ArgumentNullException(nameof(obj));
-            m_options = new List<ICommandLineArgumentOption>();
+            m_option = new TSource();
+
+            m_options = new List<CommandLineOptionBase>();
+            m_commands = new List<CommandLineCommandBase>();
+
             ResolverFactory = new ResolverFactory();
         }
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
-        {
-            return ConfigureInternal(selector);
-        }
+            => ConfigureInternal(selector);
 
         private IOptionBuilder<TProperty> ConfigureInternal<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
-            var option = new CommandLineArgumentOption<TSource, TProperty>(m_option, selector, ResolverFactory.CreateResolver<TProperty>());
+            var option = new CommandLineOption<TSource, TProperty>(m_option, selector, ResolverFactory.CreateResolver<TProperty>());
 
             m_options.Add(option);
 
@@ -56,45 +52,68 @@ namespace MatthiWare.CommandLine
 
         public IParserResult<TSource> Parse(string[] args)
         {
-            var lstArgs = new List<string>(args);
             var errors = new List<Exception>();
 
-            string dash = "-";
-            string doubleDash = "--";
+            var result = new ParseResult<TSource>();
 
-            foreach (ICommandLineArgumentOption option in m_options)
+            var argumentManager = new ArgumentManager(args, m_commands, m_options);
+
+            foreach (var cmd in m_commands)
             {
-                int idx = lstArgs.FindIndex(arg =>
-                    (option.HasShortName && string.Equals(option.ShortName, arg, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (option.HasLongName && string.Equals(option.LongName, arg, StringComparison.InvariantCultureIgnoreCase)));
-
-                if ((idx < 0 || idx > lstArgs.Count) && option.IsRequired)
+                if (!argumentManager.TryGetValue(cmd, out ArgumentModel model) && cmd.IsRequired)
                 {
-                    errors.Add(new KeyNotFoundException($"Required argument '{option.HasShortName}' or '{option.LongName}' not found"));
-                    continue;
-                }
-
-                var key = lstArgs[idx];
-                var value = ++idx < lstArgs.Count ? lstArgs[idx] : null;
-
-                var argModel = new ArgumentModel(key, value);
-
-                var parser = option as IParser;
-
-                if (!parser.CanParse(argModel))
-                {
-                    errors.Add(new ArgumentException($"Cannot parse option '{argModel.Key}:{argModel.Value ?? "NULL"}'"));
+                    errors.Add(new CommandNotFoundException(cmd));
 
                     continue;
                 }
 
-                parser.Parse(argModel);
+                var cmdParseResult = cmd.Parse(argumentManager);
+
+                if (cmdParseResult.HasErrors)
+                    errors.Add(new CommandParseException(cmd, cmdParseResult.Error));
+
+                result.MergeResult(cmdParseResult);
+            }
+
+            foreach (var option in m_options)
+            {
+                if (!argumentManager.TryGetValue(option, out ArgumentModel model) && option.IsRequired)
+                {
+                    errors.Add(new OptionNotFoundException(option));
+
+                    continue;
+                }
+                else if (!model.HasValue && option.HasDefault)
+                {
+                    option.UseDefault();
+
+                    continue;
+                }
+                else if (!option.CanParse(model))
+                {
+                    errors.Add(new OptionParseException(option, model));
+
+                    continue;
+                }
+
+                option.Parse(model);
             }
 
             if (errors.Any())
-                return ParseResult<TSource>.FromError(errors.Count > 1 ? new AggregateException(errors) : errors[0]);
+                result.MergeResult(errors);
 
-            return ParseResult<TSource>.FromResult(m_option);
+            result.MergeResult(m_option);
+
+            return result;
+        }
+
+        public ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
+        {
+            var command = new CommandLineCommand<TCommandOption>(ResolverFactory);
+
+            m_commands.Add(command);
+
+            return command;
         }
     }
 }

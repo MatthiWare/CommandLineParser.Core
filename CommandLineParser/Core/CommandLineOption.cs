@@ -7,9 +7,9 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core
 {
-    internal class CommandLineArgumentOption<TSource, TProperty> :
-        ICommandLineArgumentOption<TProperty>,
-        IParser,
+    internal class CommandLineOption<TSource, TProperty> :
+        CommandLineOptionBase,
+        ICommandLineOption<TProperty>,
         IOptionBuilder<TProperty> where TSource : class
     {
         private readonly TSource source;
@@ -17,7 +17,7 @@ namespace MatthiWare.CommandLine.Core
         private TProperty m_defaultValue = default(TProperty);
         private readonly ICommandLineArgumentResolver<TProperty> resolver;
 
-        public CommandLineArgumentOption(TSource source, Expression<Func<TSource, TProperty>> selector, ICommandLineArgumentResolver<TProperty> resolver)
+        public CommandLineOption(TSource source, Expression<Func<TSource, TProperty>> selector, ICommandLineArgumentResolver<TProperty> resolver)
         {
             this.source = source ?? throw new ArgumentNullException(nameof(source));
             this.selector = selector ?? throw new ArgumentNullException(nameof(selector));
@@ -34,20 +34,13 @@ namespace MatthiWare.CommandLine.Core
             }
         }
 
-        public string ShortName { get; set; }
-        public string LongName { get; set; }
-        public string HelpText { get; set; }
-        public bool IsRequired { get; set; }
-        public bool HasDefault { get; private set; }
+        public override void UseDefault()
+            => AssignValue(DefaultValue);
 
-        public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName);
-
-        public bool HasLongName => !string.IsNullOrWhiteSpace(LongName);
-
-        public bool CanParse(ArgumentModel model)
+        public override bool CanParse(ArgumentModel model)
             => resolver.CanResolve(model);
 
-        public void Parse(ArgumentModel model)
+        public override void Parse(ArgumentModel model)
             => AssignValue(resolver.Resolve(model));
 
         IOptionBuilder<TProperty> IOptionBuilder<TProperty>.Default(TProperty defaultValue)

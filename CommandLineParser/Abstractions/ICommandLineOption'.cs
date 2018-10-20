@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
-    public interface ICommandLineArgumentOption<TProperty> : ICommandLineArgumentOption
+    public interface ICommandLineOption<TProperty> : ICommandLineOption
     {
 
         TProperty DefaultValue { get; set; }
