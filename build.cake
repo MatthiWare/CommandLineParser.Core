@@ -46,10 +46,11 @@ Task("Test")
     .IsDependentOn("Build")
     .Does( () => {
 		
-		XUnit2("./**/bin/" + configuration + "/**/*.Tests.dll", new XUnit2Settings {
-			XmlReport = true,
-			OutputDirectory = ".",
-			ReportName = "result.xml"
+		DotNetCoreTest(tests,
+        new DotNetCoreTestSettings {
+            NoBuild = true,
+            NoRestore = true,
+            Configuration = configuration
         });
 });
 
