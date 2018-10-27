@@ -46,7 +46,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does( () => {
 		
-		XUnit2("./src/**/bin/" + configuration + "/**/*.Tests.dll", new XUnit2Settings {
+		XUnit2("./**/bin/" + configuration + "/**/*.Tests.dll", new XUnit2Settings {
 			XmlReport = true
         });
 });
