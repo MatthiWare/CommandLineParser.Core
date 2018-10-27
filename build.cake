@@ -14,6 +14,7 @@ var project = "CommandLineParser";
 var solution = $"./{project}.sln";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
+var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -67,10 +68,28 @@ Task("Publish")
         });
 });
 
+Task("Publish-NuGet")
+	.IsDependentOn("Publish")
+	.Does(() => 
+	{
+        var nuGetPackSettings = new NuGetPackSettings
+        {
+            BasePath = publishPath,
+            OutputDirectory = nugetPackageDir,
+            Properties = new Dictionary<string, string>
+            {
+                { "Configuration", configuration }
+            }
+        };
+
+        NuGetPack(nuGetPackSettings);
+
+	});
+
 Task("Default")
     .IsDependentOn("Test");
 
 Task("AppVeyor")
-    .IsDependentOn("Publish");
+    .IsDependentOn("Publish-NuGet");
 
 RunTarget(target);
