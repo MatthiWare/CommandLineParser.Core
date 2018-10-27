@@ -47,7 +47,9 @@ Task("Test")
     .Does( () => {
 		
 		XUnit2("./**/bin/" + configuration + "/**/*.Tests.dll", new XUnit2Settings {
-			XmlReport = true
+			XmlReport = true,
+			OutputDirectory = ".",
+			ReportName = "result.xml"
         });
 });
 
