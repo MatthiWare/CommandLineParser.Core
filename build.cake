@@ -12,7 +12,7 @@ var configuration = Argument("configuration", "Release");
 
 var project = "CommandLineParser";
 var solution = $"./{project}.sln";
-var commandLineParserProjPath = $"./{project}/{project}/{project}.csproj";
+var commandLineParserProjPath = $"./{project}/{project}.csproj";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
