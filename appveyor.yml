@@ -9,7 +9,7 @@ build_script:
 
 # artifacts
 artifacts:
-- path: '**\*.nupkg'
+- path: 'nuget\*.nupkg'
   name: NuGet
 
 # Tests
