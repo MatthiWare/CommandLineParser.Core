@@ -7,6 +7,11 @@ version: 0.1.{build}
 build_script:
   - ps: .\build.ps1 --target="AppVeyor" --verbosity=Verbose
 
+# artifacts
+artifacts:
+- path: '**\*.nupkg'
+  name: NuGet
+
 # Tests
 test: off
 
