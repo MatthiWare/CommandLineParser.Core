@@ -14,7 +14,7 @@ var project = "CommandLineParser";
 var solution = $"./{project}.sln";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
-var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
+var nugetPackageDir = MakeAbsolute§Directory("./nuget"));
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -82,7 +82,7 @@ Task("Publish-NuGet")
             }
         };
 
-        NuGetPack(nuGetPackSettings);
+        NuGetPack(nugetPackageDir, nuGetPackSettings);
 
 	});
 
