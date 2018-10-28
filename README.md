@@ -5,7 +5,7 @@
     <a href="https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="AGPL v3"></a>
 </p>
 <p align="center">
-    <img src="https://buildstats.info/appveyor/chart/Matthiee/CommandLineParser.Core?branch=master" />
+    <img src="https://buildstats.info/appveyor/chart/Matthiee/commandlineparser-core?branch=master" />
 </p>
 
 # CommandLineParser
