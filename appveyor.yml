@@ -1,0 +1,19 @@
+# Operating system (build VM template)
+os: Visual Studio 2017
+
+version: 0.1.{build}
+
+# Build script
+build_script:
+  - ps: .\build.ps1 --target="AppVeyor" --verbosity=Verbose
+
+# artifacts
+artifacts:
+- path: 'nuget\*.nupkg'
+  name: NuGet
+
+# Tests
+test: off
+
+init:
+  - git config --global core.autocrlf true

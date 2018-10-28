@@ -11,6 +11,8 @@
     <Description>Command Line Parser for .Net Core</Description>
     <PackageProjectUrl>https://github.com/MatthiWare/CommandLineParser.Core</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/MatthiWare/CommandLineParser.Core/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
+    <PackageTags>Commandline parser</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
