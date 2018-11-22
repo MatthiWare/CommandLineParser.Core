@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://ci.appveyor.com/project/Matthiee/vcdiff-core"><img src="https://ci.appveyor.com/api/projects/status/fr1l0ktyxtofu72e?svg=true" alt="Buitld Status (AppVeyor)"></a>
+    <a href="https://ci.appveyor.com/project/Matthiee/CommandLineParser.Core"><img src="https://ci.appveyor.com/api/projects/status/4w6ik2k8lx95afp8?svg=true" alt="Buitld Status (AppVeyor)"></a>
     <a href="https://github.com/MatthiWare/CommandLineParser.Core/issues"><img src="https://img.shields.io/github/issues/MatthiWare/CommandLineParser.Core.svg" alt="Open Issues"></a>
     <a href="https://codecov.io/gh/MatthiWare/CommandLineParser.Core"><img src="https://codecov.io/gh/MatthiWare/CommandLineParser.Core/branch/master/graph/badge.svg" alt="Codecov" /></a>
     <a href="https://www.codefactor.io/repository/github/matthiware/commandlineparser.core"><img src="https://www.codefactor.io/repository/github/matthiware/commandlineparser.core/badge" alt="Codefactor badge"></a>
