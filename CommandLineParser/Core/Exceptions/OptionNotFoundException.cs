@@ -1,7 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
-using MatthiWare.CommandLine.Abstractions.Models;
+﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using Xunit;
 

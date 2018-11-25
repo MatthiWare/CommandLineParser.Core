@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 

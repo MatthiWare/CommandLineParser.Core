@@ -11,23 +11,19 @@ namespace SampleApp
 
             // setup
             parser.Configure(opt => opt.MyInt)
-                .ShortName("-i")
-                .LongName("--int")
+                .Name("-i", "--int")
                 .Required();
 
             parser.Configure(opt => opt.MyString)
-                .ShortName("-s")
-                .LongName("--string")
+                .Name("-s", "--string")
                 .Required();
 
             parser.Configure(opt => opt.MyBool)
-                .ShortName("-b")
-                .LongName("--bool")
+                .Name("-b", "--bool")
                 .Required();
 
             parser.Configure(opt => opt.MyDouble)
-                .ShortName("-d")
-                .LongName("--double")
+                .Name("-d", "--double")
                 .Required();
 
             var result = parser.Parse(args);

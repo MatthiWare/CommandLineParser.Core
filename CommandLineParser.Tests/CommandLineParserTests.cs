@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using MatthiWare.CommandLine;
 using Xunit;
-using static MatthiWare.CommandLineParser.Tests.XUnitExtensions;
 
 namespace MatthiWare.CommandLineParser.Tests
 {
@@ -16,7 +12,7 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<Options>();
 
             parser.Configure(opt => opt.Option1)
-                .ShortName("-o")
+                .Name("-o")
                 .Default("Default message")
                 .Required();
 
@@ -38,17 +34,17 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<OptionsWithThreeParams>();
 
             parser.Configure(opt => opt.Option1)
-                .ShortName("-1")
+                .Name("-1")
                 .Default(result1)
                 .Required();
 
             parser.Configure(opt => opt.Option2)
-                .ShortName("-2")
+                .Name("-2")
                 .Default(result2)
                 .Required();
 
             parser.Configure(opt => opt.Option3)
-                .ShortName("-3")
+                .Name("-3")
                 .Default(result3)
                 .Required();
 
@@ -71,13 +67,12 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<Options>();
 
             parser.Configure(opt => opt.Option1)
-                .ShortName("-o")
+                .Name("-o")
                 .Default("Default message")
                 .Required();
 
             var addCmd = parser.AddCommand<AddOption>()
-                .ShortName("-A")
-                .LongName("--Add")
+                .Name("-A", "--Add")
                 .OnExecuting(x =>
                 {
                     Assert.Equal("my message", x.Message);
@@ -86,8 +81,7 @@ namespace MatthiWare.CommandLineParser.Tests
 
 
             addCmd.Configure(opt => opt.Message)
-                .LongName("--message")
-                .ShortName("-m")
+                .Name("-m", "--message")
                 .Required();
 
             var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "--Add", "-m", "my message" });
@@ -111,18 +105,15 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<AddOption>();
 
             parser.AddCommand<AddOption>()
-                .LongName("--add")
-                .ShortName("-a")
+                .Name("-a", "--add")
                 .Required()
                 .OnExecuting(r => Assert.Equal(result2, r.Message))
                 .Configure(c => c.Message)
-                    .LongName("--message")
-                    .ShortName("-m")
+                    .Name("-m", "--message")
                     .Required();
 
             parser.Configure(opt => opt.Message)
-                .LongName("--message")
-                .ShortName("-m")
+                .Name("-m", "--message")
                 .Required();
 
             var result = parser.Parse(args);
@@ -140,14 +131,12 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<Options>();
 
             parser.Configure(opt => opt.Option1)
-                .ShortName("-o")
-                .LongName("--opt")
+                .Name("-o", "--opt")
                 .Default("Default message")
                 .Required();
 
             parser.Configure(opt => opt.Option2)
-                .ShortName("-x")
-                .LongName("--xsomething")
+                .Name("-x", "--xsomething")
                 .Required();
 
             Assert.Equal(2, parser.Options.Count);
@@ -171,11 +160,13 @@ namespace MatthiWare.CommandLineParser.Tests
         {
             public string Message { get; set; }
         }
+
         private class Options
         {
             public string Option1 { get; set; }
             public bool Option2 { get; set; }
         }
+
         private class OptionsWithThreeParams
         {
             public string Option1 { get; set; }

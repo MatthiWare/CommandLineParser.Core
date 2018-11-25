@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
@@ -27,16 +26,31 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public ICommandLineArgumentResolver<T> CreateResolver<T>()
         {
-            Type argType = typeof(T);
+            return (ICommandLineArgumentResolver<T>)CreateResolver(typeof(T));
+        }
 
-            if (!m_cache.ContainsKey(argType))
+        public ICommandLineArgumentResolver CreateResolver(Type type)
+        {
+            if (!m_cache.ContainsKey(type))
             {
-                var instance = (ICommandLineArgumentResolver<T>)Activator.CreateInstance(m_types[argType]);
+                var instance = (ICommandLineArgumentResolver)Activator.CreateInstance(m_types[type]);
 
-                m_cache.Add(argType, instance);
+                m_cache.Add(type, instance);
             }
 
-            return (ICommandLineArgumentResolver<T>)m_cache[argType];
+            return (ICommandLineArgumentResolver)m_cache[type];
+        }
+
+        public void Register<TArgument>(ICommandLineArgumentResolver<TArgument> resolverInstance, bool overwrite = false)
+        {
+            Register<TArgument, ICommandLineArgumentResolver<TArgument>>(overwrite);
+
+            var typeKey = typeof(TArgument);
+
+            if (overwrite && m_cache.ContainsKey(typeKey))
+                m_cache.Remove(typeKey);
+
+            m_cache.Add(typeKey, resolverInstance);
         }
 
         public void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : ICommandLineArgumentResolver<TArgument>

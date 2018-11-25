@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
@@ -11,8 +10,7 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 {
     public class ResolverFactoryTest
     {
-
-        private class RandomType { }
+        public class RandomType { }
 
         [Fact]
         public void ContainsWork()
@@ -24,6 +22,30 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
             Assert.True(factory.Contains<int>());
 
             Assert.False(factory.Contains<RandomType>());
+        }
+
+        [Fact]
+        public void RegisterAndGet()
+        {
+            var instance = new RandomType();
+
+            var mockResolver = new Mock<ICommandLineArgumentResolver<RandomType>>();
+            mockResolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
+            mockResolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(instance);
+
+            var factory = new ResolverFactory();
+
+            factory.Register(mockResolver.Object);
+
+            var resolver = factory.CreateResolver<RandomType>();
+
+            var model = new ArgumentModel();
+
+            Assert.Same(mockResolver.Object, resolver);
+            Assert.True(resolver.CanResolve(model));
+            Assert.Same(instance, resolver.Resolve(model));
+
+            mockResolver.VerifyAll();
         }
 
         [Fact]
@@ -46,6 +68,5 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 
             Assert.Throws<ArgumentException>(() => factory.Register<string, StringResolver>());
         }
-
     }
 }

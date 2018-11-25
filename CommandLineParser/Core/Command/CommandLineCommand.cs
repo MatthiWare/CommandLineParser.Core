@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
@@ -25,9 +24,9 @@ namespace MatthiWare.CommandLine.Core.Command
             source = new TSource();
         }
 
-        public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
+        public IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
-            var option = new CommandLineOption<TSource, TProperty>(source, selector, resolverFactory.CreateResolver<TProperty>());
+            var option = new CommandLineOption(source, selector, resolverFactory.CreateResolver<TProperty>());
 
             m_options.Add(option);
 
@@ -91,20 +90,19 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandBuilder<TSource> ICommandBuilder<TSource>.LongName(string longName)
-        {
-            LongName = longName;
-
-            return this;
-        }
-
-        ICommandBuilder<TSource> ICommandBuilder<TSource>.ShortName(string shortName)
+        ICommandBuilder<TSource> ICommandBuilder<TSource>.Name(string shortName)
         {
             ShortName = shortName;
 
             return this;
         }
 
+        ICommandBuilder<TSource> ICommandBuilder<TSource>.Name(string shortName, string longName)
+        {
+            ShortName = shortName;
+            LongName = longName;
 
+            return this;
+        }
     }
 }

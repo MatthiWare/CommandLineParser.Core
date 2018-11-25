@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MatthiWare.CommandLine.Abstractions.Models
+﻿namespace MatthiWare.CommandLine.Abstractions.Models
 {
     public struct ArgumentModel
     {
@@ -23,6 +19,5 @@ namespace MatthiWare.CommandLine.Abstractions.Models
             this.Key = key;
             this.Value = null;
         }
-
     }
 }
