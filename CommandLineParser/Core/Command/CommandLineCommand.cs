@@ -104,7 +104,5 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return this;
         }
-
-
     }
 }

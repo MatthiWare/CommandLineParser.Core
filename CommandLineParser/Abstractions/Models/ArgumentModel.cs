@@ -19,6 +19,5 @@
             this.Key = key;
             this.Value = null;
         }
-
     }
 }

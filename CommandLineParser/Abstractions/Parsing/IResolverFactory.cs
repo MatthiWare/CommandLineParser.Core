@@ -15,6 +15,5 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         ICommandLineArgumentResolver<T> CreateResolver<T>();
 
         ICommandLineArgumentResolver CreateResolver(Type type);
-
     }
 }

@@ -10,7 +10,6 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 {
     public class ResolverFactoryTest
     {
-
         public class RandomType { }
 
         [Fact]
@@ -33,7 +32,7 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
             var mockResolver = new Mock<ICommandLineArgumentResolver<RandomType>>();
             mockResolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
             mockResolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(instance);
-            
+
             var factory = new ResolverFactory();
 
             factory.Register(mockResolver.Object);
@@ -69,6 +68,5 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 
             Assert.Throws<ArgumentException>(() => factory.Register<string, StringResolver>());
         }
-
     }
 }

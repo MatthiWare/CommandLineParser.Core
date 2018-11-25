@@ -8,7 +8,6 @@ namespace MatthiWare.CommandLine.Abstractions
 {
     public interface ICommandLineParser<TSource>
     {
-
         #region Properties
 
         IReadOnlyList<ICommandLineCommand> Commands { get; }
@@ -30,6 +29,5 @@ namespace MatthiWare.CommandLine.Abstractions
         ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new();
 
         #endregion
-
     }
 }
