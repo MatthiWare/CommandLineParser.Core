@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Globalization;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
@@ -22,6 +19,8 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
             return result;
         }
+
+        object ICommandLineArgumentResolver.Resolve(ArgumentModel model) => Resolve(model);
 
         private bool TryResolve(ArgumentModel model, out double result)
         {

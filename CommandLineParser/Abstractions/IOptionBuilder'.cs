@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MatthiWare.CommandLine.Abstractions
+﻿namespace MatthiWare.CommandLine.Abstractions
 {
-    public interface IOptionBuilder<TProperty>
+    public interface IOptionBuilder
     {
-        IOptionBuilder<TProperty> Required(bool required = true);
+        IOptionBuilder Required(bool required = true);
 
-        IOptionBuilder<TProperty> HelpText(string help);
+        IOptionBuilder HelpText(string help);
 
-        IOptionBuilder<TProperty> Default(TProperty defaultValue = default(TProperty));
+        IOptionBuilder Default(object defaultValue);
 
-        IOptionBuilder<TProperty> ShortName(string shortName);
+        IOptionBuilder Name(string shortName);
 
-        IOptionBuilder<TProperty> LongName(string longName);
+        IOptionBuilder Name(string shortName, string longName);
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using Moq;
@@ -11,13 +8,12 @@ namespace MatthiWare.CommandLineParser.Tests
 {
     public class OptionBuilderTest
     {
-
         [Fact]
         public void OptionBuilderConfiguresOptionCorrectly()
         {
             var resolverMock = new Mock<ICommandLineArgumentResolver<string>>();
-            var option = new CommandLineOption<object, string>(new object(), o => o.ToString(), resolverMock.Object);
-            var builder = option as IOptionBuilder<string>;
+            var option = new CommandLineOption(new object(), XUnitExtensions.CreateLambda<object, string>(o => o.ToString()), resolverMock.Object);
+            var builder = option as IOptionBuilder;
 
             string sDefault = "default";
             string sHelp = "help";
@@ -27,8 +23,7 @@ namespace MatthiWare.CommandLineParser.Tests
             builder
                 .Default(sDefault)
                 .HelpText(sHelp)
-                .LongName(sLong)
-                .ShortName(sShort)
+                .Name(sShort, sLong)
                 .Required();
 
             Assert.True(option.HasDefault);
@@ -41,7 +36,6 @@ namespace MatthiWare.CommandLineParser.Tests
 
             Assert.True(option.HasShortName);
             Assert.Equal(sShort, option.ShortName);
-
         }
     }
 }

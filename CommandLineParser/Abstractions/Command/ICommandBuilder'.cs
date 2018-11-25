@@ -9,12 +9,12 @@ namespace MatthiWare.CommandLine.Abstractions.Command
 
         ICommandBuilder<Tsource> HelpText(string help);
 
-        ICommandBuilder<Tsource> ShortName(string shortName);
+        ICommandBuilder<Tsource> Name(string shortName);
 
-        ICommandBuilder<Tsource> LongName(string longName);
+        ICommandBuilder<Tsource> Name(string shortName, string longName);
 
         ICommandBuilder<Tsource> OnExecuting(Action<Tsource> action);
 
-        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<Tsource, TProperty>> selector);
+        IOptionBuilder Configure<TProperty>(Expression<Func<Tsource, TProperty>> selector);
     }
 }

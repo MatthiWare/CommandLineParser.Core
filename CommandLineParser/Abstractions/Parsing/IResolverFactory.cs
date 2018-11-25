@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing
 {
@@ -15,6 +13,8 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         void Register(Type argument, Type resolver, bool overwrite = false);
 
         ICommandLineArgumentResolver<T> CreateResolver<T>();
+
+        ICommandLineArgumentResolver CreateResolver(Type type);
 
     }
 }

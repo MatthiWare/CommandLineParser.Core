@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq.Expressions;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
@@ -27,7 +25,7 @@ namespace MatthiWare.CommandLine.Abstractions
 
         #region Configuration
 
-        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+        IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
 
         ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new();
 
