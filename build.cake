@@ -75,7 +75,10 @@ Task("Publish-NuGet")
 	{
         var nuGetPackSettings = new NuGetPackSettings
         {
-            OutputDirectory = publishPath,
+            BasePath = publishPath,
+            OutputDirectory = nugetPackageDir,
+            IncludeReferencedProjects = true,
+
             Properties = new Dictionary<string, string>
             {
                 { "Configuration", configuration }
