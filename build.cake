@@ -73,6 +73,9 @@ Task("Publish-NuGet")
 	.IsDependentOn("Publish")
 	.Does(() => 
 	{
+        Information($"nuget package dir: {nugetPackageDir}");
+        Information($"nuspec: {commandLineParserProjPath}");
+
         var nuGetPackSettings = new NuGetPackSettings
         {
             BasePath = publishPath,
