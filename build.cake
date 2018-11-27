@@ -12,7 +12,7 @@ var configuration = Argument("configuration", "Release");
 
 var project = "CommandLineParser";
 var solution = $"./{project}.sln";
-var commandLineParserProjPath = $"./{project}/{project}.nuspec";
+var commandLineParserProjPath = $"./{project}/{project}.csproj";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
@@ -73,13 +73,9 @@ Task("Publish-NuGet")
 	.IsDependentOn("Publish")
 	.Does(() => 
 	{
-        Information($"nuget package dir: {nugetPackageDir}");
-        Information($"nuspec: {commandLineParserProjPath}");
-
         var nuGetPackSettings = new NuGetPackSettings
         {
-            BasePath = publishPath,
-            OutputDirectory = nugetPackageDir,
+            OutputDirectory = publishPath,
             Properties = new Dictionary<string, string>
             {
                 { "Configuration", configuration }
