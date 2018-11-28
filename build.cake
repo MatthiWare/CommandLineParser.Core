@@ -12,7 +12,7 @@ var configuration = Argument("configuration", "Release");
 
 var project = "CommandLineParser";
 var solution = $"./{project}.sln";
-var commandLineParserProjPath = $"./{project}/{project}.csproj";
+var nuspecFile = $"./{project}/{project}.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
@@ -77,13 +77,15 @@ Task("Publish-NuGet")
         {
             BasePath = publishPath,
             OutputDirectory = nugetPackageDir,
+            IncludeReferencedProjects = true,
+
             Properties = new Dictionary<string, string>
             {
                 { "Configuration", configuration }
             }
         };
 
-        NuGetPack(commandLineParserProjPath, nuGetPackSettings);
+        NuGetPack(nuspecFile, nuGetPackSettings);
 
 	});
 
