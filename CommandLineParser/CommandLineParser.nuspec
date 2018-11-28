@@ -1,18 +1,23 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
-    <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
-    <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
+    <id>MatthiWare.CommandLineParser</id>
+    <version>0.1.0</version>
+    <title>CommandLineParser.Core</title>
+    <authors>Matthias Beerens</authors>
+    <owners>Matthiee</owners>
+    <licenseUrl>https://github.com/MatthiWare/CommandLineParser.Core/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/MatthiWare/CommandLineParser.Core</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
-    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
-    <copyright>Copyright 2018</copyright>
-    <tags>Tag1 Tag2</tags>
+    <description>
+		Command Line Parser for .Net Core written in .Net Standard.
+		
+		Configuration is done through a option model class using attributes or fluent api can be used to configure the properties of the class. 
+		This library allows to add commands with their own set of options as well. 
+	</description>
+	<summary>A simple, light-weight and strongly typed command line parser. Configuration using fluent API and  an options class. </summary>
+    <releaseNotes>Initial release</releaseNotes>
+    <copyright>Copyright Matthias Beerens 2018</copyright>
+    <tags>commandline parser commandline-parser</tags>
   </metadata>
 </package>
