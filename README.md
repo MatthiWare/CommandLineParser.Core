@@ -56,6 +56,8 @@ A simple, light-weight and strongly typed commandline parser made in .Net standa
         public int Port { get; set; } // Optional
     }
 
+_**Warning:** Attributes will be overwritten by fluent api if both are configured_
+
 #### Using model class and Fluent API
 
     using MatthiWare.CommandLine;
@@ -98,6 +100,8 @@ A simple, light-weight and strongly typed commandline parser made in .Net standa
 
         public int Port { get; set; } // Optional
     }
+
+_**Warning:** Attributes will be overwritten by fluent api if both are configured_
 
 ### Commands
 
