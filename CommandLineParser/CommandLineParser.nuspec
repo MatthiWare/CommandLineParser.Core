@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <package >
+  <swag></swag>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.1.0</version>
+    <version>0.1.2</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
