@@ -2,6 +2,9 @@
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
 {
+    /// <summary>
+    /// Results fo the command that has been parsed
+    /// </summary>
     public interface ICommandParserResult
     {
         /// <summary>

@@ -4,6 +4,10 @@ using MatthiWare.CommandLine.Abstractions.Models;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
 {
+    /// <summary>
+    /// Indicates that an option was unable to be parsed
+    /// This could be caused by an missing <see cref="MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver"/>.
+    /// </summary>
     public class OptionParseException : Exception
     {
         private ICommandLineOption option;

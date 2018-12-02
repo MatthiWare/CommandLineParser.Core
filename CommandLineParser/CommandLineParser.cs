@@ -18,18 +18,34 @@ using MatthiWare.CommandLine.Core.Parsing;
 
 namespace MatthiWare.CommandLine
 {
+    /// <summary>
+    /// Command line parser
+    /// </summary>
+    /// <typeparam name="TSource">Options model</typeparam>
     public sealed class CommandLineParser<TSource> : ICommandLineParser<TSource> where TSource : class, new()
     {
         private readonly TSource m_option;
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
 
+        /// <summary>
+        /// Read-only collection of options specified
+        /// </summary>
         public IReadOnlyList<ICommandLineOption> Options => new ReadOnlyCollectionWrapper<string, CommandLineOptionBase>(m_options.Values);
 
+        /// <summary>
+        /// Factory to create resolvers for options
+        /// </summary>
         public IResolverFactory ResolverFactory { get; }
 
+        /// <summary>
+        /// Read-only list of commands specified
+        /// </summary>
         public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
+        /// <summary>
+        /// Creates a new instance of the commandline parser
+        /// </summary>
         public CommandLineParser()
         {
             m_option = new TSource();
@@ -42,6 +58,12 @@ namespace MatthiWare.CommandLine
             InitialzeModel();
         }
 
+        /// <summary>
+        /// Configures an option in the model
+        /// </summary>
+        /// <typeparam name="TProperty">Type of the property</typeparam>
+        /// <param name="selector">Model property to configure</param>
+        /// <returns><see cref="IOptionBuilder"/></returns>
         public IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
         {
             var memberInfo = ((MemberExpression)selector.Body).Member;
@@ -62,6 +84,11 @@ namespace MatthiWare.CommandLine
             return m_options[key] as IOptionBuilder;
         }
 
+        /// <summary>
+        /// Parses the commandline arguments
+        /// </summary>
+        /// <param name="args">arguments from the commandline</param>
+        /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
         public IParserResult<TSource> Parse(string[] args)
         {
             var errors = new List<Exception>();
@@ -121,6 +148,11 @@ namespace MatthiWare.CommandLine
             return result;
         }
 
+        /// <summary>
+        /// Adds a command to the parser
+        /// </summary>
+        /// <typeparam name="TCommandOption">Options model for the command</typeparam>
+        /// <returns>Builder for the command, <see cref="ICommandBuilder{Tsource}"/></returns>
         public ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
             var command = new CommandLineCommand<TCommandOption>(ResolverFactory);
