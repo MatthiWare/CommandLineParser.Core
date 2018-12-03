@@ -1,5 +1,8 @@
 ﻿namespace MatthiWare.CommandLine.Abstractions.Command
 {
+    /// <summary>
+    /// Command configuration options
+    /// </summary>
     public interface ICommandLineCommand
     {
         string ShortName { get; }

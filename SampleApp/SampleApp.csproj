@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj" />
+    <PackageReference Include="MatthiWare.CommandLineParser" Version="0.1.1" />
   </ItemGroup>
 
 </Project>

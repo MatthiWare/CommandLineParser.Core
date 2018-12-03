@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>MatthiWare.CommandLine</RootNamespace>
     <PackageId>MatthiWare.CommandLineParser</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.1.2</Version>
     <Authors>Matthias Beerens</Authors>
     <Company>MatthiWare</Company>
     <Product>Command Line Parser</Product>
@@ -13,6 +13,11 @@
     <PackageLicenseUrl>https://github.com/MatthiWare/CommandLineParser.Core/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
     <PackageTags>Commandline parser</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

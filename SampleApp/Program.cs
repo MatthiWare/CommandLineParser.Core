@@ -26,6 +26,15 @@ namespace SampleApp
                 .Name("-d", "--double")
                 .Required();
 
+            var startCmd = parser.AddCommand<CommandOptions>()
+                .Name("-s", "--start")
+                .Required()
+                .OnExecuting(parsedCmdOption => Console.WriteLine($"Starting server using verbose option: {parsedCmdOption.Verbose}"));
+
+            startCmd.Configure(cmd => cmd.Verbose) // configures the command options can also be done using attributes
+                .Required()
+                .Name("-v", "--verbose");
+
             var result = parser.Parse(args);
 
             if (result.HasErrors)
@@ -34,6 +43,11 @@ namespace SampleApp
                 Console.ReadKey();
 
                 return -1;
+            }
+
+            foreach (var cmdResult in result.CommandResults)
+            {
+                cmdResult.ExecuteCommand(); // executes the command handler that is configured above. 
             }
 
             var options = result.Result;
@@ -54,6 +68,11 @@ namespace SampleApp
             public string MyString { get; set; }
             public bool MyBool { get; set; }
             public double MyDouble { get; set; }
+        }
+
+        public class CommandOptions
+        {
+            public bool Verbose { get; set; }
         }
     }
 }

@@ -22,8 +22,4 @@
     <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Command\" />
-  </ItemGroup>
-
 </Project>
