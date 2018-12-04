@@ -16,6 +16,10 @@
 # CommandLineParser
 A simple, light-weight and strongly typed commandline parser made in .Net standard.
 
+## Installation
+
+    PM> Install-Package MatthiWare.CommandLineParser
+
 ## Configuration
 
 #### Using model class with attributes
