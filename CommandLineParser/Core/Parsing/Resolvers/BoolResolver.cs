@@ -5,21 +5,19 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    internal class BoolResolver : ICommandLineArgumentResolver<bool>
+    internal class BoolResolver : ArgumentResolver<bool>
     {
         private static readonly string[] recognisedFalseArgs = new[] { "off", "0", "false", "no" };
         private static readonly string[] recognisedTrueArgs = new[] { "on", "1", "true", "yes" };
 
-        public bool CanResolve(ArgumentModel model) => TryParse(model, out _);
+        public override bool CanResolve(ArgumentModel model) => TryParse(model, out _);
 
-        public bool Resolve(ArgumentModel model)
+        public override bool Resolve(ArgumentModel model)
         {
             TryParse(model, out bool result);
 
             return result;
         }
-
-        object ICommandLineArgumentResolver.Resolve(ArgumentModel model) => Resolve(model);
 
         private bool TryParse(ArgumentModel model, out bool result)
         {

@@ -19,7 +19,8 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 
             Assert.True(factory.Contains<string>());
             Assert.True(factory.Contains<int>());
-            Assert.True(factory.Contains<int>());
+            Assert.True(factory.Contains<double>());
+            Assert.True(factory.Contains<bool>());
 
             Assert.False(factory.Contains<RandomType>());
         }
@@ -29,7 +30,7 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
         {
             var instance = new RandomType();
 
-            var mockResolver = new Mock<ICommandLineArgumentResolver<RandomType>>();
+            var mockResolver = new Mock<ArgumentResolver<RandomType>>();
             mockResolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
             mockResolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(instance);
 
@@ -51,7 +52,7 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
         [Fact]
         public void RegisterOverrideWorks()
         {
-            var mockResolver = new Mock<ICommandLineArgumentResolver<string>>();
+            var mockResolver = new Mock<ArgumentResolver<string>>();
 
             var factory = new ResolverFactory();
 
@@ -62,11 +63,39 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
         [Fact]
         public void RegisterThrowsException()
         {
-            var mockResolver = new Mock<ICommandLineArgumentResolver<string>>();
+            var mockResolver = new Mock<ArgumentResolver<string>>();
 
             var factory = new ResolverFactory();
 
             Assert.Throws<ArgumentException>(() => factory.Register<string, StringResolver>());
+        }
+
+        [Fact]
+        public void RegisterObjectResolver()
+        {
+            var resolver = new Mock<ArgumentResolver<object>>();
+
+            var obj = new object();
+
+            resolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
+            resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
+
+            var factory = new ResolverFactory();
+            var dummyArg = new ArgumentModel();
+
+            factory.Register(resolver.Object);
+
+            var createdResolver_1 = factory.CreateResolver(typeof(object));
+            var createdResolver_2 = factory.CreateResolver<object>();
+
+            Assert.NotNull(createdResolver_1);
+            Assert.NotNull(createdResolver_2);
+
+            Assert.True(createdResolver_1.CanResolve(dummyArg));
+            Assert.True(createdResolver_2.CanResolve(dummyArg));
+
+            Assert.Same(obj, createdResolver_1.Resolve(dummyArg));
+            Assert.Same(obj, createdResolver_2.Resolve(dummyArg));
         }
     }
 }

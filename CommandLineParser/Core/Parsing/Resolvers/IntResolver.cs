@@ -3,23 +3,21 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    public class IntResolver : ICommandLineArgumentResolver<int>
+    public class IntResolver : ArgumentResolver<int>
     {
-        public bool CanResolve(ArgumentModel model)
+        public override bool CanResolve(ArgumentModel model)
         {
             if (!model.HasValue) return false;
 
             return TryResolve(model, out _);
         }
 
-        public int Resolve(ArgumentModel model)
+        public override int Resolve(ArgumentModel model)
         {
             TryResolve(model, out int result);
 
             return result;
         }
-
-        object ICommandLineArgumentResolver.Resolve(ArgumentModel model) => Resolve(model);
 
         private bool TryResolve(ArgumentModel model, out int result)
         {

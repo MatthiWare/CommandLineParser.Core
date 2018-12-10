@@ -66,7 +66,7 @@ namespace MatthiWare.CommandLineParser.Tests
         [Fact]
         public void ParseWithCustomParserInAttributeConfiguredModelTests()
         {
-            var resolver = new Mock<ICommandLineArgumentResolver<object>>();
+            var resolver = new Mock<ArgumentResolver<object>>();
 
             var obj = new object();
 

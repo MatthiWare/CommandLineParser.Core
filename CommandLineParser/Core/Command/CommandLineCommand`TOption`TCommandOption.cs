@@ -17,20 +17,22 @@ namespace MatthiWare.CommandLine.Core.Command
         where TCommandOption : class, new()
     {
         private readonly TCommandOption m_commandOption;
-        private readonly TOption m_option;
+        private readonly Func<TOption> m_baseModelResolver;
         private readonly IResolverFactory m_resolverFactory;
         private Action<TOption> m_executor;
         private Action<TOption, TCommandOption> m_executor2;
 
-        public CommandLineCommand(IResolverFactory resolverFactory)
+        public CommandLineCommand(IResolverFactory resolverFactory, Func<TOption> baseModelResolver)
         {
-            this.m_resolverFactory = resolverFactory;
+            m_commandOption = new TCommandOption();
+            m_resolverFactory = resolverFactory;
+            m_baseModelResolver = baseModelResolver;
         }
 
         public override void Execute()
         {
-            m_executor2?.Invoke(m_option, m_commandOption);
-            m_executor?.Invoke(m_option);
+            m_executor2?.Invoke(m_baseModelResolver(), m_commandOption);
+            m_executor?.Invoke(m_baseModelResolver());
         }
 
         public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)

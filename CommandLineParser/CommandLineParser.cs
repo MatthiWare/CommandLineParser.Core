@@ -175,7 +175,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory, () => m_option);
 
             m_commands.Add(command);
 

@@ -41,9 +41,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
             return (ICommandLineArgumentResolver)m_cache[type];
         }
 
-        public void Register<TArgument>(ICommandLineArgumentResolver<TArgument> resolverInstance, bool overwrite = false)
+        public void Register<TArgument>(ArgumentResolver<TArgument> resolverInstance, bool overwrite = false)
         {
-            Register<TArgument, ICommandLineArgumentResolver<TArgument>>(overwrite);
+            Register<TArgument, ArgumentResolver<TArgument>>(overwrite);
 
             var typeKey = typeof(TArgument);
 
@@ -53,15 +53,40 @@ namespace MatthiWare.CommandLine.Core.Parsing
             m_cache.Add(typeKey, resolverInstance);
         }
 
-        public void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : ICommandLineArgumentResolver<TArgument>
+        public void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : ArgumentResolver<TArgument>
             => Register(typeof(TArgument), typeof(TResolver), overwrite);
 
         public void Register(Type argument, Type resolver, bool overwrite = false)
         {
+            if (!IsAssignableToGenericType(resolver, typeof(ArgumentResolver<>)))
+                throw new InvalidCastException($"The given resolver is not assignable from {typeof(ArgumentResolver<>)}");
+
             if (overwrite && Contains(argument))
                 m_types.Remove(argument);
 
             m_types.Add(argument, resolver);
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/a/5461399/6058174
+        /// </summary>
+        private static bool IsAssignableToGenericType(Type givenType, Type genericType)
+        {
+            var interfaceTypes = givenType.GetInterfaces();
+
+            foreach (var it in interfaceTypes)
+            {
+                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                    return true;
+            }
+
+            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+                return true;
+
+            Type baseType = givenType.BaseType;
+            if (baseType == null) return false;
+
+            return IsAssignableToGenericType(baseType, genericType);
         }
     }
 }
