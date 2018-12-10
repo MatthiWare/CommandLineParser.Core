@@ -51,6 +51,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 int idx = FindIndex(item);
 
+                if (idx == -1) continue; // not found issue #12
+
                 SetArgumentUsed(idx, item);
             }
         }
@@ -60,6 +62,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
             foreach (var cmd in cmds)
             {
                 int idx = FindIndex(cmd);
+
+                if (idx == -1) continue;
 
                 SetArgumentUsed(idx, cmd);
 
