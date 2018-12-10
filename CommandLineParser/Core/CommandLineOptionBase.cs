@@ -16,6 +16,8 @@ namespace MatthiWare.CommandLine.Core
         public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName);
         public bool HasLongName => !string.IsNullOrWhiteSpace(LongName);
 
+        public bool AutoExecute { get; protected set; }
+
         public abstract bool CanParse(ArgumentModel model);
 
         public abstract void Parse(ArgumentModel model);

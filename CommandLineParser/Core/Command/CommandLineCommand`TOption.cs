@@ -12,7 +12,7 @@ namespace MatthiWare.CommandLine.Core.Command
 {
     internal class CommandLineCommand<TOption> :
         CommandLineCommandBase,
-        ICommandBuilder<TOption>,
+        ICommandBuilder<TOption>
         where TOption : class
     {
         private readonly TOption m_option;
@@ -63,38 +63,45 @@ namespace MatthiWare.CommandLine.Core.Command
             return result;
         }
 
-        public CommandLineCommand<TOption> OnExecuting(Action<TOption> action)
-        {
-            m_genericExecutor = action;
-
-            return this;
-        }
-
-        public CommandLineCommand<TOption> Required(bool required = true)
+        public ICommandBuilder<TOption> Required(bool required = true)
         {
             IsRequired = required;
 
             return this;
         }
 
-        CommandLineCommand<TOption> ICommandBuilder<CommandLineCommand<TOption>>.HelpText(string help)
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.HelpText(string help)
         {
-            throw new NotImplementedException();
+            HelpText = help;
+
+            return this;
         }
 
-        public CommandLineCommand<TOption> Name(string shortName)
+        public ICommandBuilder<TOption> Name(string shortName)
         {
-            throw new NotImplementedException();
+            ShortName = shortName;
+
+            return this;
         }
 
-        public CommandLineCommand<TOption> Name(string shortName, string longName)
+        public ICommandBuilder<TOption> Name(string shortName, string longName)
         {
-            throw new NotImplementedException();
+            ShortName = shortName;
+            LongName = longName;
+
+            return this;
         }
 
-        public CommandLineCommand<TOption> OnExecuting(Action action)
+        public ICommandBuilder<TOption> OnExecuting(Action<TOption> action)
         {
             m_executor = action;
+
+            return this;
+        }
+
+        public ICommandBuilder<TOption> InvokeCommand(bool invoke)
+        {
+            AutoExecute = invoke;
 
             return this;
         }

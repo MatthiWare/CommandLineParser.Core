@@ -11,18 +11,29 @@ namespace MatthiWare.CommandLine.Core
         CommandLineOptionBase,
         IOptionBuilder
     {
-        private readonly object source;
-        private readonly LambdaExpression selector;
+        private readonly object m_source;
+        private readonly LambdaExpression m_selector;
         private object m_defaultValue = null;
-        private readonly IResolverFactory resolverFactory;
+        private readonly IResolverFactory m_resolverFactory;
 
-        private ICommandLineArgumentResolver resolver;
+        private ICommandLineArgumentResolver m_resolver;
 
         public CommandLineOption(object source, LambdaExpression selector, IResolverFactory resolver)
         {
-            this.source = source ?? throw new ArgumentNullException(nameof(source));
-            this.selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            this.resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
+            this.m_source = source ?? throw new ArgumentNullException(nameof(source));
+            this.m_selector = selector ?? throw new ArgumentNullException(nameof(selector));
+            this.m_resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
+        }
+
+        public ICommandLineArgumentResolver Resolver
+        {
+            get
+            {
+                if (m_resolver == null)
+                    m_resolver = m_resolverFactory.CreateResolver(m_selector.ReturnType);
+
+                return m_resolver;
+            }
         }
 
         public object DefaultValue
@@ -39,10 +50,10 @@ namespace MatthiWare.CommandLine.Core
             => AssignValue(DefaultValue);
 
         public override bool CanParse(ArgumentModel model)
-            => resolver.CanResolve(model);
+            => Resolver.CanResolve(model);
 
         public override void Parse(ArgumentModel model)
-            => AssignValue(resolver.Resolve(model));
+            => AssignValue(Resolver.Resolve(model));
 
         IOptionBuilder IOptionBuilder.Default(object defaultValue)
         {
@@ -82,8 +93,8 @@ namespace MatthiWare.CommandLine.Core
 
         private void AssignValue(object value)
         {
-            var property = (PropertyInfo)((MemberExpression)selector.Body).Member;
-            property.SetValue(source, value, null);
+            var property = (PropertyInfo)((MemberExpression)m_selector.Body).Member;
+            property.SetValue(m_source, value, null);
         }
     }
 }

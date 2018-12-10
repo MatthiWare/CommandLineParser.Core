@@ -1,4 +1,5 @@
 ﻿using System;
+using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
 {
@@ -7,6 +8,8 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
     /// </summary>
     public interface ICommandParserResult
     {
+        ICommandLineCommand Command { get; }
+
         /// <summary>
         /// Returns true if any exceptions occured during parsing.
         /// </summary>

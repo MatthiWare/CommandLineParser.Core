@@ -21,6 +21,7 @@ namespace MatthiWare.CommandLine.Core.Command
         public bool HasShortName => ShortName != null;
         public bool HasLongName => LongName != null;
         public bool HasDefault => false;
+        public bool AutoExecute { get; protected set; } = true;
 
         public abstract void Execute();
 

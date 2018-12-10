@@ -12,34 +12,34 @@ namespace MatthiWare.CommandLine.Core.Command
 {
     internal class CommandLineCommand<TOption, TCommandOption> :
         CommandLineCommandBase,
-        ICommandBuilder<TOption, TCommandOption>,
+        ICommandBuilder<TOption, TCommandOption>
         where TOption : class
         where TCommandOption : class, new()
     {
         private readonly TCommandOption m_commandOption;
+        private readonly TOption m_option;
         private readonly IResolverFactory m_resolverFactory;
-        private Action<TOption, TCommandOption> m_genericExecutor;
         private Action<TOption> m_executor;
+        private Action<TOption, TCommandOption> m_executor2;
 
         public CommandLineCommand(IResolverFactory resolverFactory)
         {
             this.m_resolverFactory = resolverFactory;
-            m_commandOption = new TCommandOption();
-        }
-
-        public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
-        {
-            var option = new CommandLineOption(m_commandOption, selector, m_resolverFactory.CreateResolver<TProperty>());
-
-            m_options.Add(option);
-
-            return option;
         }
 
         public override void Execute()
         {
-            m_genericExecutor?.Invoke(m_commandOption);
-            m_executor?.Invoke();
+            m_executor2?.Invoke(m_option, m_commandOption);
+            m_executor?.Invoke(m_option);
+        }
+
+        public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
+        {
+            var option = new CommandLineOption(m_commandOption, selector, m_resolverFactory);
+
+            m_options.Add(option);
+
+            return option;
         }
 
         public override ICommandParserResult Parse(IArgumentManager argumentManager)
@@ -76,38 +76,45 @@ namespace MatthiWare.CommandLine.Core.Command
             return result;
         }
 
-        public CommandLineCommand<TOption> OnExecuting(Action<TOption> action)
-        {
-            m_genericExecutor = action;
-
-            return this;
-        }
-
-        public CommandLineCommand<TOption> Required(bool required = true)
+        public ICommandBuilder<TOption, TCommandOption> Required(bool required = true)
         {
             IsRequired = required;
 
             return this;
         }
 
-        CommandLineCommand<TOption> ICommandBuilder<CommandLineCommand<TOption>>.HelpText(string help)
+        ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.HelpText(string help)
         {
-            throw new NotImplementedException();
+            HelpText = help;
+
+            return this;
         }
 
-        public CommandLineCommand<TOption> Name(string shortName)
+        public ICommandBuilder<TOption, TCommandOption> Name(string shortName)
         {
-            throw new NotImplementedException();
+            ShortName = shortName;
+
+            return this;
         }
 
-        public CommandLineCommand<TOption> Name(string shortName, string longName)
+        public ICommandBuilder<TOption, TCommandOption> Name(string shortName, string longName)
         {
-            throw new NotImplementedException();
+            ShortName = shortName;
+            LongName = longName;
+
+            return this;
         }
 
-        public CommandLineCommand<TOption> OnExecuting(Action action)
+        public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption> action)
         {
             m_executor = action;
+
+            return this;
+        }
+
+        public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption, TCommandOption> action)
+        {
+            m_executor2 = action;
 
             return this;
         }

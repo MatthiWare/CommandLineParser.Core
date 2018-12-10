@@ -97,9 +97,10 @@ namespace MatthiWare.CommandLineParser.Tests
 
             var addCmd = parser.AddCommand<AddOption>()
                 .Name("-A", "--Add")
-                .OnExecuting(x =>
+                .OnExecuting((opt, cmdOpt) =>
                 {
-                    Assert.Equal("my message", x.Message);
+                    Assert.Equal("test", opt.Option1);
+                    Assert.Equal("my message", cmdOpt.Message);
                     wait.Set();
                 });
 
@@ -131,7 +132,7 @@ namespace MatthiWare.CommandLineParser.Tests
             parser.AddCommand<AddOption>()
                 .Name("-a", "--add")
                 .Required()
-                .OnExecuting(r => Assert.Equal(result2, r.Message))
+                .OnExecuting((opt1, opt2) => Assert.Equal(result2, opt2.Message))
                 .Configure(c => c.Message)
                     .Name("-m", "--message")
                     .Required();
@@ -143,8 +144,6 @@ namespace MatthiWare.CommandLineParser.Tests
             var result = parser.Parse(args);
 
             Assert.False(result.HasErrors);
-
-            result.ExecuteCommands();
 
             Assert.Equal(result1, result.Result.Message);
         }

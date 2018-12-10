@@ -77,7 +77,7 @@ namespace MatthiWare.CommandLine
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption(m_option, selector, ResolverFactory.CreateResolver(selector.ReturnType));
+                var option = new CommandLineOption(m_option, selector, ResolverFactory);
 
                 m_options.Add(key, option);
             }
@@ -98,6 +98,29 @@ namespace MatthiWare.CommandLine
 
             var argumentManager = new ArgumentManager(args, m_commands, m_options.Values);
 
+            ParseCommands(errors, result, argumentManager);
+
+            ParseOptions(errors, result, argumentManager);
+
+            result.MergeResult(errors);
+
+            result.MergeResult(m_option);
+
+            AutoExecuteCommands(result);
+
+            return result;
+        }
+
+        private void AutoExecuteCommands(ParseResult<TOption> result)
+        {
+            if (result.HasErrors) return;
+
+            foreach (var cmd in result.CommandResults.Where(r => r.Command.AutoExecute))
+                cmd.ExecuteCommand();
+        }
+
+        private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
+        {
             foreach (var cmd in m_commands)
             {
                 if (!argumentManager.TryGetValue(cmd, out ArgumentModel model) && cmd.IsRequired)
@@ -114,7 +137,10 @@ namespace MatthiWare.CommandLine
 
                 result.MergeResult(cmdParseResult);
             }
+        }
 
+        private void ParseOptions(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
+        {
             foreach (var o in m_options)
             {
                 var option = o.Value;
@@ -140,23 +166,29 @@ namespace MatthiWare.CommandLine
 
                 option.Parse(model);
             }
-
-            if (errors.Any())
-                result.MergeResult(errors);
-
-            result.MergeResult(m_option);
-
-            return result;
         }
 
         /// <summary>
         /// Adds a command to the parser
         /// </summary>
         /// <typeparam name="TCommandOption">Options model for the command</typeparam>
-        /// <returns>Builder for the command, <see cref="ICommandBuilder{Tsource}"/></returns>
+        /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
             var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory);
+
+            m_commands.Add(command);
+
+            return command;
+        }
+
+        /// <summary>
+        /// Adds a command to the parser
+        /// </summary>
+        /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
+        public ICommandBuilder<TOption> AddCommand()
+        {
+            var command = new CommandLineCommand<TOption>(ResolverFactory);
 
             m_commands.Add(command);
 
@@ -209,5 +241,7 @@ namespace MatthiWare.CommandLine
                 return Expression.Lambda(funcType, property, parameter);
             }
         }
+
+
     }
 }

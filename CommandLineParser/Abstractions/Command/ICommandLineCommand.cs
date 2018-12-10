@@ -12,5 +12,6 @@
         bool HasShortName { get; }
         bool HasLongName { get; }
         bool HasDefault { get; }
+        bool AutoExecute { get; }
     }
 }

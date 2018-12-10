@@ -27,7 +27,7 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// <typeparam name="TArgument">Argument type to resolve</typeparam>
         /// <param name="resolverInstance">Instance of the resolver</param>
         /// <param name="overwrite">Overwrite if the resolver already exists</param>
-        void Register<TArgument>(ICommandLineArgumentResolver<TArgument> resolverInstance, bool overwrite = false)
+        void Register<TArgument>(ICommandLineArgumentResolver<TArgument> resolverInstance, bool overwrite = false);
 
         /// <summary>
         /// Registers a <see cref="ICommandLineArgumentResolver{T}"/>

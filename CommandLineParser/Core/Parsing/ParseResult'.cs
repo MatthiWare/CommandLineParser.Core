@@ -51,6 +51,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public void MergeResult(ICollection<Exception> errors)
         {
+            if (!errors.Any()) return;
+
             HasErrors = true;
 
             foreach (var err in errors)
