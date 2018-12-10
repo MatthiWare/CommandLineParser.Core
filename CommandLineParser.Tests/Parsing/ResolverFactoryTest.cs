@@ -12,6 +12,13 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
     {
         public class RandomType { }
 
+        public enum Output
+        {
+            Verbose,
+            Info,
+            Error
+        }
+
         [Fact]
         public void ContainsWork()
         {
@@ -21,8 +28,23 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
             Assert.True(factory.Contains<int>());
             Assert.True(factory.Contains<double>());
             Assert.True(factory.Contains<bool>());
+            Assert.True(factory.Contains<Output>());
 
             Assert.False(factory.Contains<RandomType>());
+        }
+
+        [Fact]
+        public void CreateEnumResolver()
+        {
+            var factory = new ResolverFactory();
+
+            var output = factory.CreateResolver<Output>();
+            var output2 = factory.CreateResolver(typeof(Output));
+
+            Assert.NotNull(output);
+            Assert.NotNull(output2);
+
+            Assert.Same(output, output2);
         }
 
         [Fact]

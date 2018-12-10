@@ -16,13 +16,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
             Register<bool, BoolResolver>();
             Register<int, IntResolver>();
             Register<double, DoubleResolver>();
+            Register(typeof(Enum), typeof(EnumResolver<>));
         }
 
         public bool Contains<T>()
             => Contains(typeof(T));
 
         public bool Contains(Type argument)
-            => m_types.ContainsKey(argument);
+            => m_types.ContainsKey(argument.IsEnum ? typeof(Enum) : argument);
 
         public ICommandLineArgumentResolver<T> CreateResolver<T>()
         {
@@ -33,7 +34,11 @@ namespace MatthiWare.CommandLine.Core.Parsing
         {
             if (!m_cache.ContainsKey(type))
             {
-                var instance = (ICommandLineArgumentResolver)Activator.CreateInstance(m_types[type]);
+                bool isEnum = type.IsEnum;
+
+                var instance = isEnum ?
+                    (ICommandLineArgumentResolver)Activator.CreateInstance(m_types[typeof(Enum)].MakeGenericType(type)) :
+                    (ICommandLineArgumentResolver)Activator.CreateInstance(m_types[type]);
 
                 m_cache.Add(type, instance);
             }
