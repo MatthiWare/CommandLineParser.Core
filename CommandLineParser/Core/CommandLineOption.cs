@@ -9,19 +9,20 @@ namespace MatthiWare.CommandLine.Core
 {
     internal class CommandLineOption :
         CommandLineOptionBase,
-        ICommandLineOption,
         IOptionBuilder
     {
         private readonly object source;
         private readonly LambdaExpression selector;
         private object m_defaultValue = null;
-        private readonly ICommandLineArgumentResolver resolver;
+        private readonly IResolverFactory resolverFactory;
 
-        public CommandLineOption(object source, LambdaExpression selector, ICommandLineArgumentResolver resolver)
+        private ICommandLineArgumentResolver resolver;
+
+        public CommandLineOption(object source, LambdaExpression selector, IResolverFactory resolver)
         {
             this.source = source ?? throw new ArgumentNullException(nameof(source));
             this.selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+            this.resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
         public object DefaultValue

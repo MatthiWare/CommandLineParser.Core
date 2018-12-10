@@ -1,5 +1,9 @@
 ﻿using System.Threading;
 using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions.Models;
+using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Core.Attributes;
+using Moq;
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests
@@ -57,6 +61,26 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.Equal(result1, parsed.Result.Option1);
             Assert.Equal(result2, parsed.Result.Option2);
             Assert.Equal(result3, parsed.Result.Option3);
+        }
+
+        [Fact]
+        public void ParseWithCustomParserInAttributeConfiguredModelTests()
+        {
+            var resolver = new Mock<ICommandLineArgumentResolver<object>>();
+
+            var obj = new object();
+
+            resolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
+            resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
+
+            var parser = new CommandLineParser<ObjOption>();
+            parser.ResolverFactory.Register(resolver.Object);
+
+            var result = parser.Parse(new[] { "app.exe", "--p", "sample" });
+
+            Assert.False(result.HasErrors);
+
+            Assert.Same(obj, result.Result.Param);
         }
 
         [Fact]
@@ -154,6 +178,12 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.Equal("-x", option.ShortName);
             Assert.Equal("--xsomething", option.LongName);
             Assert.False(option.HasDefault);
+        }
+
+        private class ObjOption
+        {
+            [Name("--p"), Required]
+            public object Param { get; set; }
         }
 
         private class AddOption

@@ -21,10 +21,11 @@ namespace MatthiWare.CommandLine
     /// <summary>
     /// Command line parser
     /// </summary>
-    /// <typeparam name="TSource">Options model</typeparam>
-    public sealed class CommandLineParser<TSource> : ICommandLineParser<TSource> where TSource : class, new()
+    /// <typeparam name="TOption">Options model</typeparam>
+    public sealed class CommandLineParser<TOption> : ICommandLineParser<TOption>
+        where TOption : class, new()
     {
-        private readonly TSource m_option;
+        private readonly TOption m_option;
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
 
@@ -48,7 +49,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         public CommandLineParser()
         {
-            m_option = new TSource();
+            m_option = new TOption();
 
             m_options = new Dictionary<string, CommandLineOptionBase>();
             m_commands = new List<CommandLineCommandBase>();
@@ -64,7 +65,7 @@ namespace MatthiWare.CommandLine
         /// <typeparam name="TProperty">Type of the property</typeparam>
         /// <param name="selector">Model property to configure</param>
         /// <returns><see cref="IOptionBuilder"/></returns>
-        public IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector)
+        public IOptionBuilder Configure<TProperty>(Expression<Func<TOption, TProperty>> selector)
         {
             var memberInfo = ((MemberExpression)selector.Body).Member;
             var key = $"{memberInfo.DeclaringType.FullName}.{memberInfo.Name}";
@@ -89,11 +90,11 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="args">arguments from the commandline</param>
         /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
-        public IParserResult<TSource> Parse(string[] args)
+        public IParserResult<TOption> Parse(string[] args)
         {
             var errors = new List<Exception>();
 
-            var result = new ParseResult<TSource>();
+            var result = new ParseResult<TOption>();
 
             var argumentManager = new ArgumentManager(args, m_commands, m_options.Values);
 
@@ -153,9 +154,9 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <typeparam name="TCommandOption">Options model for the command</typeparam>
         /// <returns>Builder for the command, <see cref="ICommandBuilder{Tsource}"/></returns>
-        public ICommandBuilder<TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
+        public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TCommandOption>(ResolverFactory);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory);
 
             m_commands.Add(command);
 
@@ -164,7 +165,7 @@ namespace MatthiWare.CommandLine
 
         private void InitialzeModel()
         {
-            var properties = typeof(TSource).GetProperties();
+            var properties = typeof(TOption).GetProperties();
 
             foreach (var propInfo in properties)
             {

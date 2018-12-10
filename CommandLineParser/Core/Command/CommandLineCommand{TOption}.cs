@@ -10,36 +10,23 @@ using MatthiWare.CommandLine.Core.Exceptions;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
-    internal class CommandLineCommand<TOption, TCommandOption> :
+    internal class CommandLineCommand<TOption> :
         CommandLineCommandBase,
-        ICommandBuilder<TOption, TCommandOption>,
+        ICommandBuilder<TOption>,
         where TOption : class
-        where TCommandOption : class, new()
     {
-        private readonly TCommandOption m_commandOption;
+        private readonly TOption m_option;
         private readonly IResolverFactory m_resolverFactory;
-        private Action<TOption, TCommandOption> m_genericExecutor;
         private Action<TOption> m_executor;
 
         public CommandLineCommand(IResolverFactory resolverFactory)
         {
             this.m_resolverFactory = resolverFactory;
-            m_commandOption = new TCommandOption();
-        }
-
-        public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
-        {
-            var option = new CommandLineOption(m_commandOption, selector, m_resolverFactory.CreateResolver<TProperty>());
-
-            m_options.Add(option);
-
-            return option;
         }
 
         public override void Execute()
         {
-            m_genericExecutor?.Invoke(m_commandOption);
-            m_executor?.Invoke();
+            m_executor?.Invoke(m_option);
         }
 
         public override ICommandParserResult Parse(IArgumentManager argumentManager)
