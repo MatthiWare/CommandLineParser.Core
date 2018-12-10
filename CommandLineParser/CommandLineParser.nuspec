@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -10,15 +10,13 @@
     <projectUrl>https://github.com/MatthiWare/CommandLineParser.Core</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-      Command Line Parser for .Net Core written in .Net Standard.
-
-      Configuration is done using an option class and/or fluent api.
-      This library allows to add commands with their own set of options as well.
-
-      For sample app and documentation visit: https://github.com/MatthiWare/CommandLineParser.Core
-    </description>
+		Command Line Parser for .Net Core written in .Net Standard.
+		
+		Configuration is done through a option model class using attributes or fluent API can be used to configure the properties of the class. 
+		This library allows to add commands with their own set of options as well. 
+	</description>
 	<summary>A simple, light-weight and strongly typed command line parser. Configuration using fluent API and  an options class. </summary>
-    <releaseNotes>Adds documentation.</releaseNotes>
+    <releaseNotes>Fixed issue where parser would crash when no arguments are supplied.</releaseNotes>
     <copyright>Copyright Matthias Beerens 2018</copyright>
     <tags>commandline parser commandline-parser</tags>
   </metadata>
