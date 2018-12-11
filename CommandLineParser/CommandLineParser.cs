@@ -195,6 +195,9 @@ namespace MatthiWare.CommandLine
             return command;
         }
 
+        /// <summary>
+        /// Initializes the model class with the attributes specified.
+        /// </summary>
         private void InitialzeModel()
         {
             var properties = typeof(TOption).GetProperties();
@@ -205,27 +208,38 @@ namespace MatthiWare.CommandLine
 
                 var lambda = GetLambdaExpression(propInfo, out string key);
 
+                var actions = new List<Action>(4);
+                bool ignoreSet = false;
+
                 foreach (var attribute in attributes)
                 {
+                    if (ignoreSet) break;
+
                     switch (attribute)
                     {
+                        // Ignore has been set, skip all the other attributes and DO NOT execute the action list.
+                        case IgnoreAttribute ignore:
+                            ignoreSet = true;
+                            continue;
                         case RequiredAttribute required:
-                            ConfigureInternal(lambda, key).Required(required.Required);
-
+                            actions.Add(() => ConfigureInternal(lambda, key).Required(required.Required));
                             break;
                         case DefaultValueAttribute defaultValue:
-                            ConfigureInternal(lambda, key).Default(defaultValue.DefaultValue);
-
+                            actions.Add(() => ConfigureInternal(lambda, key).Default(defaultValue.DefaultValue));
                             break;
                         case HelpTextAttribute helpText:
-                            ConfigureInternal(lambda, key).HelpText(helpText.HelpText);
+                            actions.Add(() => ConfigureInternal(lambda, key).HelpText(helpText.HelpText));
                             break;
                         case NameAttribute name:
-                            ConfigureInternal(lambda, key).Name(name.ShortName, name.LongName);
-
+                            actions.Add(() => ConfigureInternal(lambda, key).Name(name.ShortName, name.LongName));
                             break;
                     }
                 }
+
+                if (ignoreSet) continue; // Ignore the configured actions for this option.
+
+                foreach (var action in actions)
+                    action();
             }
 
             LambdaExpression GetLambdaExpression(PropertyInfo propInfo, out string key)
