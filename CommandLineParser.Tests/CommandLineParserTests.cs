@@ -30,6 +30,27 @@ namespace MatthiWare.CommandLineParser.Tests
         }
 
         [Theory]
+        [InlineData(new[] { "app.exe", "-e", "Opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "app.exe", "-e", "opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "app.exe", "-e", "Opt2" }, false, EnumOption.Opt2)]
+        [InlineData(new[] { "app.exe", "-e", "bla" }, true, default(EnumOption))]
+        [InlineData(new[] { "app.exe", "-e" }, true, default(EnumOption))]
+        public void ParseEnumInArguments(string[] args, bool hasErrors, EnumOption enumOption)
+        {
+            var parser = new CommandLineParser<EnumOptions>();
+
+            parser.Configure(opt => opt.EnumOption)
+                .Name("-e")
+                .Required();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(hasErrors, result.HasErrors);
+
+            Assert.Equal(enumOption, result.Result.EnumOption);
+        }
+
+        [Theory]
         [InlineData(new[] { "app.exe", "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
         [InlineData(new[] { "app.exe", "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
         [InlineData(new[] { "app.exe", "-1", "-2", "-3" }, "message1", "message2", "message3")]
@@ -194,6 +215,17 @@ namespace MatthiWare.CommandLineParser.Tests
         {
             public string Option1 { get; set; }
             public bool Option2 { get; set; }
+        }
+
+        public enum EnumOption
+        {
+            Opt1,
+            Opt2
+        }
+
+        public class EnumOptions
+        {
+            public EnumOption EnumOption { get; set; }
         }
 
         private class OptionsWithThreeParams
