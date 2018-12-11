@@ -14,15 +14,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         #region Properties
 
-        public TResult Result
-        {
-            get
-            {
-                if (HasErrors) throw new InvalidOperationException("Parsing failed commands might be corrupted.");
-
-                return result;
-            }
-        }
+        public TResult Result => result;
 
         public bool HasErrors { get; private set; } = false;
 
