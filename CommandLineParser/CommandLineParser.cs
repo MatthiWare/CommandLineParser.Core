@@ -185,6 +185,21 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Adds a command to the parser
         /// </summary>
+        /// <typeparam name="TCommandOption">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
+        public void AddCommand<TCommand, TCommandOption>()
+            where TCommand : Command<TOption, TCommandOption>, new()
+            where TCommandOption : class, new()
+        {
+            var cmdConfigurator = new TCommand();
+
+            var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory, () => m_option);
+
+            cmdConfigurator.OnConfigure(command);
+        }
+
+        /// <summary>
+        /// Adds a command to the parser
+        /// </summary>
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {

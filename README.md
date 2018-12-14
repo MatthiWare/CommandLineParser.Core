@@ -58,6 +58,9 @@ A simple, light-weight and strongly typed commandline parser made in .Net standa
 
         [Name("-p", "--port"), DefaultValue(8080)]
         public int Port { get; set; } // Optional
+
+        [Ignored]
+        public string Metadata { get; set; } // Property will not be added
     }
 
 _**Warning:** Attributes will be overwritten by fluent api if both are configured_

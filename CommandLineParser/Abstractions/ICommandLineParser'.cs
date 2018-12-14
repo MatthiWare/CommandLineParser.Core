@@ -7,7 +7,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 namespace MatthiWare.CommandLine.Abstractions
 {
     public interface ICommandLineParser<TOption>
-        where TOption : class
+        where TOption : class, new()
     {
         #region Properties
 
@@ -66,6 +66,14 @@ namespace MatthiWare.CommandLine.Abstractions
         /// <returns>A command builder, see <see cref="ICommandBuilder{TOption}"/> for more info.</returns>
         ICommandBuilder<TOption> AddCommand();
 
+        /// <summary>
+        /// Adds a new command  and allowes to configure it. 
+        /// </summary>
+        /// <typeparam name="TCommand">The command</typeparam>
+        /// <typeparam name="TCommandOption">Command options model</typeparam>
+        void AddCommand<TCommand, TCommandOption>()
+            where TCommand : Command<TOption, TCommandOption>, new()
+            where TCommandOption : class, new();
 
         #endregion
     }

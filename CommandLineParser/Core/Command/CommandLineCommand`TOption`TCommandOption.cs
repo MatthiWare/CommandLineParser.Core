@@ -12,13 +12,14 @@ namespace MatthiWare.CommandLine.Core.Command
 {
     internal class CommandLineCommand<TOption, TCommandOption> :
         CommandLineCommandBase,
-        ICommandBuilder<TOption, TCommandOption>
+        ICommandBuilder<TOption, TCommandOption>,
         where TOption : class
         where TCommandOption : class, new()
     {
         private readonly TCommandOption m_commandOption;
         private readonly Func<TOption> m_baseModelResolver;
         private readonly IResolverFactory m_resolverFactory;
+
         private Action<TOption> m_executor;
         private Action<TOption, TCommandOption> m_executor2;
 
