@@ -13,6 +13,9 @@ namespace MatthiWare.CommandLine.Core.Command
     internal class CommandLineCommand<TOption, TCommandOption> :
         CommandLineCommandBase,
         ICommandBuilder<TOption, TCommandOption>,
+        ICommandConfigurationBuilder<TOption, TCommandOption>,
+        ICommandBuilder<TOption>,
+        IOptionConfigurator<TCommandOption>
         where TOption : class
         where TCommandOption : class, new()
     {
@@ -86,13 +89,6 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.HelpText(string help)
-        {
-            HelpText = help;
-
-            return this;
-        }
-
         public ICommandBuilder<TOption, TCommandOption> Name(string shortName)
         {
             ShortName = shortName;
@@ -118,6 +114,92 @@ namespace MatthiWare.CommandLine.Core.Command
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption, TCommandOption> action)
         {
             m_executor2 = action;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.InvokeCommand(bool invoke)
+        {
+            AutoExecute = invoke;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.Required(bool required)
+        {
+            IsRequired = required;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.HelpText(string help)
+        {
+            HelpText = help;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.Name(string shortName)
+        {
+            ShortName = shortName;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.Name(string shortName, string longName)
+        {
+            ShortName = shortName;
+            LongName = longName;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecuting(Action<TOption> action)
+        {
+            m_executor = action;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.Required(bool required)
+        {
+            IsRequired = required;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.HelpText(string help)
+        {
+            HelpText = help;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.Name(string shortName)
+        {
+            ShortName = shortName;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.Name(string shortName, string longName)
+        {
+            ShortName = shortName;
+            LongName = longName;
+
+            return this;
+        }
+
+        public ICommandBuilder<TOption, TCommandOption> InvokeCommand(bool invoke)
+        {
+            AutoExecute = invoke;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.HelpText(string help)
+        {
+            HelpText = help;
 
             return this;
         }

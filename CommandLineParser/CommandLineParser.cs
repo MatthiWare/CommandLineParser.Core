@@ -195,6 +195,8 @@ namespace MatthiWare.CommandLine
             var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory, () => m_option);
 
             cmdConfigurator.OnConfigure(command);
+
+            m_commands.Add(command);
         }
 
         /// <summary>
@@ -203,7 +205,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption>(ResolverFactory);
+            var command = new CommandLineCommand<TOption, object>(ResolverFactory, () => m_option);
 
             m_commands.Add(command);
 

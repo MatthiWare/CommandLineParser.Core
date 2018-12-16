@@ -7,30 +7,39 @@ namespace MatthiWare.CommandLine.Abstractions.Command
     /// Configures commands using a fluent interface
     /// </summary>
     /// <typeparam name="TSource">Command options class</typeparam>
-    public interface ICommandBuilder<TOption, TSource>
+    public interface ICommandBuilder<TOption, TSource> : ICommandConfigurationBuilder<TOption, TSource>, ICommandExecutor<TOption, TSource>
         where TOption : class
         where TSource : class, new()
     {
+
+        /// <summary>
+        /// Configures an option in the model
+        /// </summary>
+        /// <typeparam name="TProperty">Type of the property</typeparam>
+        /// <param name="selector">Model property to configure</param>
+        /// <returns><see cref="IOptionBuilder"/></returns>
+        IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+
         /// <summary>
         /// Configures if the command is required
         /// </summary>
         /// <param name="required">True or false</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        ICommandBuilder<TOption, TSource> Required(bool required = true);
+        new ICommandBuilder<TOption, TSource> Required(bool required = true);
 
         /// <summary>
         /// Configures the help text for the command
         /// </summary>
         /// <param name="required">True or false</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        ICommandBuilder<TOption, TSource> HelpText(string help);
+        new ICommandBuilder<TOption, TSource> HelpText(string help);
 
         /// <summary>
         /// Configures the command name
         /// </summary>
         /// <param name="shortName">Short name</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        ICommandBuilder<TOption, TSource> Name(string shortName);
+        new ICommandBuilder<TOption, TSource> Name(string shortName);
 
         /// <summary>
         /// Configures the command name
@@ -38,27 +47,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <param name="shortName">Short name</param>
         /// <param name="longName">Long name</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        ICommandBuilder<TOption, TSource> Name(string shortName, string longName);
-
-        /// <summary>
-        /// Configures the execution of the command
-        /// </summary>
-        /// <param name="required">True or false</param>
-        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        ICommandBuilder<TOption, TSource> OnExecuting(Action<TOption> action);
-
-        /// <summary>
-        /// Configures the execution of the command
-        /// </summary>
-        /// <param name="required">True or false</param>
-        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        ICommandBuilder<TOption, TSource> OnExecuting(Action<TOption, TSource> action);
-
-        /// <summary>
-        /// Configures if the command options
-        /// </summary>
-        /// <param name="selector">Property to configure</param>
-        /// <returns><see cref="IOptionBuilder"/></returns>
-        IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+        new ICommandBuilder<TOption, TSource> Name(string shortName, string longName);
     }
 }
