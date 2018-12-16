@@ -1,4 +1,5 @@
 ﻿using System;
+
 using MatthiWare.CommandLine.Abstractions;
 
 namespace MatthiWare.CommandLine.Core

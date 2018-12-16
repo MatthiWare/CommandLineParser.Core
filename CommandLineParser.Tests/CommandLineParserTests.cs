@@ -12,7 +12,6 @@ namespace MatthiWare.CommandLineParser.Tests
 {
     public class CommandLineParserTests
     {
-
         public class MyCommand : Command<object, object>
         {
             public override void OnConfigure(ICommandConfigurationBuilder builder)
@@ -41,6 +40,29 @@ namespace MatthiWare.CommandLineParser.Tests
 
             commandMock.VerifyAll();
             containerMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CommandLineParserUsesArgumentFactoryCorrectly()
+        {
+            var resolverMock = new Mock<ArgumentResolver<string>>();
+            resolverMock.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true).Verifiable();
+            resolverMock.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns("return").Verifiable();
+
+            var argResolverFactory = new Mock<IArgumentResolverFactory>();
+            argResolverFactory.Setup(c => c.Contains(typeof(string))).Returns(true);
+            argResolverFactory.Setup(c => c.CreateResolver(typeof(string))).Returns(resolverMock.Object).Verifiable();
+
+            var parser = new CommandLineParser<AddOption>(argResolverFactory.Object);
+
+            parser.Configure(p => p.Message).Name("-m");
+
+            var result = parser.Parse(new[] { "app.exe", "-m" });
+
+            Assert.False(result.HasErrors);
+
+            resolverMock.VerifyAll();
+            argResolverFactory.Verify();
         }
 
         [Fact]

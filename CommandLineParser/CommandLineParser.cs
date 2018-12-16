@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
@@ -324,7 +325,5 @@ namespace MatthiWare.CommandLine
                 return Expression.Lambda(funcType, property, parameter);
             }
         }
-
-
     }
 }

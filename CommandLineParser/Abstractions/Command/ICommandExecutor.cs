@@ -6,7 +6,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         where TOption : class
         where TSource : class, new()
     {
-
         /// <summary>
         /// Configures how the command should be invoked.
         /// Default behavior is to auto invoke the command.

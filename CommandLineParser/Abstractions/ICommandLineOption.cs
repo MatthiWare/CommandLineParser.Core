@@ -1,6 +1,4 @@
-﻿using MatthiWare.CommandLine.Abstractions.Command;
-
-namespace MatthiWare.CommandLine.Abstractions
+﻿namespace MatthiWare.CommandLine.Abstractions
 {
     /// <summary>
     /// Option configuration options
