@@ -13,30 +13,31 @@ namespace MatthiWare.CommandLine.Core.Command
     internal class CommandLineCommand<TOption, TCommandOption> :
         CommandLineCommandBase,
         ICommandBuilder<TOption, TCommandOption>,
-        ICommandConfigurationBuilder<TOption, TCommandOption>,
+        ICommandConfigurationBuilder,
         ICommandBuilder<TOption>,
         IOptionConfigurator<TCommandOption>
         where TOption : class
         where TCommandOption : class, new()
     {
         private readonly TCommandOption m_commandOption;
-        private readonly Func<TOption> m_baseModelResolver;
-        private readonly IResolverFactory m_resolverFactory;
+        private readonly TOption m_baseOption;
+        private readonly IArgumentResolverFactory m_resolverFactory;
 
         private Action<TOption> m_executor;
         private Action<TOption, TCommandOption> m_executor2;
 
-        public CommandLineCommand(IResolverFactory resolverFactory, Func<TOption> baseModelResolver)
+        public CommandLineCommand(IArgumentResolverFactory resolverFactory, TOption option)
         {
             m_commandOption = new TCommandOption();
+
             m_resolverFactory = resolverFactory;
-            m_baseModelResolver = baseModelResolver;
+            m_baseOption = option;
         }
 
         public override void Execute()
         {
-            m_executor2?.Invoke(m_baseModelResolver(), m_commandOption);
-            m_executor?.Invoke(m_baseModelResolver());
+            m_executor2?.Invoke(m_baseOption, m_commandOption);
+            m_executor?.Invoke(m_baseOption);
         }
 
         public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
@@ -161,28 +162,28 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.Required(bool required)
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.Required(bool required)
         {
             IsRequired = required;
 
             return this;
         }
 
-        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.HelpText(string help)
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.HelpText(string help)
         {
             HelpText = help;
 
             return this;
         }
 
-        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.Name(string shortName)
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.Name(string shortName)
         {
             ShortName = shortName;
 
             return this;
         }
 
-        ICommandConfigurationBuilder<TOption, TCommandOption> ICommandConfigurationBuilder<TOption, TCommandOption>.Name(string shortName, string longName)
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.Name(string shortName, string longName)
         {
             ShortName = shortName;
             LongName = longName;

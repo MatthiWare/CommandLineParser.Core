@@ -27,7 +27,12 @@ namespace MatthiWare.CommandLine.Abstractions
         /// Factory to resolve the argument type
         /// <see cref="ICommandLineArgumentResolver"/> for more info.
         /// </summary>
-        IResolverFactory ResolverFactory { get; }
+        IArgumentResolverFactory ArgumentResolverFactory { get; }
+
+        /// <summary>
+        /// Resolver that is used to instantiate types by an given container
+        /// </summary>
+        IContainerResolver ContainerResolver { get; }
 
         #endregion
 
@@ -67,12 +72,19 @@ namespace MatthiWare.CommandLine.Abstractions
         ICommandBuilder<TOption> AddCommand();
 
         /// <summary>
-        /// Adds a new command  and allowes to configure it. 
+        /// Registers a new command
+        /// </summary>
+        /// <typeparam name="TCommand">The command</typeparam>
+        void RegisterCommand<TCommand>()
+            where TCommand : Command<TOption>;
+
+        /// <summary>
+        /// Registers a new command
         /// </summary>
         /// <typeparam name="TCommand">The command</typeparam>
         /// <typeparam name="TCommandOption">Command options model</typeparam>
-        void AddCommand<TCommand, TCommandOption>()
-            where TCommand : Command<TOption, TCommandOption>, new()
+        void RegisterCommand<TCommand, TCommandOption>()
+            where TCommand : Command<TOption, TCommandOption>
             where TCommandOption : class, new();
 
         #endregion

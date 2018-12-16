@@ -1,5 +1,7 @@
 ﻿using System.Threading;
 using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Attributes;
@@ -10,6 +12,37 @@ namespace MatthiWare.CommandLineParser.Tests
 {
     public class CommandLineParserTests
     {
+
+        public class MyCommand : Command<object, object>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name("my");
+            }
+        }
+
+        [Fact]
+        public void CommandLineParserUsesContainerCorrectly()
+        {
+            var commandMock = new Mock<MyCommand>();
+            //commandMock.Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder>())).Verifiable("OnConfigure not called");
+            commandMock.Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>())).Verifiable("OnExecute not called");
+
+            var containerMock = new Mock<IContainerResolver>();
+            containerMock.Setup(c => c.Resolve<MyCommand>()).Returns(commandMock.Object).Verifiable();
+
+            var parser = new CommandLineParser<object>(containerMock.Object);
+
+            parser.RegisterCommand<MyCommand, object>();
+
+            var result = parser.Parse(new[] { "app.exe", "my" });
+
+            Assert.False(result.HasErrors);
+
+            commandMock.VerifyAll();
+            containerMock.VerifyAll();
+        }
+
         [Fact]
         public void ParseTests()
         {
@@ -95,7 +128,7 @@ namespace MatthiWare.CommandLineParser.Tests
             resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
 
             var parser = new CommandLineParser<ObjOption>();
-            parser.ResolverFactory.Register(resolver.Object);
+            parser.ArgumentResolverFactory.Register(resolver.Object);
 
             var result = parser.Parse(new[] { "app.exe", "--p", "sample" });
 

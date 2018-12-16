@@ -5,7 +5,7 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
     /// <summary>
     /// Container class to resolve <see cref="ICommandLineArgumentResolver"/>'s. 
     /// </summary>
-    public interface IResolverFactory
+    public interface IArgumentResolverFactory
     {
         /// <summary>
         /// Checks if the container contains an resolver for the given type.

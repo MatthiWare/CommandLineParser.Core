@@ -37,7 +37,12 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Factory to create resolvers for options
         /// </summary>
-        public IResolverFactory ResolverFactory { get; }
+        public IArgumentResolverFactory ArgumentResolverFactory { get; }
+
+        /// <summary>
+        /// Resolver that is used to instantiate types by an given container
+        /// </summary>
+        public IContainerResolver ContainerResolver { get; }
 
         /// <summary>
         /// Read-only list of commands specified
@@ -48,13 +53,39 @@ namespace MatthiWare.CommandLine
         /// Creates a new instance of the commandline parser
         /// </summary>
         public CommandLineParser()
+            : this(new DefaultArgumentResolverFactory(), new DefaultContainerResolver())
+        { }
+
+        /// <summary>
+        /// Creates a new instance of the commandline parser
+        /// </summary>
+        /// <param name="argumentResolverFactory">argument resolver to use</param>
+        public CommandLineParser(IArgumentResolverFactory argumentResolverFactory)
+            : this(argumentResolverFactory, new DefaultContainerResolver())
+        { }
+
+        /// <summary>
+        /// Creates a new instance of the commandline parser
+        /// </summary>
+        /// <param name="containerResolver">container resolver to use</param>
+        public CommandLineParser(IContainerResolver containerResolver)
+            : this(new DefaultArgumentResolverFactory(), containerResolver)
+        { }
+
+        /// <summary>
+        /// Creates a new instance of the commandline parser
+        /// </summary>
+        /// <param name="argumentResolverFactory">argument resolver to use</param>
+        /// <param name="containerResolver">container resolver to use</param>
+        public CommandLineParser(IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
         {
             m_option = new TOption();
 
             m_options = new Dictionary<string, CommandLineOptionBase>();
             m_commands = new List<CommandLineCommandBase>();
 
-            ResolverFactory = new ResolverFactory();
+            ArgumentResolverFactory = argumentResolverFactory;
+            ContainerResolver = containerResolver;
 
             InitialzeModel();
         }
@@ -77,7 +108,7 @@ namespace MatthiWare.CommandLine
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption(m_option, selector, ResolverFactory);
+                var option = new CommandLineOption(m_option, selector, ArgumentResolverFactory);
 
                 m_options.Add(key, option);
             }
@@ -175,7 +206,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory, () => m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ArgumentResolverFactory, m_option);
 
             m_commands.Add(command);
 
@@ -183,18 +214,39 @@ namespace MatthiWare.CommandLine
         }
 
         /// <summary>
-        /// Adds a command to the parser
+        /// Registers a command type
         /// </summary>
         /// <typeparam name="TCommandOption">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
-        public void AddCommand<TCommand, TCommandOption>()
-            where TCommand : Command<TOption, TCommandOption>, new()
-            where TCommandOption : class, new()
+        public void RegisterCommand<TCommand>()
+            where TCommand : Command<TOption>
         {
-            var cmdConfigurator = new TCommand();
+            var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, TCommandOption>(ResolverFactory, () => m_option);
+            var command = new CommandLineCommand<TOption, object>(ArgumentResolverFactory, m_option);
 
             cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting(cmdConfigurator.OnExecute);
+
+            m_commands.Add(command);
+        }
+
+        /// <summary>
+        /// Registers a command type
+        /// </summary>
+        /// <typeparam name="TCommand"></typeparam>
+        /// <typeparam name="TCommandOption"></typeparam>
+        public void RegisterCommand<TCommand, TCommandOption>()
+           where TCommand : Command<TOption, TCommandOption>
+           where TCommandOption : class, new()
+        {
+            var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
+
+            var command = new CommandLineCommand<TOption, TCommandOption>(ArgumentResolverFactory, m_option);
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting((Action<TOption, TCommandOption>)cmdConfigurator.OnExecute);
 
             m_commands.Add(command);
         }
@@ -205,7 +257,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(ResolverFactory, () => m_option);
+            var command = new CommandLineCommand<TOption, object>(ArgumentResolverFactory, m_option);
 
             m_commands.Add(command);
 

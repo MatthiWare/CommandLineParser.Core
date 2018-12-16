@@ -7,7 +7,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
     /// Configures commands using a fluent interface
     /// </summary>
     /// <typeparam name="TSource">Command options class</typeparam>
-    public interface ICommandBuilder<TOption, TSource> : ICommandConfigurationBuilder<TOption, TSource>, ICommandExecutor<TOption, TSource>
+    public interface ICommandBuilder<TOption, TSource> : ICommandConfigurationBuilder, ICommandExecutor<TOption, TSource>
         where TOption : class
         where TSource : class, new()
     {

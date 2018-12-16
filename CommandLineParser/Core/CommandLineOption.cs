@@ -14,11 +14,11 @@ namespace MatthiWare.CommandLine.Core
         private readonly object m_source;
         private readonly LambdaExpression m_selector;
         private object m_defaultValue = null;
-        private readonly IResolverFactory m_resolverFactory;
+        private readonly IArgumentResolverFactory m_resolverFactory;
 
         private ICommandLineArgumentResolver m_resolver;
 
-        public CommandLineOption(object source, LambdaExpression selector, IResolverFactory resolver)
+        public CommandLineOption(object source, LambdaExpression selector, IArgumentResolverFactory resolver)
         {
             this.m_source = source ?? throw new ArgumentNullException(nameof(source));
             this.m_selector = selector ?? throw new ArgumentNullException(nameof(selector));

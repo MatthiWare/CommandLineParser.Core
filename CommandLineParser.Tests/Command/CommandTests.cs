@@ -23,11 +23,47 @@ namespace MatthiWare.CommandLineParser.Tests.Command
             Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("y")));
         }
 
+        [Fact]
+        public void AddOptionLessCommand()
+        {
+            var parser = new CommandLineParser<object>();
 
+            parser.AddCommand().Name("x");
+            parser.AddCommand().Name("y");
+
+            Assert.Equal(2, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("x")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("y")));
+        }
+
+        [Fact]
+        public void AddCommandType()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.RegisterCommand<MyComand>();
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("-bla")));
+        }
+
+        [Fact]
+        public void AddCommandTypeWithGenericOption()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.RegisterCommand<MyComand, object>();
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("-bla")));
+        }
 
         private class MyComand : Command<object, object>
         {
-            public override void OnConfigure(ICommandConfigurationBuilder<object, object> builder)
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
                 base.OnConfigure(builder);
 

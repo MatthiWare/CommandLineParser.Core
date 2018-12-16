@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+using MatthiWare.CommandLine.Core.Utils;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
-    internal class ResolverFactory : IResolverFactory
+    internal class DefaultArgumentResolverFactory : IArgumentResolverFactory
     {
         private IDictionary<Type, Type> m_types = new Dictionary<Type, Type>();
         private IDictionary<Type, object> m_cache = new Dictionary<Type, object>();
 
-        public ResolverFactory()
+        public DefaultArgumentResolverFactory()
         {
             Register<string, StringResolver>();
             Register<bool, BoolResolver>();
@@ -63,35 +64,13 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public void Register(Type argument, Type resolver, bool overwrite = false)
         {
-            if (!IsAssignableToGenericType(resolver, typeof(ArgumentResolver<>)))
+            if (!resolver.IsAssignableToGenericType(typeof(ArgumentResolver<>)))
                 throw new InvalidCastException($"The given resolver is not assignable from {typeof(ArgumentResolver<>)}");
 
             if (overwrite && Contains(argument))
                 m_types.Remove(argument);
 
             m_types.Add(argument, resolver);
-        }
-
-        /// <summary>
-        /// https://stackoverflow.com/a/5461399/6058174
-        /// </summary>
-        private static bool IsAssignableToGenericType(Type givenType, Type genericType)
-        {
-            var interfaceTypes = givenType.GetInterfaces();
-
-            foreach (var it in interfaceTypes)
-            {
-                if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
-                    return true;
-            }
-
-            if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
-                return true;
-
-            Type baseType = givenType.BaseType;
-            if (baseType == null) return false;
-
-            return IsAssignableToGenericType(baseType, genericType);
         }
     }
 }
