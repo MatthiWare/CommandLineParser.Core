@@ -17,13 +17,14 @@
 A simple, light-weight and strongly typed commandline parser made in .Net standard.
 
 ## Installation
-
-    PM> Install-Package MatthiWare.CommandLineParser
+```powershell
+PM> Install-Package MatthiWare.CommandLineParser
+```
 
 ## Configuration
 
 #### Using model class with attributes
-
+``` csharp
     using MatthiWare.CommandLine;
     using MatthiWare.CommandLine.Core.Attributes;
 
@@ -59,11 +60,12 @@ A simple, light-weight and strongly typed commandline parser made in .Net standa
         [Name("-p", "--port"), DefaultValue(8080)]
         public int Port { get; set; } // Optional
     }
+```
 
 _**Warning:** Attributes will be overwritten by fluent api if both are configured_
 
 #### Using model class and Fluent API
-
+``` csharp
     using MatthiWare.CommandLine;
 
     static int Main(string[] args)
@@ -104,11 +106,12 @@ _**Warning:** Attributes will be overwritten by fluent api if both are configure
 
         public int Port { get; set; } // Optional
     }
+```
 
 _**Warning:** Attributes will be overwritten by fluent api if both are configured_
 
 ### Commands
-
+``` csharp
     using MatthiWare.CommandLine;
 
     static int Main(string[] args)
@@ -168,3 +171,4 @@ _**Warning:** Attributes will be overwritten by fluent api if both are configure
     {
         public bool Verbose { get; set; }
     }
+```
