@@ -204,11 +204,17 @@ namespace MatthiWare.CommandLineParser.Tests
         public void ParseCommandTests(string[] args, string result1, string result2)
         {
             var parser = new CommandLineParser<AddOption>();
+            var wait = new ManualResetEvent(false);
 
             parser.AddCommand<AddOption>()
                 .Name("-a", "--add")
                 .Required()
-                .OnExecuting((opt1, opt2) => Assert.Equal(result2, opt2.Message))
+                .OnExecuting((opt1, opt2) =>
+                {
+                    wait.Set();
+
+                    Assert.Equal(result2, opt2.Message);
+                })
                 .Configure(c => c.Message)
                     .Name("-m", "--message")
                     .Required();
@@ -222,6 +228,8 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.False(result.HasErrors);
 
             Assert.Equal(result1, result.Result.Message);
+
+            Assert.True(wait.WaitOne(2000));
         }
 
         [Fact]
