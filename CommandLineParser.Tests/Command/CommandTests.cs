@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Command
@@ -22,6 +21,59 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("x")));
             Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("y")));
+        }
+
+        [Fact]
+        public void AddOptionLessCommand()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.AddCommand().Name("x");
+            parser.AddCommand().Name("y");
+
+            Assert.Equal(2, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("x")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("y")));
+        }
+
+        [Fact]
+        public void AddCommandType()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.RegisterCommand<MyComand>();
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("-bla")));
+        }
+
+        [Fact]
+        public void AddCommandTypeWithGenericOption()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.RegisterCommand<MyComand, object>();
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("-bla")));
+        }
+
+        private class MyComand : Command<object, object>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                base.OnConfigure(builder);
+
+                builder.Name("-bla").Required();
+            }
+
+            public override void OnExecute(object options, object commandOptions)
+            {
+                base.OnExecute(options, commandOptions);
+            }
         }
 
     }

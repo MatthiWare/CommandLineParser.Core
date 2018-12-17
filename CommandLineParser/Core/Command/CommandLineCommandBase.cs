@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -21,6 +22,7 @@ namespace MatthiWare.CommandLine.Core.Command
         public bool HasShortName => ShortName != null;
         public bool HasLongName => LongName != null;
         public bool HasDefault => false;
+        public bool AutoExecute { get; protected set; } = true;
 
         public abstract void Execute();
 

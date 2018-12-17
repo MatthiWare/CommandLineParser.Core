@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 
@@ -14,15 +15,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         #region Properties
 
-        public TResult Result
-        {
-            get
-            {
-                if (HasErrors) throw new InvalidOperationException("Parsing failed commands might be corrupted.");
-
-                return result;
-            }
-        }
+        public TResult Result => result;
 
         public bool HasErrors { get; private set; } = false;
 
@@ -51,6 +44,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public void MergeResult(ICollection<Exception> errors)
         {
+            if (!errors.Any()) return;
+
             HasErrors = true;
 
             foreach (var err in errors)

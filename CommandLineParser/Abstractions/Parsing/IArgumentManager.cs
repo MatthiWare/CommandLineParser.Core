@@ -1,5 +1,4 @@
-﻿using MatthiWare.CommandLine.Abstractions.Command;
-using MatthiWare.CommandLine.Abstractions.Models;
+﻿using MatthiWare.CommandLine.Abstractions.Models;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing
 {
@@ -9,11 +8,11 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
     public interface IArgumentManager
     {
         /// <summary>
-        /// Tries to get the arguments associated to the current command
+        /// Tries to get the arguments associated to the current option
         /// </summary>
-        /// <param name="cmd">the command</param>
+        /// <param name="option">the option</param>
         /// <param name="model">The result arguments</param>
         /// <returns>True if arguments are found, false if not</returns>
-        bool TryGetValue(ICommandLineCommand cmd, out ArgumentModel model);
+        bool TryGetValue(ICommandLineOption option, out ArgumentModel model);
     }
 }

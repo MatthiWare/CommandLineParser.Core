@@ -6,50 +6,47 @@ namespace MatthiWare.CommandLine.Abstractions.Command
     /// <summary>
     /// Configures commands using a fluent interface
     /// </summary>
-    /// <typeparam name="Tsource">Command options class</typeparam>
-    public interface ICommandBuilder<Tsource> where Tsource : class, new()
+    /// <typeparam name="TSource">Command options class</typeparam>
+    public interface ICommandBuilder<TOption, TSource> : ICommandConfigurationBuilder, ICommandExecutor<TOption, TSource>
+        where TOption : class
+        where TSource : class, new()
     {
+
+        /// <summary>
+        /// Configures an option in the model
+        /// </summary>
+        /// <typeparam name="TProperty">Type of the property</typeparam>
+        /// <param name="selector">Model property to configure</param>
+        /// <returns><see cref="IOptionBuilder"/></returns>
+        IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+
         /// <summary>
         /// Configures if the command is required
         /// </summary>
         /// <param name="required">True or false</param>
-        /// <returns><see cref="ICommandBuilder{Tsource}"/></returns>
-        ICommandBuilder<Tsource> Required(bool required = true);
+        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
+        new ICommandBuilder<TOption, TSource> Required(bool required = true);
 
         /// <summary>
         /// Configures the help text for the command
         /// </summary>
         /// <param name="required">True or false</param>
-        /// <returns><see cref="ICommandBuilder{Tsource}"/></returns>
-        ICommandBuilder<Tsource> HelpText(string help);
+        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
+        new ICommandBuilder<TOption, TSource> HelpText(string help);
 
         /// <summary>
         /// Configures the command name
         /// </summary>
         /// <param name="shortName">Short name</param>
-        /// <returns><see cref="ICommandBuilder{Tsource}"/></returns>
-        ICommandBuilder<Tsource> Name(string shortName);
+        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
+        new ICommandBuilder<TOption, TSource> Name(string shortName);
 
         /// <summary>
         /// Configures the command name
         /// </summary>
         /// <param name="shortName">Short name</param>
         /// <param name="longName">Long name</param>
-        /// <returns><see cref="ICommandBuilder{Tsource}"/></returns>
-        ICommandBuilder<Tsource> Name(string shortName, string longName);
-
-        /// <summary>
-        /// Configures the execution of the command
-        /// </summary>
-        /// <param name="required">True or false</param>
-        /// <returns><see cref="ICommandBuilder{Tsource}"/></returns>
-        ICommandBuilder<Tsource> OnExecuting(Action<Tsource> action);
-
-        /// <summary>
-        /// Configures if the command options
-        /// </summary>
-        /// <param name="selector">Property to configure</param>
-        /// <returns><see cref="IOptionBuilder"/></returns>
-        IOptionBuilder Configure<TProperty>(Expression<Func<Tsource, TProperty>> selector);
+        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
+        new ICommandBuilder<TOption, TSource> Name(string shortName, string longName);
     }
 }

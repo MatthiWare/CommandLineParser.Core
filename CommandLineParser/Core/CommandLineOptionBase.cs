@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -15,6 +16,8 @@ namespace MatthiWare.CommandLine.Core
         public bool HasDefault { get; protected set; }
         public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName);
         public bool HasLongName => !string.IsNullOrWhiteSpace(LongName);
+
+        public bool AutoExecute { get; protected set; }
 
         public abstract bool CanParse(ArgumentModel model);
 

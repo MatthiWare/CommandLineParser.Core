@@ -13,6 +13,7 @@
     <PackageLicenseUrl>https://github.com/MatthiWare/CommandLineParser.Core/blob/master/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
     <PackageTags>Commandline parser</PackageTags>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

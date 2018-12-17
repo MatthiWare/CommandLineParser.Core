@@ -59,6 +59,9 @@ PM> Install-Package MatthiWare.CommandLineParser
 
         [Name("-p", "--port"), DefaultValue(8080)]
         public int Port { get; set; } // Optional
+
+        [Ignored]
+        public string Metadata { get; set; } // Property will not be added
     }
 ```
 

@@ -1,11 +1,70 @@
 ﻿using System.Threading;
 using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Models;
+using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Core.Attributes;
+using Moq;
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests
 {
     public class CommandLineParserTests
     {
+        public class MyCommand : Command<object, object>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name("my");
+            }
+        }
+
+        [Fact]
+        public void CommandLineParserUsesContainerCorrectly()
+        {
+            var commandMock = new Mock<MyCommand>();
+            //commandMock.Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder>())).Verifiable("OnConfigure not called");
+            commandMock.Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>())).Verifiable("OnExecute not called");
+
+            var containerMock = new Mock<IContainerResolver>();
+            containerMock.Setup(c => c.Resolve<MyCommand>()).Returns(commandMock.Object).Verifiable();
+
+            var parser = new CommandLineParser<object>(containerMock.Object);
+
+            parser.RegisterCommand<MyCommand, object>();
+
+            var result = parser.Parse(new[] { "app.exe", "my" });
+
+            Assert.False(result.HasErrors);
+
+            commandMock.VerifyAll();
+            containerMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CommandLineParserUsesArgumentFactoryCorrectly()
+        {
+            var resolverMock = new Mock<ArgumentResolver<string>>();
+            resolverMock.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true).Verifiable();
+            resolverMock.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns("return").Verifiable();
+
+            var argResolverFactory = new Mock<IArgumentResolverFactory>();
+            argResolverFactory.Setup(c => c.Contains(typeof(string))).Returns(true);
+            argResolverFactory.Setup(c => c.CreateResolver(typeof(string))).Returns(resolverMock.Object).Verifiable();
+
+            var parser = new CommandLineParser<AddOption>(argResolverFactory.Object);
+
+            parser.Configure(p => p.Message).Name("-m");
+
+            var result = parser.Parse(new[] { "app.exe", "-m" });
+
+            Assert.False(result.HasErrors);
+
+            resolverMock.VerifyAll();
+            argResolverFactory.Verify();
+        }
+
         [Fact]
         public void ParseTests()
         {
@@ -23,6 +82,27 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.False(parsed.HasErrors);
 
             Assert.Equal("test", parsed.Result.Option1);
+        }
+
+        [Theory]
+        [InlineData(new[] { "app.exe", "-e", "Opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "app.exe", "-e", "opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "app.exe", "-e", "Opt2" }, false, EnumOption.Opt2)]
+        [InlineData(new[] { "app.exe", "-e", "bla" }, true, default(EnumOption))]
+        [InlineData(new[] { "app.exe", "-e" }, true, default(EnumOption))]
+        public void ParseEnumInArguments(string[] args, bool hasErrors, EnumOption enumOption)
+        {
+            var parser = new CommandLineParser<EnumOptions>();
+
+            parser.Configure(opt => opt.EnumOption)
+                .Name("-e")
+                .Required();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(hasErrors, result.HasErrors);
+
+            Assert.Equal(enumOption, result.Result.EnumOption);
         }
 
         [Theory]
@@ -60,6 +140,26 @@ namespace MatthiWare.CommandLineParser.Tests
         }
 
         [Fact]
+        public void ParseWithCustomParserInAttributeConfiguredModelTests()
+        {
+            var resolver = new Mock<ArgumentResolver<object>>();
+
+            var obj = new object();
+
+            resolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
+            resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
+
+            var parser = new CommandLineParser<ObjOption>();
+            parser.ArgumentResolverFactory.Register(resolver.Object);
+
+            var result = parser.Parse(new[] { "app.exe", "--p", "sample" });
+
+            Assert.False(result.HasErrors);
+
+            Assert.Same(obj, result.Result.Param);
+        }
+
+        [Fact]
         public void ParseWithCommandTests()
         {
             var wait = new ManualResetEvent(false);
@@ -73,9 +173,10 @@ namespace MatthiWare.CommandLineParser.Tests
 
             var addCmd = parser.AddCommand<AddOption>()
                 .Name("-A", "--Add")
-                .OnExecuting(x =>
+                .OnExecuting((opt, cmdOpt) =>
                 {
-                    Assert.Equal("my message", x.Message);
+                    Assert.Equal("test", opt.Option1);
+                    Assert.Equal("my message", cmdOpt.Message);
                     wait.Set();
                 });
 
@@ -107,7 +208,7 @@ namespace MatthiWare.CommandLineParser.Tests
             parser.AddCommand<AddOption>()
                 .Name("-a", "--add")
                 .Required()
-                .OnExecuting(r => Assert.Equal(result2, r.Message))
+                .OnExecuting((opt1, opt2) => Assert.Equal(result2, opt2.Message))
                 .Configure(c => c.Message)
                     .Name("-m", "--message")
                     .Required();
@@ -119,8 +220,6 @@ namespace MatthiWare.CommandLineParser.Tests
             var result = parser.Parse(args);
 
             Assert.False(result.HasErrors);
-
-            result.ExecuteCommands();
 
             Assert.Equal(result1, result.Result.Message);
         }
@@ -156,6 +255,12 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.False(option.HasDefault);
         }
 
+        private class ObjOption
+        {
+            [Name("--p"), Required]
+            public object Param { get; set; }
+        }
+
         private class AddOption
         {
             public string Message { get; set; }
@@ -165,6 +270,17 @@ namespace MatthiWare.CommandLineParser.Tests
         {
             public string Option1 { get; set; }
             public bool Option2 { get; set; }
+        }
+
+        public enum EnumOption
+        {
+            Opt1,
+            Opt2
+        }
+
+        public class EnumOptions
+        {
+            public EnumOption EnumOption { get; set; }
         }
 
         private class OptionsWithThreeParams

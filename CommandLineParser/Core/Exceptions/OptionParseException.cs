@@ -1,4 +1,5 @@
 ﻿using System;
+
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 
@@ -10,7 +11,7 @@ namespace MatthiWare.CommandLine.Core.Exceptions
     /// </summary>
     public class OptionParseException : Exception
     {
-        private ICommandLineOption option;
+        private readonly ICommandLineOption option;
         private ArgumentModel argModel;
 
         public OptionParseException(ICommandLineOption option, ArgumentModel argModel)
