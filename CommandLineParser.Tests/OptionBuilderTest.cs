@@ -26,7 +26,7 @@ namespace MatthiWare.CommandLineParser.Tests
 
             builder
                 .Default(sDefault)
-                .HelpText(sHelp)
+                .Description(sHelp)
                 .Name(sShort, sLong)
                 .Required();
 
@@ -36,7 +36,7 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.True(option.HasLongName);
             Assert.Equal(sLong, option.LongName);
 
-            Assert.Equal(sHelp, option.HelpText);
+            Assert.Equal(sHelp, option.Description);
 
             Assert.True(option.HasShortName);
             Assert.Equal(sShort, option.ShortName);

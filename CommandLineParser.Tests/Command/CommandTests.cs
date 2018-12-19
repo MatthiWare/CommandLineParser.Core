@@ -8,7 +8,6 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 {
     public class CommandTests
     {
-
         [Fact]
         public void ConfiguringCommandsIncreasesTotalCommandInParser()
         {
@@ -75,6 +74,5 @@ namespace MatthiWare.CommandLineParser.Tests.Command
                 base.OnExecute(options, commandOptions);
             }
         }
-
     }
 }

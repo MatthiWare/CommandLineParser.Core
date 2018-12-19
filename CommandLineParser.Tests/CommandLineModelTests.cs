@@ -25,7 +25,7 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.True(message.HasDefault);
             Assert.True(message.IsRequired);
 
-            Assert.Equal("Help", message.HelpText);
+            Assert.Equal("Help", message.Description);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace MatthiWare.CommandLineParser.Tests
 
             parser.Configure(_ => _.Message)
                 .Required(false)
-                .HelpText("Different");
+                .Description("Different");
 
             Assert.Equal(1, parser.Options.Count);
 
@@ -51,12 +51,12 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.True(message.HasDefault);
             Assert.False(message.IsRequired);
 
-            Assert.Equal("Different", message.HelpText);
+            Assert.Equal("Different", message.Description);
         }
 
         private class Model
         {
-            [Required, Name("-m", "--message"), DefaultValue("not found"), HelpText("Help")]
+            [Required, Name("-m", "--message"), DefaultValue("not found"), Description("Help")]
             public string Message { get; set; }
         }
     }
