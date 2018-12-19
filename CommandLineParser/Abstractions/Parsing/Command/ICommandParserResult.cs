@@ -24,7 +24,7 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
         /// <summary>
         /// Executes the command
         /// </summary>
-        /// /// <exception cref="InvalidOperationException">
+        /// <exception cref="InvalidOperationException">
         /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Error"/> properties.
         /// </exception>
         void ExecuteCommand();

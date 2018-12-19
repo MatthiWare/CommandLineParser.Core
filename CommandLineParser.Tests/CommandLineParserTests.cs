@@ -1,11 +1,14 @@
 ﻿using System.Threading;
+
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Attributes;
+
 using Moq;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests

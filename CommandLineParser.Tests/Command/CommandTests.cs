@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+
 using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Command

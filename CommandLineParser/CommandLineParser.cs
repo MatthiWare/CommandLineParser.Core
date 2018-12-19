@@ -136,8 +136,6 @@ namespace MatthiWare.CommandLine
 
             result.MergeResult(errors);
 
-            result.MergeResult(m_option);
-
             AutoExecuteCommands(result);
 
             return result;
@@ -198,6 +196,8 @@ namespace MatthiWare.CommandLine
 
                 option.Parse(model);
             }
+
+            result.MergeResult(m_option);
         }
 
         /// <summary>
