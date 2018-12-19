@@ -6,7 +6,6 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 {
     public class StringResovlerTests
     {
-
         [Theory]
         [InlineData(true, "-m", "test")]
         [InlineData(true, "-m", "my string")]
@@ -28,6 +27,5 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 
             Assert.Equal(expected, resolver.Resolve(model));
         }
-
     }
 }

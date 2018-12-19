@@ -6,7 +6,6 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 {
     public class BoolResolverTests
     {
-
         [Theory]
         [InlineData("yes")]
         [InlineData("1")]
@@ -32,6 +31,5 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 
             Assert.False(result);
         }
-
     }
 }

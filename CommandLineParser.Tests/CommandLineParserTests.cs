@@ -180,7 +180,6 @@ namespace MatthiWare.CommandLineParser.Tests
                     wait.Set();
                 });
 
-
             addCmd.Configure(opt => opt.Message)
                 .Name("-m", "--message")
                 .Required();
