@@ -11,7 +11,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         where TOption : class
         where TSource : class, new()
     {
-
         /// <summary>
         /// Configures an option in the model
         /// </summary>

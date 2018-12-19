@@ -16,8 +16,6 @@ namespace MatthiWare.CommandLine.Core.Exceptions
 
         public OptionNotFoundException(ICommandLineOption option)
             : base($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!")
-        {
-
-        }
+        { }
     }
 }
