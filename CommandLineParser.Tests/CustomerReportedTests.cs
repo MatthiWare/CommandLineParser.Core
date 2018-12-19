@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MatthiWare.CommandLine;
+﻿using MatthiWare.CommandLine;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests

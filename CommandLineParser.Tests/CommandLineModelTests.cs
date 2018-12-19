@@ -1,5 +1,6 @@
 ﻿using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Core.Attributes;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests

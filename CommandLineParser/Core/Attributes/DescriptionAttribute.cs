@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MatthiWare.CommandLine.Core.Attributes
+﻿namespace MatthiWare.CommandLine.Core.Attributes
 {
     public class DescriptionAttribute : BaseAttribute
     {

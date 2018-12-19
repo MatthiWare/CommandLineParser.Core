@@ -1,5 +1,6 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
