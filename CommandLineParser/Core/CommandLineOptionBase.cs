@@ -11,7 +11,7 @@ namespace MatthiWare.CommandLine.Core
     {
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }
-        public string HelpText { get; protected set; }
+        public string Description { get; protected set; }
         public bool IsRequired { get; protected set; }
         public bool HasDefault { get; protected set; }
         public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName);

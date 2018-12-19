@@ -297,8 +297,8 @@ namespace MatthiWare.CommandLine
                         case DefaultValueAttribute defaultValue:
                             actions.Add(() => ConfigureInternal(lambda, key).Default(defaultValue.DefaultValue));
                             break;
-                        case HelpTextAttribute helpText:
-                            actions.Add(() => ConfigureInternal(lambda, key).HelpText(helpText.HelpText));
+                        case DescriptionAttribute helpText:
+                            actions.Add(() => ConfigureInternal(lambda, key).Description(helpText.Description));
                             break;
                         case NameAttribute name:
                             actions.Add(() => ConfigureInternal(lambda, key).Name(name.ShortName, name.LongName));

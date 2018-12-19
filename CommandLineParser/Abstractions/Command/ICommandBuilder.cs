@@ -20,11 +20,11 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         ICommandBuilder<TOption> Required(bool required = true);
 
         /// <summary>
-        /// Configures the help text for the command
+        /// Describes the command, used in the usage output. 
         /// </summary>
-        /// <param name="required">True or false</param>
+        /// <param name="desc">description of the command</param>
         /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
-        ICommandBuilder<TOption> HelpText(string help);
+        ICommandBuilder<TOption> Description(string description);
 
         /// <summary>
         /// Configures the command name
