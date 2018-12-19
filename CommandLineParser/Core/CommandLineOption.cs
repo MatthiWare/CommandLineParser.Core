@@ -63,9 +63,9 @@ namespace MatthiWare.CommandLine.Core
             return this;
         }
 
-        IOptionBuilder IOptionBuilder.HelpText(string help)
+        IOptionBuilder IOptionBuilder.Description(string help)
         {
-            HelpText = help;
+            Description = help;
 
             return this;
         }

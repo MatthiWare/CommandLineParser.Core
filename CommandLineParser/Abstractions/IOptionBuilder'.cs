@@ -17,7 +17,7 @@
         /// </summary>
         /// <param name="help"></param>
         /// <returns></returns>
-        IOptionBuilder HelpText(string help);
+        IOptionBuilder Description(string description);
 
         /// <summary>
         /// Specify the default value for this option

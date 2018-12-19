@@ -14,8 +14,8 @@ namespace MatthiWare.CommandLine.Core.Command
     internal class CommandLineCommand<TOption, TCommandOption> :
         CommandLineCommandBase,
         ICommandBuilder<TOption, TCommandOption>,
-        ICommandConfigurationBuilder,
         ICommandBuilder<TOption>,
+        ICommandConfigurationBuilder,
         IOptionConfigurator<TCommandOption>
         where TOption : class
         where TCommandOption : class, new()
@@ -134,9 +134,9 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandBuilder<TOption> ICommandBuilder<TOption>.HelpText(string help)
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.Description(string description)
         {
-            HelpText = help;
+            Description = description;
 
             return this;
         }
@@ -170,9 +170,9 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandConfigurationBuilder ICommandConfigurationBuilder.HelpText(string help)
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.Description(string description)
         {
-            HelpText = help;
+            Description = description;
 
             return this;
         }
@@ -199,9 +199,9 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.HelpText(string help)
+        ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.Description(string help)
         {
-            HelpText = help;
+            Description = help;
 
             return this;
         }
