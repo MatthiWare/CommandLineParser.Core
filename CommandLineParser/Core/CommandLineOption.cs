@@ -16,14 +16,16 @@ namespace MatthiWare.CommandLine.Core
         private readonly LambdaExpression m_selector;
         private object m_defaultValue = null;
         private readonly IArgumentResolverFactory m_resolverFactory;
+        private readonly CommandLineParserOptions m_parserOptions;
 
         private ICommandLineArgumentResolver m_resolver;
 
-        public CommandLineOption(object source, LambdaExpression selector, IArgumentResolverFactory resolver)
+        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolverFactory resolver)
         {
-            this.m_source = source ?? throw new ArgumentNullException(nameof(source));
-            this.m_selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            this.m_resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
+            m_parserOptions = parserOptions;
+            m_source = source ?? throw new ArgumentNullException(nameof(source));
+            m_selector = selector ?? throw new ArgumentNullException(nameof(selector));
+            m_resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
         public ICommandLineArgumentResolver Resolver
@@ -72,8 +74,8 @@ namespace MatthiWare.CommandLine.Core
 
         IOptionBuilder IOptionBuilder.Name(string shortName, string longName)
         {
-            LongName = longName;
-            ShortName = shortName;
+            LongName = $"{m_parserOptions.PrefixLongOption}{longName}"; ;
+            ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}"; ;
 
             return this;
         }
@@ -87,7 +89,7 @@ namespace MatthiWare.CommandLine.Core
 
         IOptionBuilder IOptionBuilder.Name(string shortName)
         {
-            ShortName = shortName;
+            ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
 
             return this;
         }

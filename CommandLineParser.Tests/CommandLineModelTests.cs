@@ -57,7 +57,7 @@ namespace MatthiWare.CommandLineParser.Tests
 
         private class Model
         {
-            [Required, Name("-m", "--message"), DefaultValue("not found"), Description("Help")]
+            [Required, Name("m", "message"), DefaultValue("not found"), Description("Help")]
             public string Message { get; set; }
         }
     }
