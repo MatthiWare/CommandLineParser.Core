@@ -20,7 +20,7 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<OptionsModelIssue_12>();
 
             parser.Configure(opt => opt.Test)
-                .Name("-1")
+                .Name("1")
                 .Default(1)
                 .Required(required);
 

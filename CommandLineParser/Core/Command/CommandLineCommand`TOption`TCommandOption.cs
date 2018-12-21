@@ -23,12 +23,14 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly TCommandOption m_commandOption;
         private readonly TOption m_baseOption;
         private readonly IArgumentResolverFactory m_resolverFactory;
+        private readonly CommandLineParserOptions m_parserOptions;
 
         private Action<TOption> m_executor;
         private Action<TOption, TCommandOption> m_executor2;
 
-        public CommandLineCommand(IArgumentResolverFactory resolverFactory, TOption option)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, TOption option)
         {
+            m_parserOptions = parserOptions;
             m_commandOption = new TCommandOption();
 
             m_resolverFactory = resolverFactory;
@@ -43,7 +45,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
         {
-            var option = new CommandLineOption(m_commandOption, selector, m_resolverFactory);
+            var option = new CommandLineOption(m_parserOptions, m_commandOption, selector, m_resolverFactory);
 
             m_options.Add(option);
 

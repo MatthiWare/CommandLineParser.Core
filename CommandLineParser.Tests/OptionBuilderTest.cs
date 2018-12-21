@@ -1,5 +1,5 @@
 ﻿using System;
-
+using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
@@ -19,7 +19,12 @@ namespace MatthiWare.CommandLineParser.Tests
             var resolverFactoryMock = new Mock<IArgumentResolverFactory>();
             resolverFactoryMock.Setup(_ => _.CreateResolver(It.IsAny<Type>())).Returns(resolverMock.Object);
 
-            var option = new CommandLineOption(new object(), XUnitExtensions.CreateLambda<object, string>(o => o.ToString()), resolverFactoryMock.Object);
+            var option = new CommandLineOption(
+                new CommandLineParserOptions { PrefixLongOption = string.Empty, PrefixShortOption = string.Empty },
+                new object(),
+                XUnitExtensions.CreateLambda<object, string>(o => o.ToString()),
+                resolverFactoryMock.Object);
+
             var builder = option as IOptionBuilder;
 
             string sDefault = "default";
