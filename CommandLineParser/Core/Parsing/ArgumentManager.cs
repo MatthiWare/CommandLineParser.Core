@@ -12,12 +12,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
 {
     internal class ArgumentManager : IArgumentManager, IDisposable
     {
-        private readonly IDictionary<IArgument, ArgumentModel> arguments;
+        private readonly IDictionary<IArgument, ArgumentModel> resultCache;
         private readonly List<ArgumentValueHolder> args;
 
         public ArgumentManager(string[] args, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
         {
-            arguments = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
+            resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
 
             this.args = new List<ArgumentValueHolder>(args.Select(arg => new ArgumentValueHolder
             {
@@ -29,6 +29,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             ParseOptions(options);
 
+            // pre cache results
             foreach (var item in this.args)
             {
                 if (item.ArgModel == null) continue;
@@ -40,10 +41,11 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 var argModel = new ArgumentModel
                 {
                     Key = item.Argument,
+                    // this checks if the argument is used in an other command/option. 
                     Value = (argValue?.Used ?? true) ? null : argValue.Argument
                 };
 
-                arguments.Add(item.ArgModel, argModel);
+                resultCache.Add(item.ArgModel, argModel);
             }
         }
 
@@ -116,12 +118,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
 
 
-        public void Dispose()
-        {
-            arguments.Clear();
-        }
+        public void Dispose() => args.Clear();
 
-        public bool TryGetValue(IArgument argument, out ArgumentModel model) => arguments.TryGetValue(argument, out model);
+        public bool TryGetValue(IArgument argument, out ArgumentModel model) => resultCache.TryGetValue(argument, out model);
 
         private class ArgumentValueHolder
         {
