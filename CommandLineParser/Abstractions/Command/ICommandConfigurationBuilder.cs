@@ -19,16 +19,8 @@
         /// <summary>
         /// Configures the command name
         /// </summary>
-        /// <param name="shortName">Short name</param>
+        /// <param name="name">Short name</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
-        ICommandConfigurationBuilder Name(string shortName);
-
-        /// <summary>
-        /// Configures the command name
-        /// </summary>
-        /// <param name="shortName">Short name</param>
-        /// <param name="longName">Long name</param>
-        /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
-        ICommandConfigurationBuilder Name(string shortName, string longName);
+        ICommandConfigurationBuilder Name(string name);
     }
 }

@@ -11,11 +11,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
     {
         private readonly List<ICommandParserResult> commandParserResults = new List<ICommandParserResult>();
         private readonly ICollection<Exception> exceptions = new List<Exception>();
-        private TResult result;
 
         #region Properties
 
-        public TResult Result => result;
+        public TResult Result { get; private set; }
 
         public bool HasErrors { get; private set; } = false;
 
@@ -54,7 +53,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public void MergeResult(TResult result)
         {
-            this.result = result;
+            this.Result = result;
         }
 
         public void ExecuteCommands()

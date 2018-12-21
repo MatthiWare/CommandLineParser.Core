@@ -91,21 +91,6 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        public ICommandBuilder<TOption, TCommandOption> Name(string shortName)
-        {
-            ShortName = shortName;
-
-            return this;
-        }
-
-        public ICommandBuilder<TOption, TCommandOption> Name(string shortName, string longName)
-        {
-            ShortName = shortName;
-            LongName = longName;
-
-            return this;
-        }
-
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption> action)
         {
             m_executor = action;
@@ -141,21 +126,6 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandBuilder<TOption> ICommandBuilder<TOption>.Name(string shortName)
-        {
-            ShortName = shortName;
-
-            return this;
-        }
-
-        ICommandBuilder<TOption> ICommandBuilder<TOption>.Name(string shortName, string longName)
-        {
-            ShortName = shortName;
-            LongName = longName;
-
-            return this;
-        }
-
         ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecuting(Action<TOption> action)
         {
             m_executor = action;
@@ -177,21 +147,6 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-        ICommandConfigurationBuilder ICommandConfigurationBuilder.Name(string shortName)
-        {
-            ShortName = shortName;
-
-            return this;
-        }
-
-        ICommandConfigurationBuilder ICommandConfigurationBuilder.Name(string shortName, string longName)
-        {
-            ShortName = shortName;
-            LongName = longName;
-
-            return this;
-        }
-
         public ICommandBuilder<TOption, TCommandOption> InvokeCommand(bool invoke)
         {
             AutoExecute = invoke;
@@ -202,6 +157,27 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.Description(string help)
         {
             Description = help;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption, TCommandOption> ICommandBuilder<TOption, TCommandOption>.Name(string name)
+        {
+            Name = name;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.Name(string name)
+        {
+            Name = name;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.Name(string name)
+        {
+            Name = name;
 
             return this;
         }

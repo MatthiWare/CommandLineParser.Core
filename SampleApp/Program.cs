@@ -8,6 +8,8 @@ namespace SampleApp
     {
         static int Main(string[] args)
         {
+            Console.WriteLine($"args: {string.Join(',', args)}");
+
             var parser = new CommandLineParser<Options>();
 
             // setup

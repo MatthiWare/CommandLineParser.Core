@@ -15,17 +15,17 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         public ICommandLineOption Option { get; private set; }
 
         public OptionNotFoundException(ICommandLineOption option)
-            : base($"Required argument '{option.HasShortName}' or '{option.LongName}' not found!")
+            : base(CreateMessage(option))
         { }
 
-        private string CreateMessage()
+        private static string CreateMessage(ICommandLineOption option)
         {
-            bool hasShortName = Option.HasShortName;
-            bool hasLongName = Option.HasLongName;
+            bool hasShortName = option.HasShortName;
+            bool hasLongName = option.HasLongName;
             bool hasBoth = hasShortName && hasLongName;
 
-            string shortName = hasShortName ? $"'{Option.ShortName}'" : string.Empty;
-            string longName = hasLongName ? $"'{Option.LongName}'" : string.Empty;
+            string shortName = hasShortName ? $"'{option.ShortName}'" : string.Empty;
+            string longName = hasLongName ? $"'{option.LongName}'" : string.Empty;
             string or = hasBoth ? " or " : string.Empty;
 
             return $"Required argument {shortName}{or}{longName} not found!";

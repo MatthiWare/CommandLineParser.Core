@@ -11,9 +11,11 @@ namespace MatthiWare.CommandLineParser.Tests
         /// https://github.com/MatthiWare/CommandLineParser.Core/issues/12
         /// </summary>
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, false)]
-        public void NoCommandLineArgumentsCrashesParser_Issue_12(bool required, bool outcome)
+        [InlineData(true, true, false)]
+        [InlineData(false, false, false)]
+        [InlineData(true, true, true)]
+        [InlineData(false, false, true)]
+        public void NoCommandLineArgumentsCrashesParser_Issue_12(bool required, bool outcome, bool empty)
         {
             var parser = new CommandLineParser<OptionsModelIssue_12>();
 
@@ -22,7 +24,7 @@ namespace MatthiWare.CommandLineParser.Tests
                 .Default(1)
                 .Required(required);
 
-            var parsed = parser.Parse(new[] { "app.exe" });
+            var parsed = parser.Parse(empty ? new string[] { } : new[] { "app.exe" });
 
             Assert.NotNull(parsed);
 

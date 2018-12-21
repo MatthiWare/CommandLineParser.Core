@@ -3,7 +3,7 @@
     /// <summary>
     /// Option configuration options
     /// </summary>
-    public interface ICommandLineOption
+    public interface ICommandLineOption : IArgument
     {
         string ShortName { get; }
         string LongName { get; }
