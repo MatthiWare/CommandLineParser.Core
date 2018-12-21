@@ -112,6 +112,9 @@ namespace MatthiWare.CommandLineParser.Tests
         [InlineData(new[] { "app.exe", "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
         [InlineData(new[] { "app.exe", "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
         [InlineData(new[] { "app.exe", "-1", "-2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "-1", "-2", "-3" }, "message1", "message2", "message3")]
         public void ParseWithDefaults(string[] args, string result1, string result2, string result3)
         {
             var parser = new CommandLineParser<OptionsWithThreeParams>();
@@ -175,7 +178,7 @@ namespace MatthiWare.CommandLineParser.Tests
                 .Required();
 
             var addCmd = parser.AddCommand<AddOption>()
-                .Name("-A", "--Add")
+                .Name("add")
                 .OnExecuting((opt, cmdOpt) =>
                 {
                     Assert.Equal("test", opt.Option1);
@@ -187,7 +190,7 @@ namespace MatthiWare.CommandLineParser.Tests
                 .Name("-m", "--message")
                 .Required();
 
-            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "--Add", "-m", "my message" });
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "add", "-m", "my message" });
 
             Assert.False(parsed.HasErrors);
 
@@ -201,15 +204,17 @@ namespace MatthiWare.CommandLineParser.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "app.exe", "--Add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
-        [InlineData(new[] { "app.exe", "-m", "message1", "--Add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         public void ParseCommandTests(string[] args, string result1, string result2)
         {
             var parser = new CommandLineParser<AddOption>();
             var wait = new ManualResetEvent(false);
 
             parser.AddCommand<AddOption>()
-                .Name("-a", "--add")
+                .Name("add")
                 .Required()
                 .OnExecuting((opt1, opt2) =>
                 {

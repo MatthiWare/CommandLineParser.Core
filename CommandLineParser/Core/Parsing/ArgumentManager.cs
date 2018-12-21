@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Command;
@@ -11,12 +12,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
 {
     internal class ArgumentManager : IArgumentManager, IDisposable
     {
-        private readonly IDictionary<ICommandLineOption, ArgumentModel> arguments;
+        private readonly IDictionary<IArgument, ArgumentModel> arguments;
         private readonly List<ArgumentValueHolder> args;
 
         public ArgumentManager(string[] args, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
         {
-            arguments = new Dictionary<ICommandLineOption, ArgumentModel>(commands.Count + options.Count);
+            arguments = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
 
             this.args = new List<ArgumentValueHolder>(args.Select(arg => new ArgumentValueHolder
             {
@@ -30,7 +31,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             foreach (var item in this.args)
             {
-                if (item.Option == null) continue;
+                if (item.ArgModel == null) continue;
 
                 int nextIndex = item.Index + 1;
 
@@ -42,7 +43,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     Value = (argValue?.Used ?? true) ? null : argValue.Argument
                 };
 
-                arguments.Add(item.Option, argModel);
+                arguments.Add(item.ArgModel, argModel);
             }
         }
 
@@ -78,10 +79,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
             }
         }
 
-        private void SetArgumentUsed(int idx, ICommandLineOption option)
+        private void SetArgumentUsed(int idx, IArgument option)
         {
             args[idx].Used = true;
-            args[idx].Option = option;
+            args[idx].ArgModel = option;
             args[idx].Index = idx;
         }
 
@@ -89,26 +90,44 @@ namespace MatthiWare.CommandLine.Core.Parsing
         /// Finds the index of the first unused argument
         /// </summary>
         /// <param name="args">List of arguments to search</param>
-        /// <param name="option">Option to find</param>
+        /// <param name="model">Argument model to find</param>
         /// <param name="startOffset">Search offset</param>
         /// <returns></returns>
-        private int FindIndex(ICommandLineOption option, int startOffset = 0)
-            => args.FindIndex(startOffset, arg => !arg.Used &&
-                    ((option.HasShortName && string.Equals(option.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (option.HasLongName && string.Equals(option.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase))));
+        private int FindIndex(IArgument model, int startOffset = 0)
+        {
+            return args.FindIndex(startOffset, arg =>
+                {
+                    if (arg.Used) return false;
+
+                    switch (model)
+                    {
+                        case ICommandLineOption opt:
+                            return (opt.HasShortName && string.Equals(opt.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
+                                    (opt.HasLongName && string.Equals(opt.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase));
+                        case ICommandLineCommand cmd:
+                            return string.Equals(cmd.Name, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
+                        default:
+                            return false;
+                    }
+
+
+                });
+        }
+
+
 
         public void Dispose()
         {
             arguments.Clear();
         }
 
-        public bool TryGetValue(ICommandLineOption option, out ArgumentModel model) => arguments.TryGetValue(option, out model);
+        public bool TryGetValue(IArgument argument, out ArgumentModel model) => arguments.TryGetValue(argument, out model);
 
         private class ArgumentValueHolder
         {
             public string Argument { get; set; }
             public bool Used { get; set; }
-            public ICommandLineOption Option { get; set; }
+            public IArgument ArgModel { get; set; }
             public int Index { get; set; }
         }
     }

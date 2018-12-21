@@ -29,17 +29,9 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <summary>
         /// Configures the command name
         /// </summary>
-        /// <param name="shortName">Short name</param>
+        /// <param name="name">name</param>
         /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
-        ICommandBuilder<TOption> Name(string shortName);
-
-        /// <summary>
-        /// Configures the command name
-        /// </summary>
-        /// <param name="shortName">Short name</param>
-        /// <param name="longName">Long name</param>
-        /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
-        ICommandBuilder<TOption> Name(string shortName, string longName);
+        ICommandBuilder<TOption> Name(string name);
 
         /// <summary>
         /// Configures the execution of the command
