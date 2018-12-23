@@ -8,7 +8,7 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 namespace MatthiWare.CommandLine.Core
 {
     [DebuggerDisplay("Cmd Option {ShortName ?? LongName}, Req: {IsRequired}, HasDefault: {HasDefault}")]
-    internal abstract class CommandLineOptionBase : IParser, ICommandLineOption, IUsageDisplay
+    internal abstract class CommandLineOptionBase : IParser, ICommandLineOption
     {
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }
@@ -23,11 +23,6 @@ namespace MatthiWare.CommandLine.Core
         public abstract bool CanParse(ArgumentModel model);
 
         public abstract void Parse(ArgumentModel model);
-
-        public string ToShortUsage() => ToUsage();
-
-        public string ToUsage()
-            => $"  {(HasShortName ? ShortName : string.Empty)}{(HasShortName && HasLongName ? "|" : string.Empty)}{(HasLongName ? LongName : string.Empty)}\t\t{Description}";
 
         public abstract void UseDefault();
     }

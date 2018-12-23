@@ -16,6 +16,7 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandBuilder<TOption, TCommandOption>,
         ICommandBuilder<TOption>,
         ICommandConfigurationBuilder,
+        ICommandConfigurationBuilder<TCommandOption>,
         IOptionConfigurator<TCommandOption>
         where TOption : class
         where TCommandOption : class, new()
@@ -61,7 +62,7 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 if (!argumentManager.TryGetValue(option, out ArgumentModel model) && option.IsRequired)
                 {
-                    errors.Add(new OptionNotFoundException(option));
+                    errors.Add(new OptionNotFoundException(m_parserOptions, option));
 
                     continue;
                 }
@@ -178,6 +179,27 @@ namespace MatthiWare.CommandLine.Core.Command
         }
 
         ICommandBuilder<TOption> ICommandBuilder<TOption>.Name(string name)
+        {
+            Name = name;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TCommandOption> ICommandConfigurationBuilder<TCommandOption>.Required(bool required)
+        {
+            IsRequired = required;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TCommandOption> ICommandConfigurationBuilder<TCommandOption>.Description(string description)
+        {
+            Description = description;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder<TCommandOption> ICommandConfigurationBuilder<TCommandOption>.Name(string name)
         {
             Name = name;
 

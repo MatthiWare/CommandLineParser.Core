@@ -10,12 +10,15 @@ namespace MatthiWare.CommandLine.Core.Command
 {
     internal abstract class CommandLineCommandBase :
         ICommandLineCommandParser,
-        ICommandLineCommand,
-        IUsageDisplay
+        ICommandLineCommandContainer,
+        ICommandLineCommand
     {
         protected readonly List<CommandLineOptionBase> m_options = new List<CommandLineOptionBase>();
+        protected readonly List<ICommandLineCommand> m_commands = new List<ICommandLineCommand>();
 
         public IReadOnlyList<ICommandLineOption> Options => m_options.AsReadOnly();
+
+        public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
         public string Name { get; protected set; }
         public string Description { get; protected set; }
@@ -25,25 +28,5 @@ namespace MatthiWare.CommandLine.Core.Command
         public abstract void Execute();
 
         public abstract ICommandParserResult Parse(IArgumentManager argumentManager);
-
-        public string ToShortUsage()
-            => $"  {Name}\t\t{Description}";
-
-        public string ToUsage()
-        {
-            var sb = new StringBuilder();
-
-            sb.AppendLine(Description);
-
-            if (m_options.Count == 0)
-                return sb.ToString();
-
-            sb.AppendLine("Options: ");
-
-            foreach (var opt in m_options)
-                sb.AppendLine(opt.ToUsage());
-
-            return sb.ToString();
-        }
     }
 }
