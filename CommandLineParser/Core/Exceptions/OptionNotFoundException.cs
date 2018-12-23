@@ -14,21 +14,21 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         /// </summary>
         public ICommandLineOption Option { get; private set; }
 
-        public OptionNotFoundException(ICommandLineOption option)
-            : base(CreateMessage(option))
+        public OptionNotFoundException(CommandLineParserOptions parserOptions, ICommandLineOption option)
+            : base(CreateMessage(parserOptions, option))
         { }
 
-        private static string CreateMessage(ICommandLineOption option)
+        private static string CreateMessage(CommandLineParserOptions parserOptions, ICommandLineOption option)
         {
-            bool hasShortName = option.HasShortName;
-            bool hasLongName = option.HasLongName;
-            bool hasBoth = hasShortName && hasLongName;
+            bool hasShort = option.HasShortName;
+            bool hasLong = option.HasLongName;
+            bool hasBoth = hasShort && hasLong;
 
-            string shortName = hasShortName ? $"'{option.ShortName}'" : string.Empty;
-            string longName = hasLongName ? $"'{option.LongName}'" : string.Empty;
-            string or = hasBoth ? " or " : string.Empty;
+            string hasBothSeperator = hasBoth ? "|" : string.Empty;
+            string shortName = hasShort ? $"{parserOptions.PrefixShortOption}{option.ShortName}" : string.Empty;
+            string longName = hasLong ? $"{parserOptions.PrefixLongOption}{option.LongName}" : string.Empty;
 
-            return $"Required argument {shortName}{or}{longName} not found!";
+            return $"Required argument {shortName}{hasBothSeperator}{longName} not found!";
         }
     }
 }

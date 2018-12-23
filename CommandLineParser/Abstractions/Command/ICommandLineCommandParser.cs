@@ -11,11 +11,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
     public interface ICommandLineCommandParser
     {
         /// <summary>
-        /// Read-only collection of the options for the command
-        /// </summary>
-        IReadOnlyList<ICommandLineOption> Options { get; }
-
-        /// <summary>
         /// Parses the arguments
         /// </summary>
         /// <param name="argumentManager">Arguments to parse</param>

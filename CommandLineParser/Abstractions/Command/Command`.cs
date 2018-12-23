@@ -10,6 +10,15 @@
         where TOptions : class, new()
         where TCommandOptions : class, new()
     {
+        /// <summary>
+        /// Configures the command
+        /// <see cref="ICommandConfigurationBuilder"/> for more info. 
+        /// </summary>
+        /// <param name="builder"></param>
+        public virtual void OnConfigure(ICommandConfigurationBuilder<TCommandOptions> builder)
+        {
+            base.OnConfigure(builder);
+        }
 
         /// <summary>
         /// Executes the command

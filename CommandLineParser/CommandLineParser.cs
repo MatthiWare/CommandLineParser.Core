@@ -9,11 +9,13 @@ using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
+using MatthiWare.CommandLine.Core.Usage;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -23,13 +25,18 @@ namespace MatthiWare.CommandLine
     /// Command line parser
     /// </summary>
     /// <typeparam name="TOption">Options model</typeparam>
-    public sealed class CommandLineParser<TOption> : ICommandLineParser<TOption>
+    public sealed class CommandLineParser<TOption> : ICommandLineParser<TOption>, ICommandLineCommandContainer
         where TOption : class, new()
     {
         private readonly TOption m_option;
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
         private readonly CommandLineParserOptions m_parserOptions;
+
+        /// <summary>
+        /// Tool to print usage info.
+        /// </summary>
+        public IUsagePrinter Printer { get; set; }
 
         /// <summary>
         /// Read-only collection of options specified
@@ -108,6 +115,8 @@ namespace MatthiWare.CommandLine
             ArgumentResolverFactory = argumentResolverFactory;
             ContainerResolver = containerResolver;
 
+            Printer = new UsagePrinter(parserOptions, this);
+
             InitialzeModel();
         }
 
@@ -158,10 +167,33 @@ namespace MatthiWare.CommandLine
 
             AutoExecuteCommands(result);
 
+            AutoPrintUsageAndErrors(errors, args.Length > 0);
+
             return result;
         }
 
-        private void AutoExecuteCommands(ParseResult<TOption> result)
+        private void AutoPrintUsageAndErrors(ICollection<Exception> errors, bool argsSuppplied)
+        {
+            if (!m_parserOptions.AutoPrintUsageAndErrors) return;
+
+            if (!argsSuppplied)
+                PrintHelp();
+            else if (errors.Count > 0)
+                PrintErrors(errors);
+        }
+
+        private void PrintErrors(ICollection<Exception> errors)
+        {
+            foreach (var error in errors)
+                Console.Error.WriteLine(error);
+
+            PrintHelp();
+        }
+
+        private void PrintHelp()
+            => Printer.PrintUsage();
+
+        private void AutoExecuteCommands(IParserResult<TOption> result)
         {
             if (result.HasErrors) return;
 
@@ -197,7 +229,7 @@ namespace MatthiWare.CommandLine
 
                 if (!argumentManager.TryGetValue(option, out ArgumentModel model) && option.IsRequired)
                 {
-                    errors.Add(new OptionNotFoundException(option));
+                    errors.Add(new OptionNotFoundException(m_parserOptions, option));
 
                     continue;
                 }

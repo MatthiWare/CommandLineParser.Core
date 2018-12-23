@@ -46,7 +46,7 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.Equal(1, parser.Commands.Count);
 
-            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("-bla")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
         }
 
         [Fact]
@@ -58,16 +58,23 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.Equal(1, parser.Commands.Count);
 
-            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("-bla")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
         }
 
         private class MyComand : Command<object, object>
         {
+            public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
+            {
+                base.OnConfigure(builder);
+
+                builder.Name("bla").Required();
+            }
+
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
                 base.OnConfigure(builder);
 
-                builder.Name("-bla").Required();
+                builder.Name("bla").Required();
             }
 
             public override void OnExecute(object options, object commandOptions)
