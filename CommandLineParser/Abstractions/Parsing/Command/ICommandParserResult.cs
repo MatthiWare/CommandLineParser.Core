@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections;
+using System.Collections.Generic;
 using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
@@ -9,6 +10,14 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
     /// </summary>
     public interface ICommandParserResult
     {
+        /// <summary>
+        /// Subcommands of the current command
+        /// </summary>
+        IReadOnlyCollection<ICommandParserResult> SubCommands { get; }
+
+        /// <summary>
+        /// The associated command
+        /// </summary>
         ICommandLineCommand Command { get; }
 
         /// <summary>

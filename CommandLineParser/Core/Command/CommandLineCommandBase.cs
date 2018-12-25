@@ -13,10 +13,10 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandLineCommandContainer,
         ICommandLineCommand
     {
-        protected readonly List<CommandLineOptionBase> m_options = new List<CommandLineOptionBase>();
-        protected readonly List<ICommandLineCommand> m_commands = new List<ICommandLineCommand>();
+        protected readonly Dictionary<string, CommandLineOptionBase> m_options = new Dictionary<string, CommandLineOptionBase>();
+        protected readonly List<CommandLineCommandBase> m_commands = new List<CommandLineCommandBase>();
 
-        public IReadOnlyList<ICommandLineOption> Options => m_options.AsReadOnly();
+        public IReadOnlyList<ICommandLineOption> Options => new ReadOnlyCollectionWrapper<string, CommandLineOptionBase>(m_options.Values);
 
         public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 

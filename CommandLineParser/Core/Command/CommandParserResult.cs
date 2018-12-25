@@ -10,12 +10,15 @@ namespace MatthiWare.CommandLine.Core.Command
     internal class CommandParserResult : ICommandParserResult
     {
         private readonly CommandLineCommandBase m_cmd;
+        private readonly List<ICommandParserResult> commandParserResults = new List<ICommandParserResult>();
 
         public bool HasErrors { get; private set; }
 
         public Exception Error { get; private set; } = null;
 
         public ICommandLineCommand Command => m_cmd;
+
+        public IReadOnlyCollection<ICommandParserResult> SubCommands => commandParserResults;
 
         public CommandParserResult(CommandLineCommandBase command)
         {
@@ -31,6 +34,13 @@ namespace MatthiWare.CommandLine.Core.Command
             Error = (errors.Count > 1) ?
                 new AggregateException(errors) :
                 errors.First();
+        }
+
+        public void MergeResult(ICommandParserResult result)
+        {
+            HasErrors |= result.HasErrors;
+
+            commandParserResults.Add(result);
         }
 
         public void ExecuteCommand() => m_cmd.Execute();

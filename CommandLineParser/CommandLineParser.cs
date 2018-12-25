@@ -9,6 +9,7 @@ using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Attributes;
@@ -16,6 +17,7 @@ using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Usage;
+using MatthiWare.CommandLine.Core.Utils;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -197,8 +199,16 @@ namespace MatthiWare.CommandLine
         {
             if (result.HasErrors) return;
 
-            foreach (var cmd in result.CommandResults.Where(r => r.Command.AutoExecute))
+            ExecuteCommandParserResults(result.CommandResults.Where(r => r.Command.AutoExecute));
+        }
+
+        private void ExecuteCommandParserResults(IEnumerable<ICommandParserResult> results)
+        {
+            foreach (var cmd in results)
                 cmd.ExecuteCommand();
+
+            foreach (var cmd in results)
+                ExecuteCommandParserResults(cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
         }
 
         private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
@@ -259,7 +269,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(m_parserOptions, ArgumentResolverFactory, m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             m_commands.Add(command);
 
@@ -275,7 +285,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, object>(m_parserOptions, ArgumentResolverFactory, m_option);
+            var command = new CommandLineCommand<TOption, object>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -295,7 +305,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, TCommandOption>(m_parserOptions, ArgumentResolverFactory, m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -310,7 +320,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(m_parserOptions, ArgumentResolverFactory, m_option);
+            var command = new CommandLineCommand<TOption, object>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             m_commands.Add(command);
 
@@ -359,6 +369,18 @@ namespace MatthiWare.CommandLine
                 }
 
                 if (ignoreSet) continue; // Ignore the configured actions for this option.
+
+                if (propInfo.PropertyType.IsAssignableToGenericType(typeof(Command<>)))
+                {
+                    var genericTypes = propInfo.PropertyType.BaseType.GenericTypeArguments;
+                    var method = GetType().GetMethods().First(m =>
+                    {
+                        return (m.Name == nameof(RegisterCommand) && m.IsGenericMethod && m.GetGenericArguments().Length == genericTypes.Length);
+                    });
+                    var registerCommand = genericTypes.Length > 1 ? method.MakeGenericMethod(propInfo.PropertyType, genericTypes[1]) : method.MakeGenericMethod(propInfo.PropertyType);
+
+                    registerCommand.Invoke(this, null);
+                }
 
                 foreach (var action in actions)
                     action();
