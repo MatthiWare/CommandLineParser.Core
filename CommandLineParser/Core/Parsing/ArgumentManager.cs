@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using MatthiWare.CommandLine.Abstractions;
@@ -78,6 +79,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                     SetArgumentUsed(optionIdx, option);
                 }
+
+                ParseCommands(cmd.Commands.Cast<CommandLineCommandBase>());
             }
         }
 
@@ -122,6 +125,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => resultCache.TryGetValue(argument, out model);
 
+        [DebuggerDisplay("{Argument}, used: {Used}, index: {Index}")]
         private class ArgumentValueHolder
         {
             public string Argument { get; set; }

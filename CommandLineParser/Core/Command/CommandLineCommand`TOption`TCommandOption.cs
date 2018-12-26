@@ -21,7 +21,7 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandConfigurationBuilder,
         ICommandConfigurationBuilder<TCommandOption>,
         IOptionConfigurator<TCommandOption>
-        where TOption : class
+        where TOption : class, new()
         where TCommandOption : class, new()
     {
         private readonly TCommandOption m_commandOption;
@@ -248,7 +248,7 @@ namespace MatthiWare.CommandLine.Core.Command
         /// </summary>
         private void InitialzeModel()
         {
-            var properties = typeof(TOption).GetProperties();
+            var properties = typeof(TCommandOption).GetProperties();
 
             foreach (var propInfo in properties)
             {
@@ -340,16 +340,16 @@ namespace MatthiWare.CommandLine.Core.Command
         /// <typeparam name="TCommand"></typeparam>
         /// <typeparam name="TCommandOption"></typeparam>
         public void RegisterCommand<TCommand, V>()
-           where TCommand : Command<TCommandOption, V>
+           where TCommand : Command<TOption, V>
            where V : class, new()
         {
             var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TCommandOption, V>(m_parserOptions, m_resolverFactory, m_containerResolver, m_commandOption);
+            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_resolverFactory, m_containerResolver, m_baseOption);
 
             cmdConfigurator.OnConfigure(command);
 
-            command.OnExecuting((Action<TCommandOption, V>)cmdConfigurator.OnExecute);
+            command.OnExecuting((Action<TOption, V>)cmdConfigurator.OnExecute);
 
             m_commands.Add(command);
         }

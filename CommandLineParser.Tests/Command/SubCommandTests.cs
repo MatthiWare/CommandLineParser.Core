@@ -20,7 +20,7 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             var parser = new CommandLineParser<MainModel>(containerResolver);
 
-            var result = parser.Parse(new[] { "main", "-b", "something", "sub", "-i", "15" });
+            var result = parser.Parse(new[] { "main", "-b", "something", "sub", "-i", "15", "-n", "-1" });
 
             Assert.False(result.HasErrors);
 
@@ -60,7 +60,7 @@ namespace MatthiWare.CommandLineParser.Tests.Command
             this.locker = locker;
         }
 
-        public override void OnConfigure(ICommandConfigurationBuilder builder)
+        public override void OnConfigure(ICommandConfigurationBuilder<SubModel> builder)
         {
             builder
                 .Name("main")
@@ -75,9 +75,8 @@ namespace MatthiWare.CommandLineParser.Tests.Command
         }
     }
 
-    public class SubCommand : Command<MainModel, SubModel>
+    public class SubCommand : Command<MainModel, SubSubModel>
     {
-
         private readonly ManualResetEventSlim locker;
 
         public SubCommand(ManualResetEventSlim locker)
@@ -85,14 +84,14 @@ namespace MatthiWare.CommandLineParser.Tests.Command
             this.locker = locker;
         }
 
-        public override void OnConfigure(ICommandConfigurationBuilder<SubModel> builder)
+        public override void OnConfigure(ICommandConfigurationBuilder<SubSubModel> builder)
         {
             builder
                 .Name("sub")
                 .Required();
         }
 
-        public override void OnExecute(MainModel options, SubModel commandOptions)
+        public override void OnExecute(MainModel options, SubSubModel commandOptions)
         {
             base.OnExecute(options, commandOptions);
 
@@ -112,5 +111,11 @@ namespace MatthiWare.CommandLineParser.Tests.Command
         [Required, Name("i")]
         public int Item { get; set; }
         public SubCommand SubCommand { get; set; }
+    }
+
+    public class SubSubModel
+    {
+        [Required, Name("n")]
+        public int Nothing { get; set; }
     }
 }
