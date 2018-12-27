@@ -48,7 +48,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         public void PrintCommandDescription(ICommandLineCommand command)
-            => stringBuilder.AppendLine($"\t{command.Name}\t{command.Description}");
+            => stringBuilder.AppendLine($"  {command.Name}\t\t{command.Description}");
 
         public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
         {
@@ -67,10 +67,10 @@ namespace MatthiWare.CommandLine.Core.Usage
             bool hasBoth = hasShort && hasLong;
 
             string hasBothSeperator = hasBoth ? "|" : string.Empty;
-            string shortName = hasShort ? $"{parserOptions.PrefixShortOption}{option.ShortName}" : string.Empty;
-            string longName = hasLong ? $"{parserOptions.PrefixLongOption}{option.LongName}" : string.Empty;
+            string shortName = hasShort ? option.ShortName : string.Empty;
+            string longName = hasLong ? option.LongName : string.Empty;
 
-            stringBuilder.AppendLine($"\t{shortName}{hasBothSeperator}{longName}\t{option.Description}");
+            stringBuilder.AppendLine($"  {shortName}{hasBothSeperator}{longName}\t{option.Description}");
         }
 
         public void PrintOptions(IEnumerable<ICommandLineOption> options)

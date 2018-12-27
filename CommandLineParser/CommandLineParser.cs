@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -34,6 +35,7 @@ namespace MatthiWare.CommandLine
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
         private readonly CommandLineParserOptions m_parserOptions;
+        private readonly Process m_currentProcess;
 
         /// <summary>
         /// Tool to print usage info.
@@ -117,7 +119,10 @@ namespace MatthiWare.CommandLine
             ArgumentResolverFactory = argumentResolverFactory;
             ContainerResolver = containerResolver;
 
-            Printer = new UsagePrinter(parserOptions, this);
+            if (string.IsNullOrWhiteSpace(m_parserOptions.AppName))
+                m_parserOptions.AppName = Process.GetCurrentProcess().ProcessName;
+
+            Printer = new UsagePrinter(m_parserOptions, this);
 
             InitialzeModel();
         }
@@ -187,7 +192,7 @@ namespace MatthiWare.CommandLine
         private void PrintErrors(ICollection<Exception> errors)
         {
             foreach (var error in errors)
-                Console.Error.WriteLine(error);
+                Console.Error.WriteLine(error.Message);
 
             PrintHelp();
         }
