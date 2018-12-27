@@ -30,8 +30,8 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
         private class CustomInstantiator : IContainerResolver
         {
-            private ManualResetEventSlim lock1;
-            private ManualResetEventSlim lock2;
+            private readonly ManualResetEventSlim lock1;
+            private readonly ManualResetEventSlim lock2;
 
             public CustomInstantiator(ManualResetEventSlim lock1, ManualResetEventSlim lock2)
             {
