@@ -21,9 +21,11 @@ namespace MatthiWare.CommandLineParser.Tests.Usage
         public void UsagePrintGetsCalledInCorrectCases(string[] args, bool called)
         {
             var printerMock = new Mock<IUsagePrinter>();
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>();
 
-            parser.Printer = printerMock.Object;
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>
+            {
+                Printer = printerMock.Object
+            };
 
             parser.Parse(args);
 
