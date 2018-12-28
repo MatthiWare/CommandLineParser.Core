@@ -1,4 +1,7 @@
 #tool "nuget:?package=xunit.runner.console&version=2.2.0"
+#tool nuget:?package=Codecov
+#addin nuget:?package=Cake.Codecov
+#addin nuget:?package=Cake.Coverlet
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,12 +52,21 @@ Task("Test")
     .IsDependentOn("Build")
     .Does( () => {
 		
+        var coverletSettings = new CoverletSettings {
+                CollectCoverage = true,
+                CoverletOutputFormat = CoverletOutputFormat.opencover,
+                CoverletOutputName = $"coverage.xml"
+            };
+
 		DotNetCoreTest(tests,
-        new DotNetCoreTestSettings {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration
-        });
+            new DotNetCoreTestSettings {
+                NoBuild = true,
+                NoRestore = true,
+                Configuration = configuration
+            }, coverletSettings);
+
+        // Upload a coverage report.
+        Codecov("coverage.xml");
 });
 
 Task("Publish")
@@ -78,7 +90,7 @@ Task("Publish-NuGet")
         {
             BasePath = publishPath,
             OutputDirectory = nugetPackageDir,
-            IncludeReferencedProjects = true,
+            IncludeReferencedProjects = false,
 
             Properties = new Dictionary<string, string>
             {
