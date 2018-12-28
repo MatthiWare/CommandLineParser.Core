@@ -65,7 +65,7 @@ Task("Test")
                 Configuration = configuration
             }, coverletSettings);
 
-        foreach(var file in GetFiles("C:\\projects\\commandlineparser-core\\*.*"))
+        foreach(var file in GetFiles("C:\\projects\\commandlineparser-core\\CommandLineParser.Tests\\bin\\Release\\netcoreapp2.1\\*.*"))
             {
                 Information(file.FullPath);
             }
