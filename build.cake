@@ -12,6 +12,7 @@ var configuration = Argument("configuration", "Release");
 
 var project = "CommandLineParser";
 var solution = $"./{project}.sln";
+var cmdParserProject = $"./{project}/{project}.csproj";
 var nuspecFile = $"./{project}/{project}.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
@@ -60,7 +61,7 @@ Task("Publish")
     .IsDependentOn("Test")
     .IsDependentOn("Clean-Publish")
     .Does( () => {
-    DotNetCorePublish(solution,
+    DotNetCorePublish(cmdParserProject,
         new DotNetCorePublishSettings {
 
             NoRestore = true,
