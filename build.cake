@@ -65,8 +65,7 @@ Task("Test")
                 Configuration = configuration
             }, coverletSettings);
 
-        foreach(var file in FileSystem.GetDirectory(new DirectoryPath("C:\\projects\\commandlineparser-core"))
-            .GetFiles("*", SearchScope.Recursive))
+        foreach(var file in GetFiles("C:\\projects\\commandlineparser-core\\*.*"))
             {
                 Information(file.Path.FullPath);
             }
