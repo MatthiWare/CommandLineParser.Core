@@ -65,6 +65,13 @@ Task("Test")
                 Configuration = configuration
             }, coverletSettings);
 
+        foreach(var file in FileSystem.GetDirectory(new DirectoryPath("C:\projects\commandlineparser-core"))
+            .GetFiles("*", SearchScope.Recursive))
+            {
+                Information(file.FilePath.FullPath);
+            }
+
+
         // Upload a coverage report.
         Codecov("coverage.xml");
 });
