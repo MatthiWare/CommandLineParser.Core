@@ -39,13 +39,5 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <param name="name">name</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
         new ICommandBuilder<TOption, TSource> Name(string name);
-
-        /// <summary>
-        /// Configures how the command should be invoked.
-        /// Default behavior is to auto invoke the command.
-        /// </summary>
-        /// <param name="invoke">True if the command executor will be invoked (default), false if you want to invoke manually.</param>
-        /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
-        new ICommandBuilder<TOption, TSource> InvokeCommand(bool invoke);
     }
 }

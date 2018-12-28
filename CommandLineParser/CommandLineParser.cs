@@ -35,7 +35,6 @@ namespace MatthiWare.CommandLine
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
         private readonly CommandLineParserOptions m_parserOptions;
-        private readonly Process m_currentProcess;
 
         /// <summary>
         /// Tool to print usage info.
@@ -286,7 +285,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <typeparam name="TCommandOption">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
         public void RegisterCommand<TCommand>()
-            where TCommand : Command<TOption>
+            where TCommand : Command
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 

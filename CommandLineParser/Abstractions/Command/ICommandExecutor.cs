@@ -14,6 +14,8 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <returns><see cref="ICommandBuilder{TOption,TSource}"/></returns>
         ICommandBuilder<TOption, TSource> InvokeCommand(bool invoke);
 
+        ICommandBuilder<TOption, TSource> OnExecuting(Action action);
+
         ICommandBuilder<TOption, TSource> OnExecuting(Action<TOption> action);
 
         ICommandBuilder<TOption, TSource> OnExecuting(Action<TOption, TSource> action);

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
@@ -71,7 +70,7 @@ namespace MatthiWare.CommandLine.Abstractions
         /// </summary>
         /// <typeparam name="TCommand">The command</typeparam>
         void RegisterCommand<TCommand>()
-            where TCommand : Command<TOption>;
+            where TCommand : Command.Command;
 
         /// <summary>
         /// Registers a new command

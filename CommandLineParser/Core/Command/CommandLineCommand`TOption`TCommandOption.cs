@@ -30,7 +30,8 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly IContainerResolver m_containerResolver;
         private readonly CommandLineParserOptions m_parserOptions;
 
-        private Action<TOption> m_executor;
+        private Action m_executor;
+        private Action<TOption> m_executor1;
         private Action<TOption, TCommandOption> m_executor2;
 
         public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option)
@@ -48,7 +49,8 @@ namespace MatthiWare.CommandLine.Core.Command
         public override void Execute()
         {
             m_executor2?.Invoke(m_baseOption, m_commandOption);
-            m_executor?.Invoke(m_baseOption);
+            m_executor1?.Invoke(m_baseOption);
+            m_executor?.Invoke();
         }
 
         public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
@@ -133,6 +135,13 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption> action)
         {
+            m_executor1 = action;
+
+            return this;
+        }
+
+        public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action action)
+        {
             m_executor = action;
 
             return this;
@@ -168,7 +177,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
         ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecuting(Action<TOption> action)
         {
-            m_executor = action;
+            m_executor1 = action;
 
             return this;
         }
@@ -329,7 +338,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
             cmdConfigurator.OnConfigure(command);
 
-            command.OnExecuting(cmdConfigurator.OnExecute);
+            command.OnExecuting((Action<TCommandOption>)cmdConfigurator.OnExecute);
 
             m_commands.Add(command);
         }

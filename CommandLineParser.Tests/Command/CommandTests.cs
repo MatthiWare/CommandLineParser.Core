@@ -63,13 +63,6 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
         private class MyComand : Command<object, object>
         {
-            public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
-            {
-                base.OnConfigure(builder);
-
-                builder.Name("bla").Required();
-            }
-
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
                 base.OnConfigure(builder);
