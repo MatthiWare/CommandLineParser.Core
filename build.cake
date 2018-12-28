@@ -20,6 +20,7 @@ var nuspecFile = $"./{project}/{project}.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
+var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -54,6 +55,7 @@ Task("Test")
 		
         var coverletSettings = new CoverletSettings {
                 CollectCoverage = true,
+                CoverletOutputDirectory = codeCoverageOutput,
                 CoverletOutputFormat = CoverletOutputFormat.opencover,
                 CoverletOutputName = $"coverage.xml"
             };
@@ -65,14 +67,14 @@ Task("Test")
                 Configuration = configuration
             }, coverletSettings);
 
-        foreach(var file in GetFiles("C:\\projects\\commandlineparser-core\\CommandLineParser.Tests\\bin\\Release\\netcoreapp2.1\\*.*"))
+        foreach(var file in GetFiles($"{codeCoverageOutput}\\*.*"))
             {
                 Information(file.FullPath);
             }
 
 
         // Upload a coverage report.
-        Codecov("coverage.xml");
+        Codecov($"{codeCoverageOutput}\\coverage.xml");
 });
 
 Task("Publish")
