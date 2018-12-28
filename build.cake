@@ -1,4 +1,7 @@
 #tool "nuget:?package=xunit.runner.console&version=2.2.0"
+#tool nuget:?package=Codecov
+#addin nuget:?package=Cake.Codecov
+#addin nuget:?package=Cake.Coverlet
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,6 +20,7 @@ var nuspecFile = $"./{project}/{project}.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
+var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -49,12 +53,29 @@ Task("Test")
     .IsDependentOn("Build")
     .Does( () => {
 		
+        var coverletSettings = new CoverletSettings {
+                CollectCoverage = true,
+                CoverletOutputDirectory = codeCoverageOutput,
+                CoverletOutputFormat = CoverletOutputFormat.opencover,
+                CoverletOutputName = $"coverage.xml"
+            };
+
 		DotNetCoreTest(tests,
-        new DotNetCoreTestSettings {
-            NoBuild = true,
-            NoRestore = true,
-            Configuration = configuration
-        });
+            new DotNetCoreTestSettings {
+                NoBuild = true,
+                NoRestore = true,
+                Configuration = configuration
+            }, coverletSettings);
+
+        Information("Print all files: ");
+        foreach(var file in GetFiles($".\\**\\**\\**\\*.*"))
+            {
+                Information(file.FullPath);
+            }
+
+
+        // Upload a coverage report.
+        Codecov($"{codeCoverageOutput}\\coverage.xml");
 });
 
 Task("Publish")
@@ -78,7 +99,7 @@ Task("Publish-NuGet")
         {
             BasePath = publishPath,
             OutputDirectory = nugetPackageDir,
-            IncludeReferencedProjects = true,
+            IncludeReferencedProjects = false,
 
             Properties = new Dictionary<string, string>
             {
