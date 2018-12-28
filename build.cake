@@ -68,7 +68,7 @@ Task("Test")
             }, coverletSettings);
 
         Information("Print all files: ");
-        foreach(var file in GetFiles($".\\**\\**\\**\*.*"))
+        foreach(var file in GetFiles($".\\**\\**\\**\\*.*"))
             {
                 Information(file.FullPath);
             }
