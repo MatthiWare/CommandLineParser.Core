@@ -35,7 +35,6 @@ namespace MatthiWare.CommandLine.Core.Usage
                 .Append(hasOptions ? "[options] " : string.Empty)
                 .Append(hasCommands ? "[commands]" : string.Empty)
                 .AppendLine();
-
         }
 
         public void PrintCommand(string name, ICommandLineCommandContainer container)

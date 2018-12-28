@@ -74,8 +74,8 @@ namespace MatthiWare.CommandLine.Core
 
         IOptionBuilder IOptionBuilder.Name(string shortName, string longName)
         {
-            LongName = $"{m_parserOptions.PrefixLongOption}{longName}"; ;
-            ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}"; ;
+            LongName = $"{m_parserOptions.PrefixLongOption}{longName}";
+            ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
 
             return this;
         }
