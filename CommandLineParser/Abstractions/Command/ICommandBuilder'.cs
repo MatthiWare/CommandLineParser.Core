@@ -11,7 +11,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         where TOption : class
         where TSource : class, new()
     {
-
         /// <summary>
         /// Configures an option in the model
         /// </summary>
@@ -28,25 +27,17 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         new ICommandBuilder<TOption, TSource> Required(bool required = true);
 
         /// <summary>
-        /// Configures the help text for the command
+        /// Describes the command, used in the usage output. 
         /// </summary>
-        /// <param name="required">True or false</param>
+        /// <param name="desc">description of the command</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        new ICommandBuilder<TOption, TSource> HelpText(string help);
+        new ICommandBuilder<TOption, TSource> Description(string desc);
 
         /// <summary>
         /// Configures the command name
         /// </summary>
-        /// <param name="shortName">Short name</param>
+        /// <param name="name">name</param>
         /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        new ICommandBuilder<TOption, TSource> Name(string shortName);
-
-        /// <summary>
-        /// Configures the command name
-        /// </summary>
-        /// <param name="shortName">Short name</param>
-        /// <param name="longName">Long name</param>
-        /// <returns><see cref="ICommandBuilder{TOption, TSource}"/></returns>
-        new ICommandBuilder<TOption, TSource> Name(string shortName, string longName);
+        new ICommandBuilder<TOption, TSource> Name(string name);
     }
 }

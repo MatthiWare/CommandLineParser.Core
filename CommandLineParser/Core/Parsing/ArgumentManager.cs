@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Command;
@@ -11,12 +13,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
 {
     internal class ArgumentManager : IArgumentManager, IDisposable
     {
-        private readonly IDictionary<ICommandLineOption, ArgumentModel> arguments;
+        private readonly IDictionary<IArgument, ArgumentModel> resultCache;
         private readonly List<ArgumentValueHolder> args;
 
         public ArgumentManager(string[] args, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
         {
-            arguments = new Dictionary<ICommandLineOption, ArgumentModel>(commands.Count + options.Count);
+            resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
 
             this.args = new List<ArgumentValueHolder>(args.Select(arg => new ArgumentValueHolder
             {
@@ -28,9 +30,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             ParseOptions(options);
 
+            // pre cache results
             foreach (var item in this.args)
             {
-                if (item.Option == null) continue;
+                if (item.ArgModel == null) continue;
 
                 int nextIndex = item.Index + 1;
 
@@ -39,10 +42,11 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 var argModel = new ArgumentModel
                 {
                     Key = item.Argument,
+                    // this checks if the argument is used in an other command/option. 
                     Value = (argValue?.Used ?? true) ? null : argValue.Argument
                 };
 
-                arguments.Add(item.Option, argModel);
+                resultCache.Add(item.ArgModel, argModel);
             }
         }
 
@@ -75,13 +79,15 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                     SetArgumentUsed(optionIdx, option);
                 }
+
+                ParseCommands(cmd.Commands.Cast<CommandLineCommandBase>());
             }
         }
 
-        private void SetArgumentUsed(int idx, ICommandLineOption option)
+        private void SetArgumentUsed(int idx, IArgument option)
         {
             args[idx].Used = true;
-            args[idx].Option = option;
+            args[idx].ArgModel = option;
             args[idx].Index = idx;
         }
 
@@ -89,26 +95,38 @@ namespace MatthiWare.CommandLine.Core.Parsing
         /// Finds the index of the first unused argument
         /// </summary>
         /// <param name="args">List of arguments to search</param>
-        /// <param name="option">Option to find</param>
+        /// <param name="model">Argument model to find</param>
         /// <param name="startOffset">Search offset</param>
         /// <returns></returns>
-        private int FindIndex(ICommandLineOption option, int startOffset = 0)
-            => args.FindIndex(startOffset, arg => !arg.Used &&
-                    ((option.HasShortName && string.Equals(option.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
-                    (option.HasLongName && string.Equals(option.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase))));
-
-        public void Dispose()
+        private int FindIndex(IArgument model, int startOffset = 0)
         {
-            arguments.Clear();
+            return args.FindIndex(startOffset, arg =>
+                {
+                    if (arg.Used) return false;
+
+                    switch (model)
+                    {
+                        case ICommandLineOption opt:
+                            return (opt.HasShortName && string.Equals(opt.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
+                                    (opt.HasLongName && string.Equals(opt.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase));
+                        case ICommandLineCommand cmd:
+                            return string.Equals(cmd.Name, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
+                        default:
+                            return false;
+                    }
+                });
         }
 
-        public bool TryGetValue(ICommandLineOption option, out ArgumentModel model) => arguments.TryGetValue(option, out model);
+        public void Dispose() => args.Clear();
 
+        public bool TryGetValue(IArgument argument, out ArgumentModel model) => resultCache.TryGetValue(argument, out model);
+
+        [DebuggerDisplay("{Argument}, used: {Used}, index: {Index}")]
         private class ArgumentValueHolder
         {
             public string Argument { get; set; }
             public bool Used { get; set; }
-            public ICommandLineOption Option { get; set; }
+            public IArgument ArgModel { get; set; }
             public int Index { get; set; }
         }
     }

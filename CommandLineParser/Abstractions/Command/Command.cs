@@ -4,8 +4,7 @@
     /// Defines a command
     /// </summary>
     /// <typeparam name="TOptions">Base options of the command</typeparam>
-    public abstract class Command<TOptions>
-        where TOptions : class, new()
+    public abstract class Command
     {
         /// <summary>
         /// Configures the command
@@ -18,6 +17,6 @@
         /// Executes the command
         /// </summary>
         /// <param name="options">Parsed options</param>
-        public virtual void OnExecute(TOptions options) { }
+        public virtual void OnExecute() { }
     }
 }

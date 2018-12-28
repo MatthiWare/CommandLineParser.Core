@@ -7,47 +7,49 @@ namespace SampleApp
     {
         static int Main(string[] args)
         {
+            Console.WriteLine($"args: {string.Join(", ", args)}");
+
             var parser = new CommandLineParser<Options>();
 
             // setup
             parser.Configure(opt => opt.MyInt)
-                .Name("-i", "--int")
+                .Name("i", "int")
+                .Description("Description for -s option, needs a string.")
                 .Required();
 
             parser.Configure(opt => opt.MyString)
-                .Name("-s", "--string")
+                .Name("s", "string")
+                .Description("Description for -s option, needs a string.")
                 .Required();
 
             parser.Configure(opt => opt.MyBool)
-                .Name("-b", "--bool")
+                .Name("b", "bool")
+                .Description("Description for -s option, needs a string.")
                 .Required();
 
             parser.Configure(opt => opt.MyDouble)
-                .Name("-d", "--double")
+                .Name("d", "double")
+                .Description("Description for -s option, needs a string.")
                 .Required();
 
             var startCmd = parser.AddCommand<CommandOptions>()
-                .Name("-s", "--start")
+                .Name("start")
+                .Description("Start the server command.")
                 .Required()
-                .OnExecuting(parsedCmdOption => Console.WriteLine($"Starting server using verbose option: {parsedCmdOption.Verbose}"));
+                .OnExecuting((opt, parsedCmdOption) => Console.WriteLine($"Starting server using verbose option: {parsedCmdOption.Verbose}"));
 
             startCmd.Configure(cmd => cmd.Verbose) // configures the command options can also be done using attributes
                 .Required()
-                .Name("-v", "--verbose");
+                .Description("Verbose output [true/false]")
+                .Name("v", "verbose");
 
             var result = parser.Parse(args);
 
             if (result.HasErrors)
             {
-                Console.Error.WriteLine(result.Error);
                 Console.ReadKey();
 
                 return -1;
-            }
-
-            foreach (var cmdResult in result.CommandResults)
-            {
-                cmdResult.ExecuteCommand(); // executes the command handler that is configured above. 
             }
 
             var options = result.Result;

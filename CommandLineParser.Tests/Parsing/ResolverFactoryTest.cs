@@ -1,9 +1,12 @@
 ﻿using System;
+
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+
 using Moq;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Parsing

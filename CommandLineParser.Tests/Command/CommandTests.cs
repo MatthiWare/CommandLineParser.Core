@@ -1,14 +1,14 @@
 ﻿using System.Linq;
+
 using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Command
 {
     public class CommandTests
     {
-
         [Fact]
         public void ConfiguringCommandsIncreasesTotalCommandInParser()
         {
@@ -19,8 +19,8 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.Equal(2, parser.Commands.Count);
 
-            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("x")));
-            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("y")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("x")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("y")));
         }
 
         [Fact]
@@ -33,8 +33,8 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.Equal(2, parser.Commands.Count);
 
-            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("x")));
-            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("y")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("x")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("y")));
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.Equal(1, parser.Commands.Count);
 
-            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("-bla")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
             Assert.Equal(1, parser.Commands.Count);
 
-            Assert.NotNull(parser.Commands.First(cmd => cmd.ShortName.Equals("-bla")));
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
         }
 
         private class MyComand : Command<object, object>
@@ -67,7 +67,7 @@ namespace MatthiWare.CommandLineParser.Tests.Command
             {
                 base.OnConfigure(builder);
 
-                builder.Name("-bla").Required();
+                builder.Name("bla").Required();
             }
 
             public override void OnExecute(object options, object commandOptions)
@@ -75,6 +75,5 @@ namespace MatthiWare.CommandLineParser.Tests.Command
                 base.OnExecute(options, commandOptions);
             }
         }
-
     }
 }

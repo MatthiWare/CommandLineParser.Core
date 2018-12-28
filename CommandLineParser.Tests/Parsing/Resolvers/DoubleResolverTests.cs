@@ -1,10 +1,10 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 {
-
     public class DoubleResolverTests
     {
         [Theory]
@@ -35,7 +35,5 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 
             Assert.Equal(expected, resolver.Resolve(model));
         }
-
-
     }
 }

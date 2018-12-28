@@ -12,12 +12,12 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         /// <summary>
         /// Command that caused the parsing error
         /// </summary>
-        public ICommandLineCommand Option { get; set; }
+        public ICommandLineCommand Command { get; set; }
 
-        public CommandParseException(ICommandLineCommand option, Exception innerException)
+        public CommandParseException(ICommandLineCommand command, Exception innerException)
             : base("", innerException)
         {
-            Option = option;
+            Command = command;
         }
     }
 }

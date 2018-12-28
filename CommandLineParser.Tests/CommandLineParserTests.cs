@@ -1,11 +1,14 @@
 ﻿using System.Threading;
+
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Attributes;
+
 using Moq;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests
@@ -71,7 +74,7 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<Options>();
 
             parser.Configure(opt => opt.Option1)
-                .Name("-o")
+                .Name("o")
                 .Default("Default message")
                 .Required();
 
@@ -95,7 +98,7 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<EnumOptions>();
 
             parser.Configure(opt => opt.EnumOption)
-                .Name("-e")
+                .Name("e")
                 .Required();
 
             var result = parser.Parse(args);
@@ -109,22 +112,25 @@ namespace MatthiWare.CommandLineParser.Tests
         [InlineData(new[] { "app.exe", "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
         [InlineData(new[] { "app.exe", "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
         [InlineData(new[] { "app.exe", "-1", "-2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
+        [InlineData(new[] { "-1", "-2", "-3" }, "message1", "message2", "message3")]
         public void ParseWithDefaults(string[] args, string result1, string result2, string result3)
         {
             var parser = new CommandLineParser<OptionsWithThreeParams>();
 
             parser.Configure(opt => opt.Option1)
-                .Name("-1")
+                .Name("1")
                 .Default(result1)
                 .Required();
 
             parser.Configure(opt => opt.Option2)
-                .Name("-2")
+                .Name("2")
                 .Default(result2)
                 .Required();
 
             parser.Configure(opt => opt.Option3)
-                .Name("-3")
+                .Name("3")
                 .Default(result3)
                 .Required();
 
@@ -152,7 +158,7 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<ObjOption>();
             parser.ArgumentResolverFactory.Register(resolver.Object);
 
-            var result = parser.Parse(new[] { "app.exe", "--p", "sample" });
+            var result = parser.Parse(new[] { "app.exe", "-p", "sample" });
 
             Assert.False(result.HasErrors);
 
@@ -167,12 +173,12 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<Options>();
 
             parser.Configure(opt => opt.Option1)
-                .Name("-o")
+                .Name("o")
                 .Default("Default message")
                 .Required();
 
             var addCmd = parser.AddCommand<AddOption>()
-                .Name("-A", "--Add")
+                .Name("add")
                 .OnExecuting((opt, cmdOpt) =>
                 {
                     Assert.Equal("test", opt.Option1);
@@ -180,12 +186,11 @@ namespace MatthiWare.CommandLineParser.Tests
                     wait.Set();
                 });
 
-
             addCmd.Configure(opt => opt.Message)
-                .Name("-m", "--message")
+                .Name("m", "message")
                 .Required();
 
-            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "--Add", "-m", "my message" });
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "add", "-m", "my message" });
 
             Assert.False(parsed.HasErrors);
 
@@ -199,22 +204,30 @@ namespace MatthiWare.CommandLineParser.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "app.exe", "--Add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
-        [InlineData(new[] { "app.exe", "-m", "message1", "--Add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         public void ParseCommandTests(string[] args, string result1, string result2)
         {
             var parser = new CommandLineParser<AddOption>();
+            var wait = new ManualResetEvent(false);
 
             parser.AddCommand<AddOption>()
-                .Name("-a", "--add")
+                .Name("add")
                 .Required()
-                .OnExecuting((opt1, opt2) => Assert.Equal(result2, opt2.Message))
+                .OnExecuting((opt1, opt2) =>
+                {
+                    wait.Set();
+
+                    Assert.Equal(result2, opt2.Message);
+                })
                 .Configure(c => c.Message)
-                    .Name("-m", "--message")
+                    .Name("m", "message")
                     .Required();
 
             parser.Configure(opt => opt.Message)
-                .Name("-m", "--message")
+                .Name("m", "message")
                 .Required();
 
             var result = parser.Parse(args);
@@ -222,6 +235,8 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.False(result.HasErrors);
 
             Assert.Equal(result1, result.Result.Message);
+
+            Assert.True(wait.WaitOne(2000));
         }
 
         [Fact]
@@ -230,12 +245,12 @@ namespace MatthiWare.CommandLineParser.Tests
             var parser = new CommandLineParser<Options>();
 
             parser.Configure(opt => opt.Option1)
-                .Name("-o", "--opt")
+                .Name("o", "opt")
                 .Default("Default message")
                 .Required();
 
             parser.Configure(opt => opt.Option2)
-                .Name("-x", "--xsomething")
+                .Name("x", "xsomething")
                 .Required();
 
             Assert.Equal(2, parser.Options.Count);
@@ -257,7 +272,7 @@ namespace MatthiWare.CommandLineParser.Tests
 
         private class ObjOption
         {
-            [Name("--p"), Required]
+            [Name("p"), Required]
             public object Param { get; set; }
         }
 

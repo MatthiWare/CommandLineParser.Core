@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections;
+using System.Collections.Generic;
 using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
@@ -9,6 +10,14 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
     /// </summary>
     public interface ICommandParserResult
     {
+        /// <summary>
+        /// Subcommands of the current command
+        /// </summary>
+        IReadOnlyCollection<ICommandParserResult> SubCommands { get; }
+
+        /// <summary>
+        /// The associated command
+        /// </summary>
         ICommandLineCommand Command { get; }
 
         /// <summary>
@@ -24,7 +33,7 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
         /// <summary>
         /// Executes the command
         /// </summary>
-        /// /// <exception cref="InvalidOperationException">
+        /// <exception cref="InvalidOperationException">
         /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Error"/> properties.
         /// </exception>
         void ExecuteCommand();

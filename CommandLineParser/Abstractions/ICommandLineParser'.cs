@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Usage;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
@@ -13,16 +13,9 @@ namespace MatthiWare.CommandLine.Abstractions
         #region Properties
 
         /// <summary>
-        /// Read-only list of available sub-commands
-        /// <see cref="ICommandLineParser{TOption}.AddCommand{TCommandOption}"/> to configure or add an command
+        /// Tool to print usage info.
         /// </summary>
-        IReadOnlyList<ICommandLineCommand> Commands { get; }
-
-        /// <summary>
-        /// Read-only list of available options for this command
-        /// <see cref="ICommandLineParser{TOption}.Configure{TProperty}(Expression{Func{TOption, TProperty}})"/> to configure or add an option
-        /// </summary>
-        IReadOnlyList<ICommandLineOption> Options { get; }
+        IUsagePrinter Printer { get; set; }
 
         /// <summary>
         /// Factory to resolve the argument type
@@ -77,7 +70,7 @@ namespace MatthiWare.CommandLine.Abstractions
         /// </summary>
         /// <typeparam name="TCommand">The command</typeparam>
         void RegisterCommand<TCommand>()
-            where TCommand : Command<TOption>;
+            where TCommand : Command.Command;
 
         /// <summary>
         /// Registers a new command

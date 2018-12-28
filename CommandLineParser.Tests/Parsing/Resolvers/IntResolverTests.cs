@@ -1,13 +1,12 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+
 using Xunit;
 
 namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 {
-
     public class IntResolverTests
     {
-
         [Theory]
         [InlineData(true, "-m", "5")]
         [InlineData(false, "-m", "false")]
@@ -29,7 +28,5 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
 
             Assert.Equal(expected, resolver.Resolve(model));
         }
-
-
     }
 }

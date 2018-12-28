@@ -10,25 +10,17 @@
         ICommandConfigurationBuilder Required(bool required = true);
 
         /// <summary>
-        /// Configures the help text for the command
+        /// Configures the description text for the command
         /// </summary>
         /// <param name="required">True or false</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
-        ICommandConfigurationBuilder HelpText(string help);
+        ICommandConfigurationBuilder Description(string description);
 
         /// <summary>
         /// Configures the command name
         /// </summary>
-        /// <param name="shortName">Short name</param>
+        /// <param name="name">Short name</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
-        ICommandConfigurationBuilder Name(string shortName);
-
-        /// <summary>
-        /// Configures the command name
-        /// </summary>
-        /// <param name="shortName">Short name</param>
-        /// <param name="longName">Long name</param>
-        /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
-        ICommandConfigurationBuilder Name(string shortName, string longName);
+        ICommandConfigurationBuilder Name(string name);
     }
 }

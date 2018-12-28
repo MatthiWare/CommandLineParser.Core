@@ -15,7 +15,7 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         public ICommandLineCommand Command { get; private set; }
 
         public CommandNotFoundException(ICommandLineCommand cmd)
-            : base($"Required command '{cmd.HasShortName}' or '{cmd.LongName}' not found!")
+            : base($"Required command '{cmd.Name}' not found!")
         {
             Command = cmd;
         }

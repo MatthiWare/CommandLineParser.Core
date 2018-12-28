@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace MatthiWare.CommandLine.Core.Utils
 {
@@ -27,6 +28,14 @@ namespace MatthiWare.CommandLine.Core.Utils
             if (baseType == null) return false;
 
             return IsAssignableToGenericType(baseType, genericType);
+        }
+
+        public static StringBuilder AppendIf(this StringBuilder self, bool contition, string text)
+        {
+            if (contition)
+                self.Append(text);
+
+            return self;
         }
     }
 }
