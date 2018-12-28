@@ -114,12 +114,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
                         default:
                             return false;
                     }
-
-
                 });
         }
-
-
 
         public void Dispose() => args.Clear();
 
