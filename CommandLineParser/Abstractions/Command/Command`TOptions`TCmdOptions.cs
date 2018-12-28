@@ -17,7 +17,7 @@
         /// <param name="builder"></param>
         public virtual void OnConfigure(ICommandConfigurationBuilder<TCommandOptions> builder)
         {
-            base.OnConfigure(builder);
+            OnConfigure((ICommandConfigurationBuilder)builder);
         }
 
         /// <summary>
@@ -25,6 +25,9 @@
         /// </summary>
         /// <param name="options"></param>
         /// <param name="commandOptions"></param>
-        public virtual void OnExecute(TOptions options, TCommandOptions commandOptions) { }
+        public virtual void OnExecute(TOptions options, TCommandOptions commandOptions)
+        {
+            OnExecute(options);
+        }
     }
 }
