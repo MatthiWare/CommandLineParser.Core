@@ -21,157 +21,47 @@ A simple, light-weight and strongly typed commandline parser made in .Net standa
 PM> Install-Package MatthiWare.CommandLineParser
 ```
 
-## Configuration
+# Quick Start
 
-#### Using model class with attributes
-``` csharp
-    using MatthiWare.CommandLine;
-    using MatthiWare.CommandLine.Core.Attributes;
+First of all you need to add the nuget package. 
 
-    static int Main(string[] args)
-    {
-        var parser = new CommandLineParser<OptionsModel>();
-
-        var parseResult = parser.Parse(args);
-
-        if (result.HasErrors)
-        {
-            Console.Error.WriteLine(result.Error);
-            Console.ReadKey();
-
-            return -1;
-        }
-
-        var options = result.Result;
-
-        Console.WriteLine($"Message: {options.Message}");
-        Console.WriteLine($"Port: {options.Port}");
-
-        Console.ReadKey();
-
-        return 0;
-    }
-
-    public class OptionsModel
-    {
-        [Required, Name("-m", "--message")]
-        public string Message { get; set; } // Mandatory
-
-        [Name("-p", "--port"), DefaultValue(8080)]
-        public int Port { get; set; } // Optional
-
-        [Ignored]
-        public string Metadata { get; set; } // Property will not be added
-    }
+``` powershell
+PM> Install-Package MatthiWare.CommandLineParser
 ```
 
-_**Warning:** Attributes will be overwritten by fluent api if both are configured_
+Now you can setup the command line parser. 
 
-#### Using model class and Fluent API
 ``` csharp
-    using MatthiWare.CommandLine;
+static void Main(string[] args)
+{
+   // create the parser
+   var parser = new CommandLineParser<ServerOptions>();
+   
+   // configure the options using the fluent api
+   parser.Configure(options => options.Port)
+      .Name("p", "port")
+      .Description("The port of the server")
+      .Required();
 
-    static int Main(string[] args)
-    {
-        var parser = new CommandLineParser<OptionsModel>();
+   // parse
+   var result = parser.Parse(args);
 
-        parser.Configure(opt => opt.Message)
-                .Name("-m", "--message")
-                .Required();
+   // check for parsing errors
+   if (result.HasErrors)
+   {
+      Console.ReadKey();
 
-            parser.Configure(opt => opt.Port)
-                .Name("-p", "--port")
-                .Default(8080);
+      return -1;
+   }
 
-        var parseResult = parser.Parse(args);
-
-        if (result.HasErrors)
-        {
-            Console.Error.WriteLine(result.Error);
-            Console.ReadKey();
-
-            return -1;
-        }
-
-        var options = result.Result;
-
-        Console.WriteLine($"Message: {options.Message}");
-        Console.WriteLine($"Port: {options.Port}");
-
-        Console.ReadKey();
-
-        return 0;
-    }
-
-    public class OptionsModel
-    {
-        public string Message { get; set; } // Mandatory
-
-        public int Port { get; set; } // Optional
-    }
+   Console.WriteLine($"Parsed port is {result.Result.Port}");
+}
 ```
 
-_**Warning:** Attributes will be overwritten by fluent api if both are configured_
+Run command line
 
-### Commands
-``` csharp
-    using MatthiWare.CommandLine;
-
-    static int Main(string[] args)
-    {
-        var parser = new CommandLineParser<OptionsModel>();
-
-        parser.Configure(opt => opt.Message)
-                .Name("-m", "--message")
-                .Required();
-
-            parser.Configure(opt => opt.Port)
-                .Name("-p", "--port")
-                .Default(8080);
-
-        var parseResult = parser.Parse(args);
-
-        var startCmd = parser.AddCommand<CommandOptions>()
-            .Name("-s", "--start")
-            .Required()
-            .OnExecuting(parsedCmdOption => Console.WriteLine($"Starting server using verbose option: {parsedCmdOption.Verbose}"));
-
-        startCmd.Configure(cmd => cmd.Verbose) // configures the command options can also be done using attributes
-            .Required()
-            .Name("-v", "--verbose");
-
-        if (result.HasErrors)
-        {
-            Console.Error.WriteLine(result.Error);
-            Console.ReadKey();
-
-            return -1;
-        }
-
-        foreach (var cmdResult in result.CommandResults)
-        {
-            cmdResult.ExecuteCommand(); // executes the command handler that is configured above. 
-        }
-
-        var options = result.Result;
-
-        Console.WriteLine($"Message: {options.Message}");
-        Console.WriteLine($"Port: {options.Port}");
-
-        Console.ReadKey();
-
-        return 0;
-    }
-
-    public class OptionsModel
-    {
-        public string Message { get; set; } // Mandatory
-
-        public int Port { get; set; } // Optional
-    }
-
-    public class CommandOptions
-    {
-        public bool Verbose { get; set; }
-    }
+```shell
+dotnet myapp --port 2551
 ```
+
+### For more advanced configuration options see [the wiki](https://github.com/MatthiWare/CommandLineParser.Core/wiki). 
