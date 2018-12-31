@@ -11,6 +11,8 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
         [InlineData("yes")]
         [InlineData("1")]
         [InlineData("true")]
+        [InlineData("")]
+        [InlineData(null)]
         public void TestResolveTrue(string input)
         {
             var resolver = new BoolResolver();
