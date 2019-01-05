@@ -8,6 +8,11 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
     public interface IParserResult<TResult>
     {
         /// <summary>
+        /// Returns true if the user specified a help option
+        /// </summary>
+        bool HelpRequested { get; }
+
+        /// <summary>
         /// Parsed result
         /// </summary>
         /// <exception cref="InvalidOperationException">

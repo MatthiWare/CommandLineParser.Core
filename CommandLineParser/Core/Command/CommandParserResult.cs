@@ -12,13 +12,15 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly CommandLineCommandBase m_cmd;
         private readonly List<ICommandParserResult> commandParserResults = new List<ICommandParserResult>();
 
-        public bool HasErrors { get; private set; }
+        public bool HasErrors { get; private set; } = false;
 
         public Exception Error { get; private set; } = null;
 
         public ICommandLineCommand Command => m_cmd;
 
         public IReadOnlyCollection<ICommandParserResult> SubCommands => commandParserResults;
+
+        public bool HelpRequested { get; set; } = false;
 
         public CommandParserResult(CommandLineCommandBase command)
         {

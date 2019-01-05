@@ -32,6 +32,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public IReadOnlyList<ICommandParserResult> CommandResults => commandParserResults.AsReadOnly();
 
+        public bool HelpRequested { get; set; } = false;
+
         #endregion
 
         public void MergeResult(ICommandParserResult result)

@@ -11,6 +11,11 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
     public interface ICommandParserResult
     {
         /// <summary>
+        /// Returns true if the user specified a help option
+        /// </summary>
+        bool HelpRequested { get; }
+
+        /// <summary>
         /// Subcommands of the current command
         /// </summary>
         IReadOnlyCollection<ICommandParserResult> SubCommands { get; }
