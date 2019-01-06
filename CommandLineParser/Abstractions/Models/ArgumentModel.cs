@@ -1,8 +1,11 @@
-﻿namespace MatthiWare.CommandLine.Abstractions.Models
+﻿using System.Diagnostics;
+
+namespace MatthiWare.CommandLine.Abstractions.Models
 {
     /// <summary>
     /// Model for command line arguments
     /// </summary>
+    [DebuggerDisplay("Argument key: {Key} value: {Value}")]
     public struct ArgumentModel
     {
         /// <summary>

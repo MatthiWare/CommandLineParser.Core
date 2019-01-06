@@ -12,11 +12,13 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// </summary>
         bool HelpRequested { get; }
 
+        IArgument HelpRequestedFor { get; }
+
         /// <summary>
         /// Parsed result
         /// </summary>
         /// <exception cref="InvalidOperationException">
-        /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Error"/> properties.
+        /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Errors"/> properties.
         /// </exception>
         TResult Result { get; }
 
@@ -28,13 +30,13 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// <summary>
         /// Contains the thrown exception during parsing.
         /// </summary>
-        Exception Error { get; }
+        IReadOnlyCollection<Exception> Errors { get; }
 
         /// <summary>
         /// Executes the commands
         /// </summary>
         /// /// <exception cref="InvalidOperationException">
-        /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Error"/> properties.
+        /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Errors"/> properties.
         /// </exception>
         void ExecuteCommands();
 

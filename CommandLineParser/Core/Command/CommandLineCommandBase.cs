@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
-using MatthiWare.CommandLine.Abstractions.Usage;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
+    [DebuggerDisplay("Command [{Name}] Options: {m_options.Count} Commands: {m_commands.Count} Required: {IsRequired} Execute: {AutoExecute}")]
     internal abstract class CommandLineCommandBase :
         ICommandLineCommandParser,
         ICommandLineCommandContainer,

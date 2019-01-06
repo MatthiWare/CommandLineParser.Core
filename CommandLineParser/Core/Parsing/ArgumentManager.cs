@@ -16,6 +16,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly IDictionary<IArgument, ArgumentModel> resultCache;
         private readonly List<ArgumentValueHolder> args;
 
+        public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
+
         public ArgumentManager(string[] args, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
         {
             resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
@@ -77,6 +79,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     // find the option index starting at the command index
                     int optionIdx = FindIndex(option, idx);
 
+                    if (optionIdx == -1) continue;
+
                     SetArgumentUsed(optionIdx, option);
                 }
 
@@ -122,7 +126,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => resultCache.TryGetValue(argument, out model);
 
         [DebuggerDisplay("{Argument}, used: {Used}, index: {Index}")]
-        private class ArgumentValueHolder
+        public class ArgumentValueHolder
         {
             public string Argument { get; set; }
             public bool Used { get; set; }

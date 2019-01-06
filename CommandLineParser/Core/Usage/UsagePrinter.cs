@@ -29,5 +29,11 @@ namespace MatthiWare.CommandLine.Core.Usage
             m_usageBuilder.PrintCommand(command.Name, (ICommandLineCommandContainer)command);
             m_usageBuilder.Print();
         }
+
+        public void PrintUsage(ICommandLineOption option)
+        {
+            m_usageBuilder.PrintOption(option);
+            m_usageBuilder.Print();
+        }
     }
 }
