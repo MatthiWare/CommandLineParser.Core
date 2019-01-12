@@ -18,16 +18,12 @@ A simple, light-weight and strongly typed commandline parser made in .Net standa
 
 ## Installation
 ```powershell
-PM> Install-Package MatthiWare.CommandLineParser -Version 0.2.0-alpha
+PM> Install-Package MatthiWare.CommandLineParser
 ```
 
 # Quick Start
 
 First of all you need to add the nuget package. 
-
-``` powershell
-PM> Install-Package MatthiWare.CommandLineParser
-```
 
 Now you can setup the command line parser. 
 
