@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections.Generic;
 using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
@@ -14,8 +14,8 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         /// </summary>
         public ICommandLineCommand Command { get; set; }
 
-        public CommandParseException(ICommandLineCommand command, Exception innerException)
-            : base("", innerException)
+        public CommandParseException(ICommandLineCommand command, IReadOnlyCollection<Exception> innerExceptions)
+            : base("", new AggregateException(innerExceptions))
         {
             Command = command;
         }

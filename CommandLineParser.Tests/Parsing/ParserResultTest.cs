@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Linq;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Core.Parsing;
 
@@ -16,21 +17,19 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
         {
             var result = new ParseResult<object>();
 
-            Assert.Null(result.Error);
+            Assert.Empty(result.Errors);
 
             var exception1 = new Exception("test");
 
             result.MergeResult(new[] { exception1 });
 
             Assert.True(result.HasErrors);
-            Assert.Same(exception1, result.Error);
+            Assert.Same(exception1, result.Errors.First());
 
             result.MergeResult(new[] { new Exception("2") });
 
             Assert.True(result.HasErrors);
-            Assert.NotSame(exception1, result.Error);
-
-            Assert.IsType<AggregateException>(result.Error);
+            Assert.NotSame(exception1, result.Errors.Skip(1).First());
         }
 
         [Fact]
@@ -41,7 +40,7 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
             var mockCmdResult = new Mock<ICommandParserResult>();
 
             mockCmdResult.SetupGet(x => x.HasErrors).Returns(false);
-            mockCmdResult.SetupGet(x => x.Error).Returns((Exception)null);
+            mockCmdResult.SetupGet(x => x.Errors).Returns(new List<Exception>());
 
             result.MergeResult(mockCmdResult.Object);
 
@@ -59,7 +58,9 @@ namespace MatthiWare.CommandLineParser.Tests.Parsing
 
             result.MergeResult(obj);
 
-            Assert.Null(result.Error);
+            Assert.False(result.HasErrors);
+
+            Assert.Empty(result.Errors);
 
             Assert.Same(obj, result.Result);
         }

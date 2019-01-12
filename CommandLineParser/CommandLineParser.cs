@@ -28,13 +28,15 @@ namespace MatthiWare.CommandLine
     /// Command line parser
     /// </summary>
     /// <typeparam name="TOption">Options model</typeparam>
-    public sealed class CommandLineParser<TOption> : ICommandLineParser<TOption>, ICommandLineCommandContainer
+    public sealed class CommandLineParser<TOption> : ICommandLineParser<TOption>, ICommandLineCommandContainer, IArgument
         where TOption : class, new()
     {
         private readonly TOption m_option;
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
         private readonly CommandLineParserOptions m_parserOptions;
+        private readonly string m_helpOptionName;
+        private readonly string m_helpOptionNameLong;
 
         /// <summary>
         /// Tool to print usage info.
@@ -123,6 +125,22 @@ namespace MatthiWare.CommandLine
 
             Printer = new UsagePrinter(m_parserOptions, this);
 
+            if (m_parserOptions.EnableHelpOption)
+            {
+                var tokens = m_parserOptions.HelpOptionName.Split('|');
+
+                if (tokens.Length > 1)
+                {
+                    m_helpOptionName = $"{m_parserOptions.PrefixShortOption}{tokens[0]}";
+                    m_helpOptionNameLong = $"{m_parserOptions.PrefixLongOption}{tokens[1]}";
+                }
+                else
+                {
+                    m_helpOptionName = $"{m_parserOptions.PrefixLongOption}{tokens[0]}";
+                    m_helpOptionNameLong = null;
+                }
+            }
+
             InitialzeModel();
         }
 
@@ -163,47 +181,100 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager(args, m_commands, m_options.Values);
+            var argumentManager = new ArgumentManager(args, m_parserOptions.EnableHelpOption, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values);
 
             ParseCommands(errors, result, argumentManager);
 
             ParseOptions(errors, result, argumentManager);
 
+            CheckForExtraHelpArguments(result, argumentManager);
+
             result.MergeResult(errors);
 
             AutoExecuteCommands(result);
 
-            AutoPrintUsageAndErrors(errors, args.Length > 0);
+            AutoPrintUsageAndErrors(result, args.Length == 0);
 
             return result;
         }
 
-        private void AutoPrintUsageAndErrors(ICollection<Exception> errors, bool argsSuppplied)
+        private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager argumentManager)
+        {
+            var unusedArg = argumentManager.UnusedArguments
+                .Where(a => string.Equals(a.Argument, m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
+                string.Equals(a.Argument, m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
+                .FirstOrDefault();
+
+            if (unusedArg == null) return;
+
+            result.HelpRequestedFor = unusedArg.ArgModel ?? this;
+        }
+
+        private void AutoPrintUsageAndErrors(ParseResult<TOption> result, bool noArgsSupplied)
         {
             if (!m_parserOptions.AutoPrintUsageAndErrors) return;
 
-            if (!argsSuppplied)
+            if (noArgsSupplied)
                 PrintHelp();
-            else if (errors.Count > 0)
-                PrintErrors(errors);
+            else if (result.HelpRequested)
+                PrintHelpFor(result.HelpRequestedFor);
+            else if (result.HasErrors)
+                PrintErrors(result.Errors);
         }
 
-        private void PrintErrors(ICollection<Exception> errors)
+        private void PrintHelpFor(IArgument helpRequestedFor)
         {
+            switch (helpRequestedFor)
+            {
+                case ICommandLineCommand cmd:
+                    Printer.PrintUsage(cmd);
+                    break;
+                case ICommandLineOption opt:
+                    Printer.PrintUsage(opt);
+                    break;
+                default:
+                    PrintHelp();
+                    break;
+            }
+        }
+
+        private void PrintErrors(IReadOnlyCollection<Exception> errors)
+        {
+            var previousColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+
             foreach (var error in errors)
                 Console.Error.WriteLine(error.Message);
+
+            Console.ForegroundColor = previousColor;
 
             PrintHelp();
         }
 
-        private void PrintHelp()
-            => Printer.PrintUsage();
+        private void PrintHelp() => Printer.PrintUsage();
 
         private void AutoExecuteCommands(IParserResult<TOption> result)
         {
             if (result.HasErrors) return;
 
             ExecuteCommandParserResults(result.CommandResults.Where(r => r.Command.AutoExecute));
+        }
+
+        private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
+        {
+            if (!m_parserOptions.EnableHelpOption) return false;
+
+            if (model.HasValue &&
+              (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
+              model.Value.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                result.HelpRequestedFor = option;
+
+                return true;
+            }
+
+            return false;
         }
 
         private void ExecuteCommandParserResults(IEnumerable<ICommandParserResult> results)
@@ -229,9 +300,12 @@ namespace MatthiWare.CommandLine
                 var cmdParseResult = cmd.Parse(argumentManager);
 
                 if (cmdParseResult.HasErrors)
-                    errors.Add(new CommandParseException(cmd, cmdParseResult.Error));
+                    errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
 
                 result.MergeResult(cmdParseResult);
+
+                if (result.HelpRequested)
+                    break;
             }
         }
 
@@ -240,8 +314,13 @@ namespace MatthiWare.CommandLine
             foreach (var o in m_options)
             {
                 var option = o.Value;
+                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
-                if (!argumentManager.TryGetValue(option, out ArgumentModel model) && option.IsRequired)
+                if (found && HelpRequested(result, option, model))
+                {
+                    break;
+                }
+                else if (!found && option.IsRequired)
                 {
                     errors.Add(new OptionNotFoundException(m_parserOptions, option));
 

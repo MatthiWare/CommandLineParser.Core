@@ -9,7 +9,7 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
     internal class BoolResolver : ArgumentResolver<bool>
     {
         private static readonly string[] recognisedFalseArgs = new[] { "off", "0", "false", "no" };
-        private static readonly string[] recognisedTrueArgs = new[] { "on", "1", "true", "yes" };
+        private static readonly string[] recognisedTrueArgs = new[] { "on", "1", "true", "yes", string.Empty, null };
 
         public override bool CanResolve(ArgumentModel model) => TryParse(model, out _);
 
@@ -22,12 +22,6 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
         private bool TryParse(ArgumentModel model, out bool result)
         {
-            if (!model.HasValue)
-            {
-                result = false;
-                return false;
-            }
-
             if (recognisedFalseArgs.Contains(model.Value, StringComparer.InvariantCultureIgnoreCase))
             {
                 result = false;

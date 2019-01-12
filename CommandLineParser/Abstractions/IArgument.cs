@@ -5,7 +5,7 @@ namespace MatthiWare.CommandLine.Abstractions
 {
     /// <summary>
     /// Represents an argument
-    /// <see cref="ArgumentModel"/>, <see cref="ICommandLineOption"/> and <see cref="ICommandLineCommand"/> for more info.
+    /// See <see cref="ICommandLineOption"/> and <see cref="ICommandLineCommand"/> for more info.
     /// </summary>
     public interface IArgument { }
 }

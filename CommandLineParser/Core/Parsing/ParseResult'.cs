@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 
@@ -10,7 +10,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
     internal class ParseResult<TResult> : IParserResult<TResult>
     {
         private readonly List<ICommandParserResult> commandParserResults = new List<ICommandParserResult>();
-        private readonly ICollection<Exception> exceptions = new List<Exception>();
+        private readonly List<Exception> exceptions = new List<Exception>();
 
         #region Properties
 
@@ -18,25 +18,22 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public bool HasErrors { get; private set; } = false;
 
-        public Exception Error
-        {
-            get
-            {
-                if (!HasErrors) return null;
-
-                return (exceptions.Count > 1) ?
-                    new AggregateException(exceptions) :
-                    exceptions.First();
-            }
-        }
-
         public IReadOnlyList<ICommandParserResult> CommandResults => commandParserResults.AsReadOnly();
+
+        public bool HelpRequested => HelpRequestedFor != null;
+
+        public IArgument HelpRequestedFor { get; set; } = null;
+
+        public IReadOnlyCollection<Exception> Errors => exceptions;
 
         #endregion
 
         public void MergeResult(ICommandParserResult result)
         {
             HasErrors |= result.HasErrors;
+
+            if (result.HelpRequested)
+                HelpRequestedFor = result.HelpRequestedFor;
 
             commandParserResults.Add(result);
         }
@@ -47,8 +44,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             HasErrors = true;
 
-            foreach (var err in errors)
-                exceptions.Add(err);
+            exceptions.AddRange(errors);
         }
 
         public void MergeResult(TResult result)

@@ -6,5 +6,6 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
     {
         void PrintUsage();
         void PrintUsage(ICommandLineCommand command);
+        void PrintUsage(ICommandLineOption option);
     }
 }

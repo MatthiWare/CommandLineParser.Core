@@ -47,6 +47,10 @@ namespace SampleApp
 
             if (result.HasErrors)
             {
+                // note that errors will be automatically printed if `CommandLineParserOptions.AutoPrintUsageAndErrors` is set to true.
+                foreach (var exception in result.Errors)
+                    HandleException(exception);
+
                 Console.ReadKey();
 
                 return -1;
@@ -62,6 +66,11 @@ namespace SampleApp
             Console.ReadKey();
 
             return 0;
+        }
+
+        private static void HandleException(Exception exception)
+        {
+            // Do something with the exception..
         }
 
         private class Options

@@ -34,6 +34,10 @@ namespace MatthiWare.CommandLine.Core.Command
         private Action<TOption> m_executor1;
         private Action<TOption, TCommandOption> m_executor2;
 
+        private readonly string m_helpOptionName;
+        private readonly string m_helpOptionNameLong;
+
+
         public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option)
         {
             m_parserOptions = parserOptions;
@@ -42,6 +46,22 @@ namespace MatthiWare.CommandLine.Core.Command
             m_containerResolver = containerResolver;
             m_resolverFactory = resolverFactory;
             m_baseOption = option;
+
+            if (m_parserOptions.EnableHelpOption)
+            {
+                var tokens = m_parserOptions.HelpOptionName.Split('|');
+
+                if (tokens.Length > 1)
+                {
+                    m_helpOptionName = $"{m_parserOptions.PrefixShortOption}{tokens[0]}";
+                    m_helpOptionNameLong = $"{m_parserOptions.PrefixLongOption}{tokens[1]}";
+                }
+                else
+                {
+                    m_helpOptionName = $"{m_parserOptions.PrefixLongOption}{tokens[0]}";
+                    m_helpOptionNameLong = null;
+                }
+            }
 
             InitialzeModel();
         }
@@ -89,8 +109,11 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 var cmdParseResult = cmd.Parse(argumentManager);
 
+                if (cmdParseResult.HelpRequested)
+                    return result;
+
                 if (cmdParseResult.HasErrors)
-                    errors.Add(new CommandParseException(cmd, cmdParseResult.Error));
+                    errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
 
                 result.MergeResult(cmdParseResult);
             }
@@ -98,8 +121,13 @@ namespace MatthiWare.CommandLine.Core.Command
             foreach (var o in m_options)
             {
                 var option = o.Value;
+                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
-                if (!argumentManager.TryGetValue(option, out ArgumentModel model) && option.IsRequired)
+                if (found && HelpRequested(result, option, model))
+                {
+                    break;
+                }
+                else if (!found && option.IsRequired)
                 {
                     errors.Add(new OptionNotFoundException(m_parserOptions, option));
 
@@ -124,6 +152,29 @@ namespace MatthiWare.CommandLine.Core.Command
             result.MergeResult(errors);
 
             return result;
+        }
+
+        private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
+        {
+            if (!m_parserOptions.EnableHelpOption) return false;
+
+            if (model.Key.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
+                model.Key.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
+            {
+                result.HelpRequestedFor = this;
+
+                return true;
+            }
+            else if (model.HasValue &&
+              (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
+              model.Value.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                result.HelpRequestedFor = option;
+
+                return true;
+            }
+
+            return false;
         }
 
         public ICommandBuilder<TOption, TCommandOption> Required(bool required = true)

@@ -58,7 +58,7 @@ namespace MatthiWare.CommandLineParser.Tests
 
             var parser = new CommandLineParser<AddOption>(argResolverFactory.Object);
 
-            parser.Configure(p => p.Message).Name("-m");
+            parser.Configure(p => p.Message).Name("m");
 
             var result = parser.Parse(new[] { "app.exe", "-m" });
 
@@ -237,6 +237,29 @@ namespace MatthiWare.CommandLineParser.Tests
             Assert.Equal(result1, result.Result.Message);
 
             Assert.True(wait.WaitOne(2000));
+        }
+
+        [Theory]
+        [InlineData(new string[] { "-x", "" }, true)]
+        [InlineData(new string[] { "-x" }, true)]
+        [InlineData(new string[] { "-x", "1" }, true)]
+        [InlineData(new string[] { "-x", "true" }, true)]
+        [InlineData(new string[] { "-x", "false" }, false)]
+        public void BoolResolverSpecialCaseParsesCorrectly(string[] args, bool expected)
+        {
+            var parser = new CommandLineParser<Options>();
+
+            //parser.Configure(opt => opt.Option1)
+            //    .Name("o", "opt")
+            //    .Default("Default message");
+
+            parser.Configure(opt => opt.Option2)
+                .Name("x", "xsomething")
+                .Required();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(expected, result.Result.Option2);
         }
 
         [Fact]
