@@ -15,12 +15,20 @@ namespace MatthiWare.CommandLine.Core.Parsing
     {
         private readonly IDictionary<IArgument, ArgumentModel> resultCache;
         private readonly List<ArgumentValueHolder> args;
+        private readonly bool helpOptionsEnabled;
+        private readonly string shortHelpOption;
+        private readonly string longHelpOption;
+
 
         public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
 
-        public ArgumentManager(string[] args, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
+        public ArgumentManager(string[] args, bool helpOptionsEnabled, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
         {
             resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
+
+            this.helpOptionsEnabled = helpOptionsEnabled;
+            this.shortHelpOption = shortHelpOption;
+            this.longHelpOption = longHelpOption;
 
             this.args = new List<ArgumentValueHolder>(args.Select(arg => new ArgumentValueHolder
             {
@@ -31,6 +39,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
             ParseCommands(commands);
 
             ParseOptions(options);
+
+            CheckHelpCommands();
 
             // pre cache results
             foreach (var item in this.args)
@@ -48,8 +58,25 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     Value = (argValue?.Used ?? true) ? null : argValue.Argument
                 };
 
+                if (resultCache.ContainsKey(item.ArgModel)) continue;
+
                 resultCache.Add(item.ArgModel, argModel);
             }
+        }
+
+        private void CheckHelpCommands()
+        {
+            if (!helpOptionsEnabled) return;
+
+            SetHelpCommand(FindIndex(shortHelpOption));
+            SetHelpCommand(FindIndex(longHelpOption));
+        }
+
+        private void SetHelpCommand(int index)
+        {
+            if (index == -1 || (index - 1) < 0 || args[index].ArgModel != null) return;
+
+            args[index].ArgModel = args[index - 1].ArgModel;
         }
 
         private void ParseOptions(IEnumerable<ICommandLineOption> options)
@@ -99,10 +126,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
         /// Finds the index of the first unused argument
         /// </summary>
         /// <param name="args">List of arguments to search</param>
-        /// <param name="model">Argument model to find</param>
+        /// <param name="model">object to find</param>
         /// <param name="startOffset">Search offset</param>
         /// <returns></returns>
-        private int FindIndex(IArgument model, int startOffset = 0)
+        private int FindIndex(object model, int startOffset = 0)
         {
             return args.FindIndex(startOffset, arg =>
                 {
@@ -110,6 +137,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                     switch (model)
                     {
+                        case string key:
+                            return string.Equals(key, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
                         case ICommandLineOption opt:
                             return (opt.HasShortName && string.Equals(opt.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
                                     (opt.HasLongName && string.Equals(opt.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase));

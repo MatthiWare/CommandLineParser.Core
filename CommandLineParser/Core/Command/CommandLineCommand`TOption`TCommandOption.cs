@@ -123,15 +123,15 @@ namespace MatthiWare.CommandLine.Core.Command
                 var option = o.Value;
                 bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
-                if (!found && option.IsRequired)
+                if (found && HelpRequested(result, option, model))
+                {
+                    break;
+                }
+                else if (!found && option.IsRequired)
                 {
                     errors.Add(new OptionNotFoundException(m_parserOptions, option));
 
                     continue;
-                }
-                else if (found && HelpRequested(result, option, model))
-                {
-                    break;
                 }
                 else if (!model.HasValue && option.HasDefault)
                 {

@@ -181,7 +181,7 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager(args, m_commands, m_options.Values);
+            var argumentManager = new ArgumentManager(args, m_parserOptions.EnableHelpOption, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values);
 
             ParseCommands(errors, result, argumentManager);
 
@@ -316,15 +316,15 @@ namespace MatthiWare.CommandLine
                 var option = o.Value;
                 bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
-                if (!found && option.IsRequired)
+                if (found && HelpRequested(result, option, model))
+                {
+                    break;
+                }
+                else if (!found && option.IsRequired)
                 {
                     errors.Add(new OptionNotFoundException(m_parserOptions, option));
 
                     continue;
-                }
-                else if (found && HelpRequested(result, option, model))
-                {
-                    break;
                 }
                 else if (!model.HasValue && option.HasDefault)
                 {

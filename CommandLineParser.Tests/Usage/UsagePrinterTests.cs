@@ -1,4 +1,6 @@
 ﻿using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using Moq;
@@ -11,6 +13,12 @@ namespace MatthiWare.CommandLineParser.Tests.Usage
         private class UsagePrinterGetsCalledOptions
         {
             [Name("o"), Required]
+            public string Option { get; set; }
+        }
+
+        private class UsagePrinterCommandOptions
+        {
+            [Name("x"), Required]
             public string Option { get; set; }
         }
 
@@ -30,6 +38,40 @@ namespace MatthiWare.CommandLineParser.Tests.Usage
             parser.Parse(args);
 
             printerMock.Verify(mock => mock.PrintUsage(), called ? Times.Once() : Times.Never());
+        }
+
+        [Fact]
+        public void UsagePrinterPrintsOptionCorrectly()
+        {
+            var printerMock = new Mock<IUsagePrinter>();
+
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>
+            {
+                Printer = printerMock.Object
+            };
+
+            parser.Parse(new[] { "-o", "--help" });
+
+            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<ICommandLineOption>()), Times.Once());
+        }
+
+        [Fact]
+        public void UsagePrinterPrintsCommandCorrectly()
+        {
+            var printerMock = new Mock<IUsagePrinter>();
+
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>
+            {
+                Printer = printerMock.Object
+            };
+
+            parser.AddCommand<UsagePrinterCommandOptions>()
+                .Name("cmd")
+                .Required();
+
+            parser.Parse(new[] { "-o", "bla", "cmd", "--help" });
+
+            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<ICommandLineCommand>()), Times.Once());
         }
     }
 }
