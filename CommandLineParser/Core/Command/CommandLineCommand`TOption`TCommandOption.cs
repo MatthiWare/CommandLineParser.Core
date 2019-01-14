@@ -38,7 +38,6 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-
         public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option)
         {
             m_parserOptions = parserOptions;
