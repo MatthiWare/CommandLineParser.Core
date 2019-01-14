@@ -3,7 +3,7 @@ using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests.Parsing.Resolvers
+namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class DoubleResolverTests
     {

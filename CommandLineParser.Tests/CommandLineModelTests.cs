@@ -3,7 +3,7 @@ using MatthiWare.CommandLine.Core.Attributes;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests
+namespace MatthiWare.CommandLine.Tests
 {
     public class CommandLineModelTests
     {

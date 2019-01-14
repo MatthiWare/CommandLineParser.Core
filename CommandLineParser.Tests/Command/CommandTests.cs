@@ -5,7 +5,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests.Command
+namespace MatthiWare.CommandLine.Tests.Command
 {
     public class CommandTests
     {
@@ -50,6 +50,18 @@ namespace MatthiWare.CommandLineParser.Tests.Command
         }
 
         [Fact]
+        public void AddOtherCommandType()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.RegisterCommand<OtherCommand>();
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("other")));
+        }
+
+        [Fact]
         public void AddCommandTypeWithGenericOption()
         {
             var parser = new CommandLineParser<object>();
@@ -63,16 +75,27 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
         private class MyComand : Command<object, object>
         {
+            public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
+            {
+                builder.Name("bla");
+            }
+
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
-                base.OnConfigure(builder);
-
-                builder.Name("bla").Required();
+                builder.Name("bla");
             }
 
             public override void OnExecute(object options, object commandOptions)
             {
                 base.OnExecute(options, commandOptions);
+            }
+        }
+
+        private class OtherCommand : Command<object>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name("other");
             }
         }
     }

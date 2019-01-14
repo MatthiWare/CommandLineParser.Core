@@ -10,6 +10,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
+using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Utils;
 
 namespace MatthiWare.CommandLine.Core.Command
@@ -36,7 +37,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
-
 
         public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option)
         {
@@ -100,9 +100,12 @@ namespace MatthiWare.CommandLine.Core.Command
 
             foreach (var cmd in m_commands)
             {
-                if (!argumentManager.TryGetValue(cmd, out ArgumentModel model) && cmd.IsRequired)
+                if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
                 {
-                    errors.Add(new CommandNotFoundException(cmd));
+                    if (cmd.IsRequired)
+                        errors.Add(new CommandNotFoundException(cmd));
+
+                    result.MergeResult(new CommandNotFoundParserResult(cmd));
 
                     continue;
                 }

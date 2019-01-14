@@ -4,8 +4,9 @@ using System.Linq;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
+using MatthiWare.CommandLine.Core.Command;
 
-namespace MatthiWare.CommandLine.Core.Command
+namespace MatthiWare.CommandLine.Core.Parsing.Command
 {
     internal class CommandParserResult : ICommandParserResult
     {
@@ -24,6 +25,8 @@ namespace MatthiWare.CommandLine.Core.Command
         public IArgument HelpRequestedFor { get; set; } = null;
 
         public IReadOnlyCollection<Exception> Errors => exceptions;
+
+        public bool Found => true;
 
         public CommandParserResult(CommandLineCommandBase command)
         {

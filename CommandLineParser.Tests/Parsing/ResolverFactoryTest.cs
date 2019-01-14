@@ -9,7 +9,7 @@ using Moq;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests.Parsing
+namespace MatthiWare.CommandLine.Tests.Parsing
 {
     public class ResolverFactoryTest
     {

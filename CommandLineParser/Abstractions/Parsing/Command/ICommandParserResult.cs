@@ -10,6 +10,14 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
     /// </summary>
     public interface ICommandParserResult
     {
+        /// <summary>
+        /// Indicates if the command has been found.
+        /// </summary>
+        bool Found { get; }
+
+        /// <summary>
+        /// Specifies the command/option that the help display has been requested for
+        /// </summary>
         IArgument HelpRequestedFor { get; }
 
         /// <summary>

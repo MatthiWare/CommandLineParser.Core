@@ -70,7 +70,7 @@ namespace MatthiWare.CommandLine.Abstractions
         /// </summary>
         /// <typeparam name="TCommand">The command</typeparam>
         void RegisterCommand<TCommand>()
-            where TCommand : Command.Command;
+            where TCommand : Command<TOption>;
 
         /// <summary>
         /// Registers a new command

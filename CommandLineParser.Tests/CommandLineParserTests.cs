@@ -11,7 +11,7 @@ using Moq;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests
+namespace MatthiWare.CommandLine.Tests
 {
     public class CommandLineParserTests
     {
@@ -21,13 +21,31 @@ namespace MatthiWare.CommandLineParser.Tests
             {
                 builder.Name("my");
             }
+
+            public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
+            {
+                builder.Name("my");
+            }
+        }
+
+        [Fact]
+        public void CommandLineParserUsesCorrectOptions()
+        {
+            var opt = new CommandLineParserOptions();
+
+            var parser = new CommandLineParser(opt);
+
+            Assert.Equal(opt, parser.ParserOptions);
         }
 
         [Fact]
         public void CommandLineParserUsesContainerCorrectly()
         {
             var commandMock = new Mock<MyCommand>();
-            //commandMock.Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder>())).Verifiable("OnConfigure not called");
+            commandMock.Setup(
+                c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
+                .CallBase().Verifiable("OnConfigure not called");
+
             commandMock.Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>())).Verifiable("OnExecute not called");
 
             var containerMock = new Mock<IContainerResolver>();
@@ -43,6 +61,52 @@ namespace MatthiWare.CommandLineParser.Tests
 
             commandMock.VerifyAll();
             containerMock.VerifyAll();
+        }
+
+        [Fact]
+        public void CommandLinerParserPassesContainerCorreclty()
+        {
+            var containerResolver = new Mock<IContainerResolver>();
+            var options = new CommandLineParserOptions();
+            var parser = new CommandLineParser(containerResolver.Object);
+
+            Assert.Equal(containerResolver.Object, parser.ContainerResolver);
+
+            parser = new CommandLineParser(options, containerResolver.Object);
+
+            Assert.Equal(containerResolver.Object, parser.ContainerResolver);
+            Assert.Equal(options, parser.ParserOptions);
+        }
+
+        [Fact]
+        public void CommandLinerParserPassesResolverCorreclty()
+        {
+            var resolverMock = new Mock<IArgumentResolverFactory>();
+            var options = new CommandLineParserOptions();
+            var parser = new CommandLineParser(resolverMock.Object);
+
+            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
+
+            parser = new CommandLineParser(options, resolverMock.Object);
+
+            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
+            Assert.Equal(options, parser.ParserOptions);
+        }
+
+        [Fact]
+        public void CommandLinerParserPassesResolverAndContainerCorreclty()
+        {
+            var resolverMock = new Mock<IArgumentResolverFactory>();
+
+            var containerMock = new Mock<IContainerResolver>();
+
+            var options = new CommandLineParserOptions();
+
+            var parser = new CommandLineParser(options, resolverMock.Object, containerMock.Object);
+
+            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
+            Assert.Equal(containerMock.Object, parser.ContainerResolver);
+            Assert.Equal(options, parser.ParserOptions);
         }
 
         [Fact]

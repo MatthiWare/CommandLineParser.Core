@@ -19,7 +19,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly string shortHelpOption;
         private readonly string longHelpOption;
 
-
         public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
 
         public ArgumentManager(string[] args, bool helpOptionsEnabled, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
