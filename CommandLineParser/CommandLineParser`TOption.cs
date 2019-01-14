@@ -17,6 +17,7 @@ using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
+using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Utils;
 
@@ -34,9 +35,14 @@ namespace MatthiWare.CommandLine
         private readonly TOption m_option;
         private readonly Dictionary<string, CommandLineOptionBase> m_options;
         private readonly List<CommandLineCommandBase> m_commands;
-        private readonly CommandLineParserOptions m_parserOptions;
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
+
+        /// <summary>
+        /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
+        /// NOTE: In order to use the options they need to be passed using the constructor. 
+        /// </summary>
+        public CommandLineParserOptions ParserOptions { get; }
 
         /// <summary>
         /// Tool to print usage info.
@@ -119,7 +125,7 @@ namespace MatthiWare.CommandLine
         /// <param name="containerResolver">container resolver to use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
         {
-            m_parserOptions = parserOptions;
+            ParserOptions = parserOptions;
             m_option = new TOption();
 
             m_options = new Dictionary<string, CommandLineOptionBase>();
@@ -128,23 +134,23 @@ namespace MatthiWare.CommandLine
             ArgumentResolverFactory = argumentResolverFactory;
             ContainerResolver = containerResolver;
 
-            if (string.IsNullOrWhiteSpace(m_parserOptions.AppName))
-                m_parserOptions.AppName = Process.GetCurrentProcess().ProcessName;
+            if (string.IsNullOrWhiteSpace(ParserOptions.AppName))
+                ParserOptions.AppName = Process.GetCurrentProcess().ProcessName;
 
-            Printer = new UsagePrinter(m_parserOptions, this);
+            Printer = new UsagePrinter(ParserOptions, this);
 
-            if (m_parserOptions.EnableHelpOption)
+            if (ParserOptions.EnableHelpOption)
             {
-                var tokens = m_parserOptions.HelpOptionName.Split('|');
+                var tokens = ParserOptions.HelpOptionName.Split('|');
 
                 if (tokens.Length > 1)
                 {
-                    m_helpOptionName = $"{m_parserOptions.PrefixShortOption}{tokens[0]}";
-                    m_helpOptionNameLong = $"{m_parserOptions.PrefixLongOption}{tokens[1]}";
+                    m_helpOptionName = $"{ParserOptions.PrefixShortOption}{tokens[0]}";
+                    m_helpOptionNameLong = $"{ParserOptions.PrefixLongOption}{tokens[1]}";
                 }
                 else
                 {
-                    m_helpOptionName = $"{m_parserOptions.PrefixLongOption}{tokens[0]}";
+                    m_helpOptionName = $"{ParserOptions.PrefixLongOption}{tokens[0]}";
                     m_helpOptionNameLong = null;
                 }
             }
@@ -170,7 +176,7 @@ namespace MatthiWare.CommandLine
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption(m_parserOptions, m_option, selector, ArgumentResolverFactory);
+                var option = new CommandLineOption(ParserOptions, m_option, selector, ArgumentResolverFactory);
 
                 m_options.Add(key, option);
             }
@@ -189,7 +195,7 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager(args, m_parserOptions.EnableHelpOption, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values);
+            var argumentManager = new ArgumentManager(args, ParserOptions.EnableHelpOption, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values);
 
             ParseCommands(errors, result, argumentManager);
 
@@ -220,7 +226,7 @@ namespace MatthiWare.CommandLine
 
         private void AutoPrintUsageAndErrors(ParseResult<TOption> result, bool noArgsSupplied)
         {
-            if (!m_parserOptions.AutoPrintUsageAndErrors) return;
+            if (!ParserOptions.AutoPrintUsageAndErrors) return;
 
             if (noArgsSupplied)
                 PrintHelp();
@@ -271,7 +277,7 @@ namespace MatthiWare.CommandLine
 
         private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
         {
-            if (!m_parserOptions.EnableHelpOption) return false;
+            if (!ParserOptions.EnableHelpOption) return false;
 
             if (model.HasValue &&
               (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
@@ -298,9 +304,12 @@ namespace MatthiWare.CommandLine
         {
             foreach (var cmd in m_commands)
             {
-                if (!argumentManager.TryGetValue(cmd, out ArgumentModel model) && cmd.IsRequired)
+                if (!argumentManager.TryGetValue(cmd, out _))
                 {
-                    errors.Add(new CommandNotFoundException(cmd));
+                    if (cmd.IsRequired)
+                        errors.Add(new CommandNotFoundException(cmd));
+
+                    result.MergeResult(new CommandNotFoundParserResult(cmd));
 
                     continue;
                 }
@@ -330,7 +339,7 @@ namespace MatthiWare.CommandLine
                 }
                 else if (!found && option.IsRequired)
                 {
-                    errors.Add(new OptionNotFoundException(m_parserOptions, option));
+                    errors.Add(new OptionNotFoundException(ParserOptions, option));
 
                     continue;
                 }
@@ -360,7 +369,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             m_commands.Add(command);
 
@@ -370,17 +379,17 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommandOption">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
+        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions}"/></typeparam>
         public void RegisterCommand<TCommand>()
-            where TCommand : Command
+            where TCommand : Command<TOption>
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, object>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             cmdConfigurator.OnConfigure(command);
 
-            command.OnExecuting(cmdConfigurator.OnExecute);
+            command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
 
             m_commands.Add(command);
         }
@@ -388,17 +397,17 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommand"></typeparam>
-        /// <typeparam name="TCommandOption"></typeparam>
+        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions,TCommandOption}"/></typeparam>
+        /// <typeparam name="TCommandOption">The command options</typeparam>
         public void RegisterCommand<TCommand, TCommandOption>()
            where TCommand : Command<TOption, TCommandOption>
            where TCommandOption : class, new()
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, TCommandOption>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
-            cmdConfigurator.OnConfigure(command);
+            cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
             command.OnExecuting((Action<TOption, TCommandOption>)cmdConfigurator.OnExecute);
 
@@ -411,7 +420,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(m_parserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
 
             m_commands.Add(command);
 

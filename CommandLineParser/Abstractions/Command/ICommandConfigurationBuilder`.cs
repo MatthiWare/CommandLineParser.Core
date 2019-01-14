@@ -32,7 +32,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <summary>
         /// Configures the command name
         /// </summary>
-        /// <param name="name">Short name</param>
+        /// <param name="name">Command name</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
         new ICommandConfigurationBuilder<TSource> Name(string name);
     }

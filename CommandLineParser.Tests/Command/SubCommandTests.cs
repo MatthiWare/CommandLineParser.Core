@@ -6,7 +6,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests.Command
+namespace MatthiWare.CommandLine.Tests.Command
 {
     public class SubCommandTests
     {

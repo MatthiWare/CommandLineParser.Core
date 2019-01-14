@@ -19,7 +19,7 @@
         /// <summary>
         /// Configures the command name
         /// </summary>
-        /// <param name="name">Short name</param>
+        /// <param name="name">Command name</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
         ICommandConfigurationBuilder Name(string name);
     }

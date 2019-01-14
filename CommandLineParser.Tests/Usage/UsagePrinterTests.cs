@@ -6,7 +6,7 @@ using MatthiWare.CommandLine.Core.Attributes;
 using Moq;
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests.Usage
+namespace MatthiWare.CommandLine.Tests.Usage
 {
     public class UsagePrinterTests
     {

@@ -5,7 +5,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests.Command
+namespace MatthiWare.CommandLine.Tests.Command
 {
     public class CommandTests
     {
@@ -63,11 +63,14 @@ namespace MatthiWare.CommandLineParser.Tests.Command
 
         private class MyComand : Command<object, object>
         {
+            public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
+            {
+                builder.Name("bla");
+            }
+
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
-                base.OnConfigure(builder);
-
-                builder.Name("bla").Required();
+                builder.Name("bla");
             }
 
             public override void OnExecute(object options, object commandOptions)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace MatthiWare.CommandLineParser.Tests
+namespace MatthiWare.CommandLine.Tests
 {
     public static class XUnitExtensions
     {

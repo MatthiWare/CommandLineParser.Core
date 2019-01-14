@@ -11,7 +11,7 @@ using Moq;
 
 using Xunit;
 
-namespace MatthiWare.CommandLineParser.Tests
+namespace MatthiWare.CommandLine.Tests
 {
     public class CommandLineParserTests
     {
@@ -21,13 +21,31 @@ namespace MatthiWare.CommandLineParser.Tests
             {
                 builder.Name("my");
             }
+
+            public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
+            {
+                builder.Name("my");
+            }
+        }
+
+        [Fact]
+        public void CommandLineParserUsesCorrectOptions()
+        {
+            var opt = new CommandLineParserOptions();
+
+            var parser = new CommandLineParser(opt);
+
+            Assert.Equal(opt, parser.ParserOptions);
         }
 
         [Fact]
         public void CommandLineParserUsesContainerCorrectly()
         {
             var commandMock = new Mock<MyCommand>();
-            //commandMock.Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder>())).Verifiable("OnConfigure not called");
+            commandMock.Setup(
+                c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
+                .CallBase().Verifiable("OnConfigure not called");
+
             commandMock.Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>())).Verifiable("OnExecute not called");
 
             var containerMock = new Mock<IContainerResolver>();

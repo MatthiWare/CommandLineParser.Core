@@ -17,7 +17,8 @@
         /// <param name="builder"></param>
         public virtual void OnConfigure(ICommandConfigurationBuilder<TCommandOptions> builder)
         {
-            OnConfigure((ICommandConfigurationBuilder)builder);
+            base.OnConfigure(builder);
+            // OnConfigure((ICommandConfigurationBuilder)builder);
         }
 
         /// <summary>
