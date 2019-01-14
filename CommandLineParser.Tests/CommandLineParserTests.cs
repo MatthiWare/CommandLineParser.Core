@@ -64,6 +64,52 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Fact]
+        public void CommandLinerParserPassesContainerCorreclty()
+        {
+            var containerResolver = new Mock<IContainerResolver>();
+            var options = new CommandLineParserOptions();
+            var parser = new CommandLineParser(containerResolver.Object);
+
+            Assert.Equal(containerResolver.Object, parser.ContainerResolver);
+
+            parser = new CommandLineParser(options, containerResolver.Object);
+
+            Assert.Equal(containerResolver.Object, parser.ContainerResolver);
+            Assert.Equal(options, parser.ParserOptions);
+        }
+
+        [Fact]
+        public void CommandLinerParserPassesResolverCorreclty()
+        {
+            var resolverMock = new Mock<IArgumentResolverFactory>();
+            var options = new CommandLineParserOptions();
+            var parser = new CommandLineParser(resolverMock.Object);
+
+            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
+
+            parser = new CommandLineParser(options, resolverMock.Object);
+
+            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
+            Assert.Equal(options, parser.ParserOptions);
+        }
+
+        [Fact]
+        public void CommandLinerParserPassesResolverAndContainerCorreclty()
+        {
+            var resolverMock = new Mock<IArgumentResolverFactory>();
+
+            var containerMock = new Mock<IContainerResolver>();
+
+            var options = new CommandLineParserOptions();
+
+            var parser = new CommandLineParser(options, resolverMock.Object, containerMock.Object);
+
+            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
+            Assert.Equal(containerMock.Object, parser.ContainerResolver);
+            Assert.Equal(options, parser.ParserOptions);
+        }
+
+        [Fact]
         public void CommandLineParserUsesArgumentFactoryCorrectly()
         {
             var resolverMock = new Mock<ArgumentResolver<string>>();

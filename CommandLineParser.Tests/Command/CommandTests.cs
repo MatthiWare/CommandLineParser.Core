@@ -50,6 +50,18 @@ namespace MatthiWare.CommandLine.Tests.Command
         }
 
         [Fact]
+        public void AddOtherCommandType()
+        {
+            var parser = new CommandLineParser<object>();
+
+            parser.RegisterCommand<OtherCommand>();
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("other")));
+        }
+
+        [Fact]
         public void AddCommandTypeWithGenericOption()
         {
             var parser = new CommandLineParser<object>();
@@ -76,6 +88,14 @@ namespace MatthiWare.CommandLine.Tests.Command
             public override void OnExecute(object options, object commandOptions)
             {
                 base.OnExecute(options, commandOptions);
+            }
+        }
+
+        private class OtherCommand : Command<object>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name("other");
             }
         }
     }
