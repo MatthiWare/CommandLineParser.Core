@@ -268,11 +268,11 @@ namespace MatthiWare.CommandLine
 
         private void PrintHelp() => Printer.PrintUsage();
 
-        private void AutoExecuteCommands(IParserResult<TOption> result)
+        private void AutoExecuteCommands(ParseResult<TOption> result)
         {
             if (result.HasErrors) return;
 
-            ExecuteCommandParserResults(result.CommandResults.Where(r => r.Command.AutoExecute));
+            ExecuteCommandParserResults(result, result.CommandResults.Where(sub => sub.Command.AutoExecute));
         }
 
         private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
@@ -291,13 +291,27 @@ namespace MatthiWare.CommandLine
             return false;
         }
 
-        private void ExecuteCommandParserResults(IEnumerable<ICommandParserResult> results)
+        private void ExecuteCommandParserResults(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds)
         {
-            foreach (var cmd in results)
-                cmd.ExecuteCommand();
+            var errors = new List<Exception>();
 
-            foreach (var cmd in results)
-                ExecuteCommandParserResults(cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
+            foreach (var cmd in cmds)
+            {
+                try
+                {
+                    cmd.ExecuteCommand();
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+            }
+
+            if (errors.Any())
+                results.MergeResult(errors);
+
+            foreach (var cmd in cmds)
+                ExecuteCommandParserResults(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
         }
 
         private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)

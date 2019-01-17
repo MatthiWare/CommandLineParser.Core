@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Linq;
+using System.Threading;
 
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
@@ -107,6 +109,26 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
             Assert.Equal(containerMock.Object, parser.ContainerResolver);
             Assert.Equal(options, parser.ParserOptions);
+        }
+
+        [Fact]
+        public void AutoExecuteCommandsWithExceptionDoesntCrashTheParser()
+        {
+            var parser = new CommandLineParser();
+
+            var ex = new Exception("uh-oh");
+
+            parser.AddCommand()
+                .Name("test")
+                .InvokeCommand(true)
+                .Required(true)
+                .OnExecuting(_ => throw ex);
+
+            var result = parser.Parse(new[] { "test" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.Equal(ex, result.Errors.First());
         }
 
         [Fact]
