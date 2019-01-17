@@ -16,7 +16,7 @@
 		This library allows to add commands with their own set of options as well. 
 	</description>
 	<summary>A simple, light-weight and strongly typed command line parser. Configuration using fluent API and  an options class. </summary>
-    <releaseNotes>Small improvements and bugfixes, also included xml documentation in package.</releaseNotes>
+    <releaseNotes>Fix issue where optional commands would be marked as missing. Fix issue where auto executing commands can cause parser to crash.</releaseNotes>
     <copyright>Copyright Matthias Beerens 2018</copyright>
     <tags>commandline parser commandline-parser</tags>
   </metadata>
