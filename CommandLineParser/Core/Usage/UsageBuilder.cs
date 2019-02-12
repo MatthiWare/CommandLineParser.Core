@@ -46,40 +46,43 @@ namespace MatthiWare.CommandLine.Core.Usage
             PrintCommandDescriptions(container.Commands);
         }
 
-        public void PrintCommandDescription(ICommandLineCommand command)
-            => stringBuilder.AppendLine($"  {command.Name}\t\t{command.Description}");
+        public void PrintCommandDescription(ICommandLineCommand command, int descriptionShift = 4)
+            => stringBuilder.AppendLine($"  {command.Name}{new string(' ', descriptionShift)}{command.Description}");
 
-        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
+        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands, int descriptionShift = 4)
         {
             if (!commands.Any()) return;
 
             stringBuilder.AppendLine().AppendLine("Commands: ");
 
+            var longestCommandName = commands.Max(x => x.Name.Length);
             foreach (var cmd in commands)
-                PrintCommandDescription(cmd);
+                PrintCommandDescription(cmd, longestCommandName - cmd.Name.Length + descriptionShift);
         }
 
-        public void PrintOption(ICommandLineOption option)
+        public void PrintOption(ICommandLineOption option, int descriptionShift = 4)
         {
             bool hasShort = option.HasShortName;
             bool hasLong = option.HasLongName;
             bool hasBoth = hasShort && hasLong;
 
-            string hasBothSeperator = hasBoth ? "|" : string.Empty;
+            string hasBothSeparator = hasBoth ? "|" : string.Empty;
             string shortName = hasShort ? option.ShortName : string.Empty;
             string longName = hasLong ? option.LongName : string.Empty;
 
-            stringBuilder.AppendLine($"  {shortName}{hasBothSeperator}{longName}\t{option.Description}");
+            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{new string(' ', descriptionShift)}{option.Description}");
         }
 
-        public void PrintOptions(IEnumerable<ICommandLineOption> options)
+        public void PrintOptions(IEnumerable<ICommandLineOption> options, int descriptionShift = 4)
         {
             if (!options.Any()) return;
 
             stringBuilder.AppendLine().AppendLine("Options: ");
 
+            var longestOptionName = options.Max(x => x.ShortName.Length + x.LongName.Length);
+            var separatorCompensation = options.Any(x => x.HasShortName && x.HasLongName) ? 1 : 0;
             foreach (var opt in options)
-                PrintOption(opt);
+                PrintOption(opt, longestOptionName - opt.LongName.Length - opt.ShortName.Length + separatorCompensation + descriptionShift);
         }
     }
 }
