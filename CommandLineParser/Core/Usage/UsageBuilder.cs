@@ -60,7 +60,7 @@ namespace MatthiWare.CommandLine.Core.Usage
                 PrintCommandDescription(cmd, longestCommandName - cmd.Name.Length + descriptionShift);
         }
 
-        public void PrintOption(ICommandLineOption option, int descriptionShift = 4)
+        public void PrintOption(ICommandLineOption option, int descriptionShift = 4, bool compensateSeparator = false)
         {
             bool hasShort = option.HasShortName;
             bool hasLong = option.HasLongName;
@@ -70,7 +70,7 @@ namespace MatthiWare.CommandLine.Core.Usage
             string shortName = hasShort ? option.ShortName : string.Empty;
             string longName = hasLong ? option.LongName : string.Empty;
 
-            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{new string(' ', descriptionShift)}{option.Description}");
+            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{new string(' ', descriptionShift + (compensateSeparator && !hasBoth ? 1 : 0))}{option.Description}");
         }
 
         public void PrintOptions(IEnumerable<ICommandLineOption> options, int descriptionShift = 4)
@@ -79,10 +79,10 @@ namespace MatthiWare.CommandLine.Core.Usage
 
             stringBuilder.AppendLine().AppendLine("Options: ");
 
-            var longestOptionName = options.Max(x => x.ShortName.Length + x.LongName.Length);
-            var separatorCompensation = options.Any(x => x.HasShortName && x.HasLongName) ? 1 : 0;
+            var longestOptionName = options.Max(x => (x.HasShortName ? x.ShortName.Length : 0) + (x.HasLongName ? x.LongName.Length : 0));
+            var compensateSeparator = options.Any(x => x.HasShortName && x.HasLongName);
             foreach (var opt in options)
-                PrintOption(opt, longestOptionName - opt.LongName.Length - opt.ShortName.Length + separatorCompensation + descriptionShift);
+                PrintOption(opt, longestOptionName - (opt.HasLongName ? opt.LongName.Length : 0) - (opt.HasShortName ? opt.ShortName.Length : 0) + descriptionShift, compensateSeparator);
         }
     }
 }
