@@ -89,7 +89,6 @@ namespace MatthiWare.CommandLine.Core.Usage
 
             foreach (var opt in options)
             {
-
                 var longNameLength = opt.HasLongName ? opt.LongName.Length : 0;
                 var shortNameLength = opt.HasShortName ? opt.ShortName.Length : 0;
                 descriptionShift = longestOptionName - longNameLength - shortNameLength + descriptionShift;
