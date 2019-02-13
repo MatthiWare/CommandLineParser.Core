@@ -14,6 +14,7 @@ namespace MatthiWare.CommandLine.Core.Usage
     {
         private readonly StringBuilder stringBuilder = new StringBuilder();
         private readonly CommandLineParserOptions parserOptions;
+        private readonly string optionSeparator = "|";
 
         public UsageBuilder(CommandLineParserOptions parserOptions)
             => this.parserOptions = parserOptions;
@@ -46,40 +47,54 @@ namespace MatthiWare.CommandLine.Core.Usage
             PrintCommandDescriptions(container.Commands);
         }
 
-        public void PrintCommandDescription(ICommandLineCommand command)
-            => stringBuilder.AppendLine($"  {command.Name}\t\t{command.Description}");
+        public void PrintCommandDescription(ICommandLineCommand command, int descriptionShift = 4)
+            => stringBuilder.AppendLine($"  {command.Name}{new string(' ', descriptionShift)}{command.Description}");
 
-        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
+        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands, int descriptionShift = 4)
         {
             if (!commands.Any()) return;
 
             stringBuilder.AppendLine().AppendLine("Commands: ");
 
+            var longestCommandName = commands.Max(x => x.Name.Length);
             foreach (var cmd in commands)
-                PrintCommandDescription(cmd);
+                PrintCommandDescription(cmd, longestCommandName - cmd.Name.Length + descriptionShift);
         }
 
-        public void PrintOption(ICommandLineOption option)
+        public void PrintOption(ICommandLineOption option, int descriptionShift = 4, bool compensateSeparator = false)
         {
             bool hasShort = option.HasShortName;
             bool hasLong = option.HasLongName;
             bool hasBoth = hasShort && hasLong;
 
-            string hasBothSeperator = hasBoth ? "|" : string.Empty;
+            string hasBothSeparator = hasBoth ? optionSeparator : string.Empty;
             string shortName = hasShort ? option.ShortName : string.Empty;
             string longName = hasLong ? option.LongName : string.Empty;
 
-            stringBuilder.AppendLine($"  {shortName}{hasBothSeperator}{longName}\t{option.Description}");
+            // We neeed to compensate a separator if given option doesn't have both (short & long) names.
+            int indentationLength = descriptionShift + ((compensateSeparator && !hasBoth) ? optionSeparator.Length : 0);
+            string indentation = new string(' ', indentationLength);
+
+            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{indentation}{option.Description}");
         }
 
-        public void PrintOptions(IEnumerable<ICommandLineOption> options)
+        public void PrintOptions(IEnumerable<ICommandLineOption> options, int descriptionShift = 4)
         {
             if (!options.Any()) return;
 
             stringBuilder.AppendLine().AppendLine("Options: ");
 
+            var longestOptionName = options.Max(x => (x.HasShortName ? x.ShortName.Length : 0) + (x.HasLongName ? x.LongName.Length : 0));
+            var compensateSeparator = options.Any(x => x.HasShortName && x.HasLongName);
+
             foreach (var opt in options)
-                PrintOption(opt);
+            {
+                var longNameLength = opt.HasLongName ? opt.LongName.Length : 0;
+                var shortNameLength = opt.HasShortName ? opt.ShortName.Length : 0;
+                descriptionShift = longestOptionName - longNameLength - shortNameLength + descriptionShift;
+
+                PrintOption(opt, descriptionShift, compensateSeparator);
+            }
         }
     }
 }
