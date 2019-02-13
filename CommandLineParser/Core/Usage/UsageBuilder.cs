@@ -14,6 +14,7 @@ namespace MatthiWare.CommandLine.Core.Usage
     {
         private readonly StringBuilder stringBuilder = new StringBuilder();
         private readonly CommandLineParserOptions parserOptions;
+        private readonly string optionSeparator = "|";
 
         public UsageBuilder(CommandLineParserOptions parserOptions)
             => this.parserOptions = parserOptions;
@@ -66,11 +67,15 @@ namespace MatthiWare.CommandLine.Core.Usage
             bool hasLong = option.HasLongName;
             bool hasBoth = hasShort && hasLong;
 
-            string hasBothSeparator = hasBoth ? "|" : string.Empty;
+            string hasBothSeparator = hasBoth ? optionSeparator : string.Empty;
             string shortName = hasShort ? option.ShortName : string.Empty;
             string longName = hasLong ? option.LongName : string.Empty;
 
-            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{new string(' ', descriptionShift + (compensateSeparator && !hasBoth ? 1 : 0))}{option.Description}");
+            // We neeed to compensate a separator if given option doesn't have both (short & long) names.
+            int indentationLength = descriptionShift + ((compensateSeparator && !hasBoth) ? optionSeparator.Length : 0);
+            string indentation = new string(' ', indentationLength);
+
+            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{indentation}{option.Description}");
         }
 
         public void PrintOptions(IEnumerable<ICommandLineOption> options, int descriptionShift = 4)
@@ -81,8 +86,16 @@ namespace MatthiWare.CommandLine.Core.Usage
 
             var longestOptionName = options.Max(x => (x.HasShortName ? x.ShortName.Length : 0) + (x.HasLongName ? x.LongName.Length : 0));
             var compensateSeparator = options.Any(x => x.HasShortName && x.HasLongName);
+
             foreach (var opt in options)
-                PrintOption(opt, longestOptionName - (opt.HasLongName ? opt.LongName.Length : 0) - (opt.HasShortName ? opt.ShortName.Length : 0) + descriptionShift, compensateSeparator);
+            {
+
+                var longNameLength = opt.HasLongName ? opt.LongName.Length : 0;
+                var shortNameLength = opt.HasShortName ? opt.ShortName.Length : 0;
+                descriptionShift = longestOptionName - longNameLength - shortNameLength + descriptionShift;
+
+                PrintOption(opt, descriptionShift, compensateSeparator);
+            }
         }
     }
 }
