@@ -132,7 +132,7 @@ namespace MatthiWare.CommandLine.Core.Command
                 }
                 else if (!found && option.IsRequired)
                 {
-                    errors.Add(new OptionNotFoundException(m_parserOptions, option));
+                    errors.Add(new OptionNotFoundException(option));
 
                     continue;
                 }
