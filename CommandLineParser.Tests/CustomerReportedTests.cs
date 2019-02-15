@@ -14,9 +14,9 @@ namespace MatthiWare.CommandLine.Tests
         /// https://github.com/MatthiWare/CommandLineParser.Core/issues/12
         /// </summary>
         [Theory]
-        [InlineData(true, true, false)]
+        [InlineData(true, false, false)]
         [InlineData(false, false, false)]
-        [InlineData(true, true, true)]
+        [InlineData(true, false, true)]
         [InlineData(false, false, true)]
         public void NoCommandLineArgumentsCrashesParser_Issue_12(bool required, bool outcome, bool empty)
         {
@@ -85,7 +85,7 @@ namespace MatthiWare.CommandLine.Tests
             [Name("p", "path")]
             [DefaultValue(@"C:\Some\Path")]
             [Description("Path description")]
-            public bool Path { get; set; }
+            public string Path { get; set; }
         }
         #endregion
     }

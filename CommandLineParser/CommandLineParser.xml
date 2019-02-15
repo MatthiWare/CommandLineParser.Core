@@ -958,6 +958,12 @@
             Option that was not found
             </summary>
         </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.OptionNotFoundException.#ctor(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <summary>
+            Creates a new <see cref="T:MatthiWare.CommandLine.Core.Exceptions.OptionNotFoundException"/> for a given <see cref="T:MatthiWare.CommandLine.Abstractions.ICommandLineOption"/>
+            </summary>
+            <param name="option">The option that was not found</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.OptionParseException">
             <summary>
             Indicates that an option was unable to be parsed
