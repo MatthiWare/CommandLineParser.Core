@@ -130,9 +130,9 @@ namespace MatthiWare.CommandLine.Core.Command
                 {
                     break;
                 }
-                else if (!found && option.IsRequired)
+                else if (!found && option.IsRequired && !option.HasDefault)
                 {
-                    errors.Add(new OptionNotFoundException(m_parserOptions, option));
+                    errors.Add(new OptionNotFoundException(option));
 
                     continue;
                 }
@@ -317,7 +317,7 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 var attributes = propInfo.GetCustomAttributes(true);
 
-                var lambda = GetLambdaExpression(propInfo, out string key);
+                var lambda = propInfo.GetLambdaExpression(out string key);
 
                 var actions = new List<Action>(4);
                 bool ignoreSet = false;
@@ -363,19 +363,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 foreach (var action in actions)
                     action();
-            }
-
-            LambdaExpression GetLambdaExpression(PropertyInfo propInfo, out string key)
-            {
-                var entityType = propInfo.DeclaringType;
-                var propType = propInfo.PropertyType;
-                var parameter = Expression.Parameter(entityType, entityType.FullName);
-                var property = Expression.Property(parameter, propInfo);
-                var funcType = typeof(Func<,>).MakeGenericType(entityType, propType);
-
-                key = $"{entityType.ToString()}.{propInfo.Name}";
-
-                return Expression.Lambda(funcType, property, parameter);
             }
         }
 
