@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace MatthiWare.CommandLine.Core.Utils
@@ -28,6 +30,19 @@ namespace MatthiWare.CommandLine.Core.Utils
             if (baseType == null) return false;
 
             return IsAssignableToGenericType(baseType, genericType);
+        }
+
+        public static LambdaExpression GetLambdaExpression(this PropertyInfo propInfo, out string key)
+        {
+            var entityType = propInfo.DeclaringType;
+            var propType = propInfo.PropertyType;
+            var parameter = Expression.Parameter(entityType, entityType.FullName);
+            var property = Expression.Property(parameter, propInfo);
+            var funcType = typeof(Func<,>).MakeGenericType(entityType, propType);
+
+            key = $"{entityType.ToString()}.{propInfo.Name}";
+
+            return Expression.Lambda(funcType, property, parameter);
         }
 
         public static StringBuilder AppendIf(this StringBuilder self, bool contition, string text)
