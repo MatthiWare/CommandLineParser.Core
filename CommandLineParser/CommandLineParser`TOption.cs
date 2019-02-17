@@ -330,13 +330,13 @@ namespace MatthiWare.CommandLine
 
                 var cmdParseResult = cmd.Parse(argumentManager);
 
+                if (result.HelpRequested)
+                    break;
+
                 if (cmdParseResult.HasErrors)
                     errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
 
                 result.MergeResult(cmdParseResult);
-
-                if (result.HelpRequested)
-                    break;
             }
         }
 
