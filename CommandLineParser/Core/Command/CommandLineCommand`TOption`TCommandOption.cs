@@ -143,7 +143,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
                     continue;
                 }
-                else if (!option.CanParse(model))
+                else if (found && !option.CanParse(model))
                 {
                     errors.Add(new OptionParseException(option, model));
 
