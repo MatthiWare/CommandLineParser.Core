@@ -403,5 +403,19 @@ namespace MatthiWare.CommandLine.Core.Command
 
             m_commands.Add(command);
         }
+
+        ICommandConfigurationBuilder<TCommandOption> ICommandConfigurationBuilder<TCommandOption>.AutoExecute(bool autoExecute)
+        {
+            AutoExecute = autoExecute;
+
+            return this;
+        }
+
+        ICommandConfigurationBuilder ICommandConfigurationBuilder.AutoExecute(bool autoExecute)
+        {
+            AutoExecute = autoExecute;
+
+            return this;
+        }
     }
 }

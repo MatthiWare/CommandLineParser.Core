@@ -1,5 +1,8 @@
 ﻿namespace MatthiWare.CommandLine.Abstractions.Command
 {
+    /// <summary>
+    /// Command builder
+    /// </summary>
     public interface ICommandConfigurationBuilder
     {
         /// <summary>
@@ -22,5 +25,12 @@
         /// <param name="name">Command name</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
         ICommandConfigurationBuilder Name(string name);
+
+        /// <summary>
+        /// Configures if the command should auto execute
+        /// </summary>
+        /// <param name="autoExecute">True for automated execution, false for manual</param>
+        /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
+        ICommandConfigurationBuilder AutoExecute(bool autoExecute);
     }
 }

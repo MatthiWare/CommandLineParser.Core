@@ -54,10 +54,20 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public void ExecuteCommands()
         {
-            if (HasErrors) throw new InvalidOperationException("Parsing failed commands might be corrupted.");
+            if (HasErrors) throw new InvalidOperationException("Parsing failed, commands might be corrupted.");
 
-            foreach (var cmdResult in CommandResults)
+            ExecuteCommandsInternal(CommandResults);
+        }
+
+        private void ExecuteCommandsInternal(IReadOnlyCollection<ICommandParserResult> commandParserResults)
+        {
+            // execute parent commands first
+            foreach (var cmdResult in commandParserResults)
                 cmdResult.ExecuteCommand();
+
+            // execute child commands
+            foreach (var cmdResult in commandParserResults)
+                ExecuteCommandsInternal(cmdResult.SubCommands);
         }
     }
 }

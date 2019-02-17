@@ -10,7 +10,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(new string[] { "cmd1", "-x", "8" }, false)]
         [InlineData(new string[] { "cmd2", "-x", "8" }, false)]
         [InlineData(new string[] { }, false)]
-        public void NonRequiredCommandShouldNotSetResultInErrorStateWhenRequiredOptionsAreMissing(string[] args, bool hasErrors)
+        public void NonRequiredCommandShouldNotSetResultInErrorStateWhenRequiredOptionsAreMissing(string[] args, bool _)
         {
             var parser = new CommandLineParser<object>();
 
@@ -26,7 +26,7 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             var result = parser.Parse(args);
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
         }
 
         private class MultipleCOmmandTestsOptions

@@ -91,6 +91,12 @@
             <param name="name">name</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1">
+            <summary>
+            Generic command builder
+            </summary>
+            <typeparam name="TOption"></typeparam>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1.InvokeCommand(System.Boolean)">
             <summary>
             Configures how the command should be invoked.
@@ -124,8 +130,14 @@
             <summary>
             Configures the execution of the command
             </summary>
+            <param name="action">The execution action</param>
             <param name="required">True or false</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1"/></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder">
+            <summary>
+            Command builder
+            </summary>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder.Required(System.Boolean)">
             <summary>
@@ -148,6 +160,19 @@
             <param name="name">Command name</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder"/></returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder.AutoExecute(System.Boolean)">
+            <summary>
+            Configures if the command should auto execute
+            </summary>
+            <param name="autoExecute">True for automated execution, false for manual</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder"/></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1">
+            <summary>
+            Builder for a generic command
+            </summary>
+            <typeparam name="TSource"></typeparam>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Configures an option in the model
@@ -161,21 +186,28 @@
             Configures if the command is required
             </summary>
             <param name="required">True or false</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder"/></returns>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1.Description(System.String)">
             <summary>
             Configures the description text for the command
             </summary>
-            <param name="required">True or false</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder"/></returns>
+            <param name="description">The description</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1.Name(System.String)">
             <summary>
             Configures the command name
             </summary>
             <param name="name">Command name</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder"/></returns>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1.AutoExecute(System.Boolean)">
+            <summary>
+            Configures if the command should auto execute
+            </summary>
+            <param name="autoExecute">True for automated execution, false for manual</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1"/></returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2">
             <summary>

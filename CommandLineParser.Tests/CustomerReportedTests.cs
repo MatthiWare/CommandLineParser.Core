@@ -60,11 +60,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parsed = parser.Parse(items.ToArray());
 
-            if (parsed.HasErrors)
-            {
-                foreach (var err in parsed.Errors)
-                    throw err;
-            }
+            parsed.AssertNoErrors();
 
             void AddItemToArray(string item)
             {

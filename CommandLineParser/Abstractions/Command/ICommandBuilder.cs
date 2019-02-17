@@ -2,6 +2,10 @@
 
 namespace MatthiWare.CommandLine.Abstractions.Command
 {
+    /// <summary>
+    /// Generic command builder
+    /// </summary>
+    /// <typeparam name="TOption"></typeparam>
     public interface ICommandBuilder<TOption>
     {
         /// <summary>
@@ -36,6 +40,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <summary>
         /// Configures the execution of the command
         /// </summary>
+        /// <param name="action">The execution action</param>
         /// <param name="required">True or false</param>
         /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
         ICommandBuilder<TOption> OnExecuting(Action<TOption> action);
