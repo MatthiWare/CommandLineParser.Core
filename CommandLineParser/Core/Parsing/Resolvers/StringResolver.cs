@@ -5,7 +5,7 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
     internal class StringResolver : ArgumentResolver<string>
     {
-        public override bool CanResolve(ArgumentModel model) => true;
+        public override bool CanResolve(ArgumentModel model) => model.HasValue;
 
         public override string Resolve(ArgumentModel model) => model.HasValue ? model.Value : null;
     }
