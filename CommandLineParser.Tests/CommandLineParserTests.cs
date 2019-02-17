@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 
-using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
@@ -59,7 +58,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var result = parser.Parse(new[] { "app.exe", "my" });
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
 
             commandMock.VerifyAll();
             containerMock.VerifyAll();
@@ -148,7 +147,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var result = parser.Parse(new[] { "app.exe", "-m" });
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
 
             resolverMock.VerifyAll();
             argResolverFactory.Verify();
@@ -168,7 +167,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Assert.NotNull(parsed);
 
-            Assert.False(parsed.HasErrors);
+            parsed.AssertNoErrors();
 
             Assert.Equal("test", parsed.Result.Option1);
         }
@@ -222,9 +221,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parsed = parser.Parse(args);
 
-            Assert.NotNull(parsed);
-
-            Assert.False(parsed.HasErrors);
+            parsed.AssertNoErrors();
 
             Assert.Equal(result1, parsed.Result.Option1);
             Assert.Equal(result2, parsed.Result.Option2);
@@ -246,7 +243,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var result = parser.Parse(new[] { "app.exe", "-p", "sample" });
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
 
             Assert.Same(obj, result.Result.Param);
         }
@@ -278,9 +275,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "add", "-m", "my message" });
 
-            Assert.False(parsed.HasErrors);
-
-            Assert.NotNull(parsed);
+            parsed.AssertNoErrors();
 
             Assert.Equal("test", parsed.Result.Option1);
 
@@ -318,7 +313,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var result = parser.Parse(args);
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
 
             Assert.Equal(result1, result.Result.Message);
 
@@ -335,15 +330,13 @@ namespace MatthiWare.CommandLine.Tests
         {
             var parser = new CommandLineParser<Options>();
 
-            //parser.Configure(opt => opt.Option1)
-            //    .Name("o", "opt")
-            //    .Default("Default message");
-
             parser.Configure(opt => opt.Option2)
                 .Name("x", "xsomething")
                 .Required();
 
             var result = parser.Parse(args);
+
+            result.AssertNoErrors();
 
             Assert.Equal(expected, result.Result.Option2);
         }

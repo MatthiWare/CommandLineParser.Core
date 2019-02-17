@@ -46,7 +46,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
 
             mockCmdResult.VerifyGet(x => x.HasErrors);
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
 
             result.MergeResult(obj);
 
-            Assert.False(result.HasErrors);
+            result.AssertNoErrors();
 
             Assert.Empty(result.Errors);
 
