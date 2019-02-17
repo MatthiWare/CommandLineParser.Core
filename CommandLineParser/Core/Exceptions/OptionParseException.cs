@@ -31,7 +31,7 @@ namespace MatthiWare.CommandLine.Core.Exceptions
             string shortName = hasShort ? option.ShortName : string.Empty;
             string longName = hasLong ? option.LongName : string.Empty;
 
-            return $"Unable to parse option {shortName}{hasBothSeperator}{longName} value '{argModel.Value}' is invalid!";
+            return $"Unable to parse option '{shortName}{hasBothSeperator}{longName}' value '{argModel.Value}' is invalid!";
         }
     }
 }
