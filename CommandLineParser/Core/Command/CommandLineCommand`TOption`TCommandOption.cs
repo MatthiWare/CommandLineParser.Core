@@ -136,7 +136,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
                     continue;
                 }
-                else if (!model.HasValue && option.HasDefault)
+                else if (!found && !model.HasValue && option.HasDefault)
                 {
                     option.UseDefault();
 

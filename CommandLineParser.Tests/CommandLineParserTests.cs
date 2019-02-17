@@ -341,6 +341,32 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(expected, result.Result.Option2);
         }
 
+        #region Issue_35_Bool_Option_Not_Parsed_Correctly
+
+        [Theory]
+        [InlineData(new string[] { "-v", "command" }, true)]
+        [InlineData(new string[] { "command", "-v" }, true)]
+        public void BoolResolverSpecialCaseParsesCorrectlyWithDefaultValueAndNotBeingSpecified(string[] args, bool expected)
+        {
+            var parser = new CommandLineParser<Model_Issue_35>();
+
+            parser.AddCommand().Name("command");
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Equal(expected, result.Result.VerbA);
+        }
+
+        private class Model_Issue_35
+        {
+            [Name("v", "verb"), Description("Print usage"), DefaultValue(false)]
+            public bool VerbA { get; set; }
+        }
+
+        #endregion
+
         [Fact]
         public void ConfigureTests()
         {
