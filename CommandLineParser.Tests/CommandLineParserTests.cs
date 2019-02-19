@@ -194,29 +194,72 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "app.exe", "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
-        [InlineData(new[] { "app.exe", "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
-        [InlineData(new[] { "app.exe", "-1", "-2", "-3" }, "message1", "message2", "message3")]
-        [InlineData(new[] { "-1", "message1", "-2", "-3" }, "message1", "message2", "message3")]
-        [InlineData(new[] { "-1", "-2", "message2", "-3" }, "message1", "message2", "message3")]
-        [InlineData(new[] { "-1", "-2", "-3" }, "message1", "message2", "message3")]
-        public void ParseWithDefaults(string[] args, string result1, string result2, string result3)
+        // string
+        [InlineData(typeof(string), new[] { "-1", "message1", "-2", "-3" }, "default", "message1", "default", "default")]
+        [InlineData(typeof(string), new[] { "-1", "-2", "message2", "-3" }, "default", "default", "message2", "default")]
+        [InlineData(typeof(string), new[] { "-1", "-2", "-3" }, "default", "default", "default", "default")]
+        // bool
+        [InlineData(typeof(bool), new[] { "-1", "false", "-2", "-3" }, false, false, true, true)]
+        [InlineData(typeof(bool), new[] { "-1", "-2", "false", "-3" }, false, true, false, true)]
+        [InlineData(typeof(bool), new[] { "-1", "-2", "-3" }, false, true, true, true)]
+        //// int
+        [InlineData(typeof(int), new[] { "-1", "5", "-2", "-3" }, 0, 5, 0, 0)]
+        [InlineData(typeof(int), new[] { "-1", "-2", "5", "-3" }, 0, 0, 5, 0)]
+        [InlineData(typeof(int), new[] { "-1", "-2", "-3" }, 0, 0, 0, 0)]
+        // double
+        [InlineData(typeof(double), new[] { "-1", "0.5", "-2", "-3" }, 0.1, 0.5, 0.1, 0.1)]
+        [InlineData(typeof(double), new[] { "-1", "-2", "0.5", "-3" }, 0.1, 0.1, 0.5, 0.1)]
+        [InlineData(typeof(double), new[] { "-1", "-2", "-3" }, 0.1, 0.1, 0.1, 0.1)]
+        //// enum
+        [InlineData(typeof(EnumOption), new[] { "-1", "Opt1", "-2", "-3" }, EnumOption.Opt1, EnumOption.Opt1, "message2", "message3")]
+        [InlineData(typeof(EnumOption), new[] { "-1", "-2", "Opt1", "-3" }, EnumOption.Opt1, "message1", EnumOption.Opt1, "message3")]
+        [InlineData(typeof(EnumOption), new[] { "-1", "-2", "-3" }, EnumOption.Opt1, "message1", "message2", "message3")]
+        public void ParseWithDefaults(Type type, string[] args, object defaultValue, object result1, object result2, object result3)
         {
-            var parser = new CommandLineParser<OptionsWithThreeParams>();
+            if (type == typeof(bool))
+            {
+                Test<bool>();
+            }
+            else if (type == typeof(string))
+            {
+                Test<string>();
+            }
+            else if (type == typeof(int))
+            {
+                Test<int>();
+            }
+            else if (type == typeof(double))
+            {
+                Test<double>();
+            }
+            else if (type == typeof(Enum))
+            {
+                Test<Enum>();
+            }
+
+            void Test<T>()
+            {
+                TestParsingWithDefaults<T>(args, (T)defaultValue, (T)result1, (T)result2, (T)result3);
+            }
+        }
+
+        private void TestParsingWithDefaults<T>(string[] args, T defaultValue, T result1, T result2, T result3)
+        {
+            var parser = new CommandLineParser<OptionsWithThreeParams<T>>();
 
             parser.Configure(opt => opt.Option1)
                 .Name("1")
-                .Default(result1)
+                .Default(defaultValue)
                 .Required();
 
             parser.Configure(opt => opt.Option2)
                 .Name("2")
-                .Default(result2)
+                .Default(defaultValue)
                 .Required();
 
             parser.Configure(opt => opt.Option3)
                 .Name("3")
-                .Default(result3)
+                .Default(defaultValue)
                 .Required();
 
             var parsed = parser.Parse(args);
@@ -341,6 +384,32 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(expected, result.Result.Option2);
         }
 
+        #region Issue_35_Bool_Option_Not_Parsed_Correctly
+
+        [Theory]
+        [InlineData(new string[] { "-v", "command" }, true)]
+        [InlineData(new string[] { "command", "-v" }, true)]
+        public void BoolResolverSpecialCaseParsesCorrectlyWithDefaultValueAndNotBeingSpecified(string[] args, bool expected)
+        {
+            var parser = new CommandLineParser<Model_Issue_35>();
+
+            parser.AddCommand().Name("command");
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Equal(expected, result.Result.VerbA);
+        }
+
+        private class Model_Issue_35
+        {
+            [Name("v", "verb"), Description("Print usage"), DefaultValue(false)]
+            public bool VerbA { get; set; }
+        }
+
+        #endregion
+
         [Fact]
         public void ConfigureTests()
         {
@@ -400,11 +469,11 @@ namespace MatthiWare.CommandLine.Tests
             public EnumOption EnumOption { get; set; }
         }
 
-        private class OptionsWithThreeParams
+        private class OptionsWithThreeParams<T>
         {
-            public string Option1 { get; set; }
-            public string Option2 { get; set; }
-            public string Option3 { get; set; }
+            public T Option1 { get; set; }
+            public T Option2 { get; set; }
+            public T Option3 { get; set; }
         }
     }
 }

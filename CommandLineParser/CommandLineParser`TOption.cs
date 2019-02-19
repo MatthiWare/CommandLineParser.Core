@@ -330,13 +330,13 @@ namespace MatthiWare.CommandLine
 
                 var cmdParseResult = cmd.Parse(argumentManager);
 
+                if (result.HelpRequested)
+                    break;
+
                 if (cmdParseResult.HasErrors)
                     errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
 
                 result.MergeResult(cmdParseResult);
-
-                if (result.HelpRequested)
-                    break;
             }
         }
 
@@ -357,13 +357,14 @@ namespace MatthiWare.CommandLine
 
                     continue;
                 }
-                else if (!model.HasValue && option.HasDefault)
+                else if ((!found && !model.HasValue && option.HasDefault) ||
+                    (found && !option.CanParse(model) && option.HasDefault))
                 {
                     option.UseDefault();
 
                     continue;
                 }
-                else if (!option.CanParse(model))
+                else if (found && !option.CanParse(model))
                 {
                     errors.Add(new OptionParseException(option, model));
 

@@ -98,29 +98,17 @@ namespace MatthiWare.CommandLine.Core.Command
             var result = new CommandParserResult(this);
             var errors = new List<Exception>();
 
-            foreach (var cmd in m_commands)
-            {
-                if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
-                {
-                    if (cmd.IsRequired)
-                        errors.Add(new CommandNotFoundException(cmd));
+            ParseCommands(errors, result, argumentManager);
 
-                    result.MergeResult(new CommandNotFoundParserResult(cmd));
+            ParseOptions(errors, result, argumentManager);
 
-                    continue;
-                }
+            result.MergeResult(errors);
 
-                var cmdParseResult = cmd.Parse(argumentManager);
+            return result;
+        }
 
-                if (cmdParseResult.HelpRequested)
-                    return result;
-
-                if (cmdParseResult.HasErrors)
-                    errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
-
-                result.MergeResult(cmdParseResult);
-            }
-
+        private void ParseOptions(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
+        {
             foreach (var o in m_options)
             {
                 var option = o.Value;
@@ -136,13 +124,14 @@ namespace MatthiWare.CommandLine.Core.Command
 
                     continue;
                 }
-                else if (!model.HasValue && option.HasDefault)
+                else if ((!found && !model.HasValue && option.HasDefault) ||
+                    (found && !option.CanParse(model) && option.HasDefault))
                 {
                     option.UseDefault();
 
                     continue;
                 }
-                else if (!option.CanParse(model))
+                else if (found && !option.CanParse(model))
                 {
                     errors.Add(new OptionParseException(option, model));
 
@@ -151,10 +140,32 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 option.Parse(model);
             }
+        }
 
-            result.MergeResult(errors);
+        private void ParseCommands(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
+        {
+            foreach (var cmd in m_commands)
+            {
+                if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
+                {
+                    if (cmd.IsRequired)
+                        errors.Add(new CommandNotFoundException(cmd));
 
-            return result;
+                    result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                    continue;
+                }
+
+                var cmdParseResult = cmd.Parse(argumentManager);
+
+                if (cmdParseResult.HelpRequested)
+                    break;
+
+                if (cmdParseResult.HasErrors)
+                    errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
+
+                result.MergeResult(cmdParseResult);
+            }
         }
 
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
