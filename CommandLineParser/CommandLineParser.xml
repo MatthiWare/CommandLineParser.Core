@@ -656,6 +656,34 @@
             <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult"/>
             </summary>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter">
+            <summary>
+            CLI Usage Output Printer
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintUsage">
+            <summary>
+            Print global usage
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.IArgument)">
+            <summary>
+            Print an argument
+            </summary>
+            <param name="argument">The given argument</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <summary>
+            Print command usage
+            </summary>
+            <param name="command">The given command</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <summary>
+            Print option usage
+            </summary>
+            <param name="option">The given option</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.CommandLineParser">
             <summary>
             Command line parser
@@ -960,6 +988,25 @@
             <typeparam name="TCommand"></typeparam>
             <typeparam name="TCommandOption"></typeparam>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Exceptions.BaseParserException">
+            <summary>
+            Base exception class that exposes the <see cref="P:MatthiWare.CommandLine.Core.Exceptions.BaseParserException.Argument"/> this exception is about. 
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Exceptions.BaseParserException.Argument">
+            <summary>
+            The argument this exception is for. 
+            <see cref="T:MatthiWare.CommandLine.Abstractions.ICommandLineOption"/> and <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand"/>
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.BaseParserException.#ctor(MatthiWare.CommandLine.Abstractions.IArgument,System.String,System.Exception)">
+            <summary>
+            Creates a new CLI Parser Exception for a given argument
+            </summary>
+            <param name="argument">The argument</param>
+            <param name="message">The exception message</param>
+            <param name="innerException">Optional inner exception</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.CommandNotFoundException">
             <summary>
             Indicitates that a configured required command is not found.
@@ -970,6 +1017,12 @@
             The command that was not found
             </summary>
         </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.CommandNotFoundException.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <summary>
+            Creates a new command not found exception
+            </summary>
+            <param name="cmd">The command that was not found</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.CommandParseException">
             <summary>
             Unable to parse the command
@@ -979,6 +1032,13 @@
             <summary>
             Command that caused the parsing error
             </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.CommandParseException.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand,System.Collections.Generic.IReadOnlyCollection{System.Exception})">
+            <summary>
+            Creates a new command parse exception
+            </summary>
+            <param name="command">the failed command</param>
+            <param name="innerExceptions">collection of inner exception</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.OptionNotFoundException">
             <summary>
@@ -1001,6 +1061,18 @@
             Indicates that an option was unable to be parsed
             This could be caused by an missing <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver"/>.
             </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Exceptions.OptionParseException.Option">
+            <summary>
+            The option that failed
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.OptionParseException.#ctor(MatthiWare.CommandLine.Abstractions.ICommandLineOption,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <summary>
+            Creates a new <see cref="T:MatthiWare.CommandLine.Core.Exceptions.OptionParseException"/>
+            </summary>
+            <param name="option">The failed option</param>
+            <param name="argModel">The specified argument</param>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.FindIndex(System.Object,System.Int32)">
             <summary>

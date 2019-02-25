@@ -1,6 +1,4 @@
-﻿using System;
-
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
@@ -9,17 +7,21 @@ namespace MatthiWare.CommandLine.Core.Exceptions
     /// Indicates that an option was unable to be parsed
     /// This could be caused by an missing <see cref="Abstractions.Parsing.ICommandLineArgumentResolver"/>.
     /// </summary>
-    public class OptionParseException : Exception
+    public class OptionParseException : BaseParserException
     {
-        private readonly ICommandLineOption option;
-        private ArgumentModel argModel;
+        /// <summary>
+        /// The option that failed
+        /// </summary>
+        public ICommandLineOption Option => (ICommandLineOption)Argument;
 
+        /// <summary>
+        /// Creates a new <see cref="OptionParseException"/>
+        /// </summary>
+        /// <param name="option">The failed option</param>
+        /// <param name="argModel">The specified argument</param>
         public OptionParseException(ICommandLineOption option, ArgumentModel argModel)
-            : base(CreateMessage(option, argModel))
-        {
-            this.option = option;
-            this.argModel = argModel;
-        }
+            : base(option, CreateMessage(option, argModel))
+        { }
 
         private static string CreateMessage(ICommandLineOption option, ArgumentModel argModel)
         {
