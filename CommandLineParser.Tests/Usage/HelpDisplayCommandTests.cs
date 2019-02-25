@@ -25,6 +25,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var usagePrinterMock = new Mock<IUsagePrinter>();
 
             usagePrinterMock.Setup(mock => mock.PrintUsage()).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<IArgument>())).Callback(() => calledFlag = true);
             usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
             usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 

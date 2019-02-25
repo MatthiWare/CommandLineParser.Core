@@ -24,6 +24,22 @@ namespace MatthiWare.CommandLine.Core.Usage
             m_usageBuilder.Print();
         }
 
+        public void PrintUsage(IArgument argument)
+        {
+            switch (argument)
+            {
+                case ICommandLineCommand cmd:
+                    PrintUsage(cmd);
+                    break;
+                case ICommandLineOption opt:
+                    PrintUsage(opt);
+                    break;
+                default:
+                    PrintUsage();
+                    break;
+            }
+        }
+
         public void PrintUsage(ICommandLineCommand command)
         {
             m_usageBuilder.PrintCommand(command.Name, (ICommandLineCommandContainer)command);

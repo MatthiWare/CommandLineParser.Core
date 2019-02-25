@@ -231,37 +231,23 @@ namespace MatthiWare.CommandLine
             if (noArgsSupplied)
                 PrintHelp();
             else if (result.HelpRequested)
-                PrintHelpFor(result.HelpRequestedFor);
+                Printer.PrintUsage(result.HelpRequestedFor);
             else if (result.HasErrors)
                 PrintErrors(result.Errors);
-        }
-
-        private void PrintHelpFor(IArgument helpRequestedFor)
-        {
-            switch (helpRequestedFor)
-            {
-                case ICommandLineCommand cmd:
-                    Printer.PrintUsage(cmd);
-                    break;
-                case ICommandLineOption opt:
-                    Printer.PrintUsage(opt);
-                    break;
-                default:
-                    PrintHelp();
-                    break;
-            }
         }
 
         private void PrintErrors(IReadOnlyCollection<Exception> errors)
         {
             var previousColor = Console.ForegroundColor;
 
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = ConsoleColor.Red;
 
             foreach (var error in errors)
                 Console.Error.WriteLine(error.Message);
 
             Console.ForegroundColor = previousColor;
+
+            Console.WriteLine();
 
             PrintHelp();
         }
