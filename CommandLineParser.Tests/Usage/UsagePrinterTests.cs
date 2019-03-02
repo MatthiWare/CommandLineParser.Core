@@ -4,6 +4,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
+using MatthiWare.CommandLine.Core.Usage;
 using Moq;
 using Xunit;
 
@@ -76,22 +77,21 @@ namespace MatthiWare.CommandLine.Tests.Usage
         }
 
         [Theory]
-        [InlineData(new string[] { "-o", "bla", "cmd" }, true)]
-        [InlineData(new string[] { "-o", "bla", "cmd", "-x", "bla" }, false)]
-        [InlineData(new string[] { "cmd", "-x", "bla" }, true)]
-        public void CustomInvokedPrinterWorksCorrectly(string[] args, bool argPassed)
+        [InlineData(new string[] { "-o", "bla", "cmd" }, true, false)]
+        [InlineData(new string[] { "-o", "bla", "cmd", "-x", "bla" }, false, false)]
+        [InlineData(new string[] { "cmd", "-x", "bla" }, false, true)]
+        public void CustomInvokedPrinterWorksCorrectly(string[] args, bool cmdPassed, bool optPassed)
         {
-            var printerMock = new Mock<IUsagePrinter>();
+            var builderMock = new Mock<IUsageBuilder>();
 
             var parserOptions = new CommandLineParserOptions
             {
                 AutoPrintUsageAndErrors = false
             };
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions)
-            {
-                Printer = printerMock.Object,
-            };
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions);
+
+            parser.Printer = new UsagePrinter(parserOptions, parser, builderMock.Object);
 
             parser.AddCommand<UsagePrinterCommandOptions>()
                 .Name("cmd")
@@ -99,11 +99,9 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             var result = parser.Parse(args);
 
-            // make sure it didn't print
-            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<ICommandLineCommand>()), Times.Never());
-            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<ICommandLineOption>()), Times.Never());
-            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<IArgument>()), Times.Never());
-            printerMock.Verify(mock => mock.PrintUsage(), Times.Never());
+            builderMock.Verify(mock => mock.Print(), Times.Never());
+            builderMock.Verify(mock => mock.PrintCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()), Times.Never());
+            builderMock.Verify(mock => mock.PrintOption(It.IsAny<ICommandLineOption>(), It.IsAny<int>(), It.IsAny<bool>()), Times.Never());
 
             if (result.HelpRequested)
                 parser.Printer.PrintUsage(result.HelpRequestedFor);
@@ -118,8 +116,17 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 }
             }
 
-            printerMock.Verify(mock => mock.PrintUsage(), ToTimes(result.HelpRequested));
-            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<IArgument>()), ToTimes(argPassed));
+            builderMock.Verify(
+                mock => mock.Print(),
+                ToTimes(result.HelpRequested || result.HasErrors));
+
+            builderMock.Verify(
+                mock => mock.PrintCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()),
+                ToTimes(cmdPassed));
+
+            builderMock.Verify(
+                mock => mock.PrintOption(It.IsAny<ICommandLineOption>(), It.IsAny<int>(), It.IsAny<bool>()),
+                ToTimes(optPassed));
         }
 
         private Times ToTimes(bool input)
