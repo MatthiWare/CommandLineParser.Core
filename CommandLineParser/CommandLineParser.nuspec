@@ -15,7 +15,7 @@
 		Configuration is done through a option model class using attributes or fluent API can be used to configure the properties of the class. 
 		This library allows to add commands with their own set of options as well. 
 	</description>
-	<summary>A simple, light-weight and strongly typed command line parser. Configuration using fluent API and  an options class. </summary>
+	<summary>A simple, light-weight and strongly typed command line parser. Configuration using Fluent API, Attributes and model classes.</summary>
     <releaseNotes>Fix issue with bool parsing, fix indenting, fix auto printing of errors</releaseNotes>
     <copyright>Copyright Matthias Beerens 2018</copyright>
     <tags>commandline parser commandline-parser</tags>
