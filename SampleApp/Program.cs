@@ -14,7 +14,7 @@ namespace SampleApp
             // setup
             parser.Configure(opt => opt.MyInt)
                 .Name("i", "int")
-                .Description("Description for -s option, needs a string.")
+                .Description("Description for -i option, needs an integer.")
                 .Required();
 
             parser.Configure(opt => opt.MyString)
@@ -24,12 +24,12 @@ namespace SampleApp
 
             parser.Configure(opt => opt.MyBool)
                 .Name("b", "bool")
-                .Description("Description for -s option, needs a string.")
+                .Description("Description for -b option, needs a boolean.")
                 .Required();
 
             parser.Configure(opt => opt.MyDouble)
                 .Name("d", "double")
-                .Description("Description for -s option, needs a string.")
+                .Description("Description for -d option, needs a double.")
                 .Required();
 
             var startCmd = parser.AddCommand<CommandOptions>()
@@ -39,8 +39,8 @@ namespace SampleApp
                 .OnExecuting((opt, parsedCmdOption) => Console.WriteLine($"Starting server using verbose option: {parsedCmdOption.Verbose}"));
 
             startCmd.Configure(cmd => cmd.Verbose) // configures the command options can also be done using attributes
-                .Required()
                 .Description("Verbose output [true/false]")
+                .Default(false)
                 .Name("v", "verbose");
 
             var result = parser.Parse(args);
@@ -70,7 +70,7 @@ namespace SampleApp
 
         private static void HandleException(Exception exception)
         {
-            // Do something with the exception..
+            Console.WriteLine(exception.Message);
         }
 
         private class Options

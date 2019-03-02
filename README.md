@@ -14,7 +14,7 @@
 </p>
 
 # CommandLineParser
-A simple, light-weight and strongly typed commandline parser made in .Net standard.
+A simple, light-weight and strongly typed commandline parser made in .NET Standard!
 
 ## Installation
 ```powershell
@@ -23,9 +23,7 @@ PM> Install-Package MatthiWare.CommandLineParser
 
 # Quick Start
 
-First of all you need to add the nuget package. 
-
-Now you can setup the command line parser. 
+Example of configuring the port option using the Fluent API. 
 
 ``` csharp
 static void Main(string[] args)
@@ -33,25 +31,32 @@ static void Main(string[] args)
    // create the parser
    var parser = new CommandLineParser<ServerOptions>();
    
-   // configure the options using the fluent api
+   // configure the options using the Fluent API
    parser.Configure(options => options.Port)
       .Name("p", "port")
       .Description("The port of the server")
       .Required();
 
    // parse
-   var result = parser.Parse(args);
+   var parsed = parser.Parse(args);
 
    // check for parsing errors
-   if (result.HasErrors)
+   if (parsed.HasErrors)
    {
       Console.ReadKey();
 
       return -1;
    }
 
-   Console.WriteLine($"Parsed port is {result.Result.Port}");
+   Console.WriteLine($"Parsed port is {parsed.Result.Port}");
 }
+
+private class ServerOptions
+{
+   // options
+   public int Port { get; set; }
+}
+
 ```
 
 Run command line

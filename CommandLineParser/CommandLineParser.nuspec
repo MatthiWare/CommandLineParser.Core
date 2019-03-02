@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -15,8 +15,8 @@
 		Configuration is done through a option model class using attributes or fluent API can be used to configure the properties of the class. 
 		This library allows to add commands with their own set of options as well. 
 	</description>
-	<summary>A simple, light-weight and strongly typed command line parser. Configuration using fluent API and  an options class. </summary>
-    <releaseNotes>Fix issue where optional commands would be marked as missing. Fix issue where auto executing commands can cause parser to crash.</releaseNotes>
+	<summary>A simple, light-weight and strongly typed command line parser. Configuration using Fluent API, Attributes and model classes.</summary>
+    <releaseNotes>Fix issue with bool parsing, fix indenting, fix auto printing of errors</releaseNotes>
     <copyright>Copyright Matthias Beerens 2018</copyright>
     <tags>commandline parser commandline-parser</tags>
   </metadata>
