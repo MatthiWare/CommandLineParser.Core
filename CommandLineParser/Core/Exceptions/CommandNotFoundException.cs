@@ -1,23 +1,23 @@
-﻿using System.Collections.Generic;
-
-using MatthiWare.CommandLine.Abstractions.Command;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
 {
     /// <summary>
     /// Indicitates that a configured required command is not found.
     /// </summary>
-    public class CommandNotFoundException : KeyNotFoundException
+    public class CommandNotFoundException : BaseParserException
     {
         /// <summary>
         /// The command that was not found
         /// </summary>
-        public ICommandLineCommand Command { get; private set; }
+        public ICommandLineCommand Command => (ICommandLineCommand)Argument;
 
+        /// <summary>
+        /// Creates a new command not found exception
+        /// </summary>
+        /// <param name="cmd">The command that was not found</param>
         public CommandNotFoundException(ICommandLineCommand cmd)
-            : base($"Required command '{cmd.Name}' not found!")
-        {
-            Command = cmd;
-        }
+            : base(cmd, $"Required command '{cmd.Name}' not found!")
+        { }
     }
 }

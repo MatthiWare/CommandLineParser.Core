@@ -123,6 +123,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="argumentResolverFactory">argument resolver to use</param>
         /// <param name="containerResolver">container resolver to use</param>
+        /// <param name="parserOptions">The options the parser will use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
         {
             ParserOptions = parserOptions;
@@ -137,7 +138,7 @@ namespace MatthiWare.CommandLine
             if (string.IsNullOrWhiteSpace(ParserOptions.AppName))
                 ParserOptions.AppName = Process.GetCurrentProcess().ProcessName;
 
-            Printer = new UsagePrinter(ParserOptions, this);
+            Printer = new UsagePrinter(parserOptions, this, new UsageBuilder(parserOptions));
 
             if (ParserOptions.EnableHelpOption)
             {
@@ -231,37 +232,23 @@ namespace MatthiWare.CommandLine
             if (noArgsSupplied)
                 PrintHelp();
             else if (result.HelpRequested)
-                PrintHelpFor(result.HelpRequestedFor);
+                Printer.PrintUsage(result.HelpRequestedFor);
             else if (result.HasErrors)
                 PrintErrors(result.Errors);
-        }
-
-        private void PrintHelpFor(IArgument helpRequestedFor)
-        {
-            switch (helpRequestedFor)
-            {
-                case ICommandLineCommand cmd:
-                    Printer.PrintUsage(cmd);
-                    break;
-                case ICommandLineOption opt:
-                    Printer.PrintUsage(opt);
-                    break;
-                default:
-                    PrintHelp();
-                    break;
-            }
         }
 
         private void PrintErrors(IReadOnlyCollection<Exception> errors)
         {
             var previousColor = Console.ForegroundColor;
 
-            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.ForegroundColor = ConsoleColor.Red;
 
             foreach (var error in errors)
                 Console.Error.WriteLine(error.Message);
 
             Console.ForegroundColor = previousColor;
+
+            Console.WriteLine();
 
             PrintHelp();
         }
@@ -318,25 +305,32 @@ namespace MatthiWare.CommandLine
         {
             foreach (var cmd in m_commands)
             {
-                if (!argumentManager.TryGetValue(cmd, out _))
+                try
                 {
-                    if (cmd.IsRequired)
-                        errors.Add(new CommandNotFoundException(cmd));
+                    if (!argumentManager.TryGetValue(cmd, out _))
+                    {
+                        result.MergeResult(new CommandNotFoundParserResult(cmd));
 
-                    result.MergeResult(new CommandNotFoundParserResult(cmd));
+                        if (cmd.IsRequired)
+                            throw new CommandNotFoundException(cmd);
 
-                    continue;
+                        continue;
+                    }
+
+                    var cmdParseResult = cmd.Parse(argumentManager);
+
+                    if (result.HelpRequested)
+                        break;
+
+                    result.MergeResult(cmdParseResult);
+
+                    if (cmdParseResult.HasErrors)
+                        throw new CommandParseException(cmd, cmdParseResult.Errors);
                 }
-
-                var cmdParseResult = cmd.Parse(argumentManager);
-
-                if (result.HelpRequested)
-                    break;
-
-                if (cmdParseResult.HasErrors)
-                    errors.Add(new CommandParseException(cmd, cmdParseResult.Errors));
-
-                result.MergeResult(cmdParseResult);
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
             }
         }
 
@@ -344,34 +338,37 @@ namespace MatthiWare.CommandLine
         {
             foreach (var o in m_options)
             {
-                var option = o.Value;
-                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
-
-                if (found && HelpRequested(result, option, model))
+                try
                 {
-                    break;
+                    var option = o.Value;
+                    bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
+
+                    if (found && HelpRequested(result, option, model))
+                    {
+                        break;
+                    }
+                    else if (!found && option.IsRequired && !option.HasDefault)
+                    {
+                        throw new OptionNotFoundException(option);
+                    }
+                    else if ((!found && !model.HasValue && option.HasDefault) ||
+                        (found && !option.CanParse(model) && option.HasDefault))
+                    {
+                        option.UseDefault();
+
+                        continue;
+                    }
+                    else if (found && !option.CanParse(model))
+                    {
+                        throw new OptionParseException(option, model);
+                    }
+
+                    option.Parse(model);
                 }
-                else if (!found && option.IsRequired && !option.HasDefault)
+                catch (Exception ex)
                 {
-                    errors.Add(new OptionNotFoundException(option));
-
-                    continue;
+                    errors.Add(ex);
                 }
-                else if ((!found && !model.HasValue && option.HasDefault) ||
-                    (found && !option.CanParse(model) && option.HasDefault))
-                {
-                    option.UseDefault();
-
-                    continue;
-                }
-                else if (found && !option.CanParse(model))
-                {
-                    errors.Add(new OptionParseException(option, model));
-
-                    continue;
-                }
-
-                option.Parse(model);
             }
 
             result.MergeResult(m_option);

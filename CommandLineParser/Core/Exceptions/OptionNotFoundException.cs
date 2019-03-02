@@ -1,25 +1,23 @@
-﻿using System.Collections.Generic;
-
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
 {
     /// <summary>
     /// Indiciates the configured required option is not found
     /// </summary>
-    public class OptionNotFoundException : KeyNotFoundException
+    public class OptionNotFoundException : BaseParserException
     {
         /// <summary>
         /// Option that was not found
         /// </summary>
-        public ICommandLineOption Option { get; private set; }
+        public ICommandLineOption Option => (ICommandLineOption)Argument;
 
         /// <summary>
         /// Creates a new <see cref="OptionNotFoundException"/> for a given <see cref="ICommandLineOption"/>
         /// </summary>
         /// <param name="option">The option that was not found</param>
         public OptionNotFoundException(ICommandLineOption option)
-            : base(CreateMessage(option))
+            : base(option, CreateMessage(option))
         { }
 
         private static string CreateMessage(ICommandLineOption option)
