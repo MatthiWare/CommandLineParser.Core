@@ -847,6 +847,7 @@
             </summary>
             <param name="argumentResolverFactory">argument resolver to use</param>
             <param name="containerResolver">container resolver to use</param>
+            <param name="parserOptions">The options the parser will use</param>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>

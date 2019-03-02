@@ -10,12 +10,12 @@ namespace MatthiWare.CommandLine.Core.Usage
         private readonly IUsageBuilder m_usageBuilder;
         private readonly ICommandLineCommandContainer m_commandContainer;
 
-        public UsagePrinter(CommandLineParserOptions parserOptions, ICommandLineCommandContainer container)
+        public UsagePrinter(CommandLineParserOptions parserOptions, ICommandLineCommandContainer container, IUsageBuilder builder)
         {
             m_parserOptions = parserOptions;
             m_commandContainer = container;
 
-            m_usageBuilder = new UsageBuilder(parserOptions);
+            m_usageBuilder = builder;
         }
 
         public void PrintUsage()
