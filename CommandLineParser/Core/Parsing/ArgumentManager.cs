@@ -8,6 +8,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Command;
+using MatthiWare.CommandLine.Core.Utils;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
@@ -18,22 +19,30 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly bool helpOptionsEnabled;
         private readonly string shortHelpOption;
         private readonly string longHelpOption;
+        private readonly CommandLineParserOptions parserOptions;
+        private readonly bool hasLongPostfix;
+        private readonly bool hasShortPostfix;
 
         public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
 
-        public ArgumentManager(string[] args, bool helpOptionsEnabled, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
+        public ArgumentManager(string[] args, CommandLineParserOptions parserOptions, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
         {
             resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
 
-            this.helpOptionsEnabled = helpOptionsEnabled;
+            this.parserOptions = parserOptions;
+            this.helpOptionsEnabled = parserOptions.EnableHelpOption;
             this.shortHelpOption = shortHelpOption;
             this.longHelpOption = longHelpOption;
+            this.hasLongPostfix = !string.IsNullOrWhiteSpace(parserOptions.PostfixLongOption);
+            this.hasShortPostfix = !string.IsNullOrWhiteSpace(parserOptions.PostfixShortOption);
 
-            this.args = new List<ArgumentValueHolder>(args.Select(arg => new ArgumentValueHolder
-            {
-                Argument = arg,
-                Used = false
-            }));
+            this.args = new List<ArgumentValueHolder>(
+                args.SplitOnPostfix(hasShortPostfix, hasLongPostfix, this.parserOptions.PostfixShortOption, this.parserOptions.PostfixLongOption)
+                .Select(arg => new ArgumentValueHolder
+                {
+                    Argument = arg,
+                    Used = false
+                }));
 
             ParseCommands(commands);
 
@@ -140,7 +149,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                             return string.Equals(key, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
                         case ICommandLineOption opt:
                             return (opt.HasShortName && string.Equals(opt.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
-                                    (opt.HasLongName && string.Equals(opt.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase));
+                                (opt.HasLongName && string.Equals(opt.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase));
                         case ICommandLineCommand cmd:
                             return string.Equals(cmd.Name, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
                         default:

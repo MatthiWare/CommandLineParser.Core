@@ -196,7 +196,7 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager(args, ParserOptions.EnableHelpOption, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values);
+            var argumentManager = new ArgumentManager(args, ParserOptions, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values);
 
             ParseCommands(errors, result, argumentManager);
 

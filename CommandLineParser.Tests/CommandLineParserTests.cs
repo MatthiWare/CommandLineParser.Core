@@ -29,6 +29,31 @@ namespace MatthiWare.CommandLine.Tests
             }
         }
 
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CommandLineParserParsesCorrectOptionsWithPostfix(bool useShort)
+        {
+            var config = new CommandLineParserOptions
+            {
+                PostfixLongOption = "=",
+                PostfixShortOption = "="
+            };
+
+            var query = $"{(useShort ? "-" : "--")}p=some text";
+
+            var parser = new CommandLineParser<AddOption>(config);
+
+            parser.Configure(p => p.Message).Name("p", "p").Required();
+
+            var result = parser.Parse(new string[] { query });
+
+            result.AssertNoErrors();
+
+            Assert.Equal("some text", result.Result.Message);
+        }
+
         [Fact]
         public void CommandLineParserUsesCorrectOptions()
         {

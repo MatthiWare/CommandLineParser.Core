@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -30,6 +31,34 @@ namespace MatthiWare.CommandLine.Core.Utils
             if (baseType == null) return false;
 
             return IsAssignableToGenericType(baseType, genericType);
+        }
+
+        public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, bool hasShortPostfix, bool hasLongPostfix, string shortPostfix, string longPostfix)
+        {
+            foreach (var item in self)
+            {
+                string[] tokens = null;
+                int idx = -1;
+
+                if (hasLongPostfix && (idx = item.IndexOf(longPostfix)) != -1)
+                {
+                    tokens = new []{ item.Substring(0, idx ), item.Substring(idx + 1, item.Length - idx - 1) };
+                } 
+                else if (hasShortPostfix && (idx = item.IndexOf(shortPostfix)) != -1)
+                {
+                    tokens = new[] { item.Substring(0, idx ), item.Substring(idx + 1, item.Length - idx - 1) };
+                }
+
+                if (idx != -1)
+                {
+                    yield return tokens[0];
+                    yield return tokens[1];
+                }
+                else
+                {
+                    yield return item;
+                }
+            }
         }
 
         public static LambdaExpression GetLambdaExpression(this PropertyInfo propInfo, out string key)
