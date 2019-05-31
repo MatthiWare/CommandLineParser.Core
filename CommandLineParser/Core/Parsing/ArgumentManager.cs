@@ -20,12 +20,11 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly string shortHelpOption;
         private readonly string longHelpOption;
         private readonly CommandLineParserOptions parserOptions;
-        private readonly bool hasLongPostfix;
-        private readonly bool hasShortPostfix;
+        private readonly bool hasPostfixDefined;
 
         public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
 
-        public ArgumentManager(string[] args, CommandLineParserOptions parserOptions, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<CommandLineOptionBase> options)
+        public ArgumentManager(string[] args, CommandLineParserOptions parserOptions, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<ICommandLineOption> options)
         {
             resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
 
@@ -33,15 +32,13 @@ namespace MatthiWare.CommandLine.Core.Parsing
             this.helpOptionsEnabled = parserOptions.EnableHelpOption;
             this.shortHelpOption = shortHelpOption;
             this.longHelpOption = longHelpOption;
-            this.hasLongPostfix = !string.IsNullOrWhiteSpace(parserOptions.PostfixLongOption);
-            this.hasShortPostfix = !string.IsNullOrWhiteSpace(parserOptions.PostfixShortOption);
+            this.hasPostfixDefined = !string.IsNullOrWhiteSpace(parserOptions.PostfixOption);
 
             this.args = new List<ArgumentValueHolder>(
-                args.SplitOnPostfix(hasShortPostfix, hasLongPostfix, this.parserOptions.PostfixShortOption, this.parserOptions.PostfixLongOption)
+                args.SplitOnPostfix(parserOptions, GetCommandLineOptions(options, commands))
                 .Select(arg => new ArgumentValueHolder
                 {
-                    Argument = arg,
-                    Used = false
+                    Argument = arg
                 }));
 
             ParseCommands(commands);
@@ -69,6 +66,25 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 if (resultCache.ContainsKey(item.ArgModel)) continue;
 
                 resultCache.Add(item.ArgModel, argModel);
+            }
+        }
+
+        private ICollection<ICommandLineOption> GetCommandLineOptions(ICollection<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
+        {
+            List<ICommandLineOption> result = new List<ICommandLineOption>(options);
+
+            Traverse(commands);
+
+            return result;
+
+            void Traverse(IEnumerable<CommandLineCommandBase> cmds)
+            {
+                foreach (var cmd in cmds)
+                {
+                    result.AddRange(cmd.Options);
+
+                    Traverse(cmd.Commands.Cast<CommandLineCommandBase>());
+                }
             }
         }
 
@@ -166,7 +182,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
         public class ArgumentValueHolder
         {
             public string Argument { get; set; }
-            public bool Used { get; set; }
+            public bool Used { get; set; } = false;
             public IArgument ArgModel { get; set; }
             public int Index { get; set; }
         }

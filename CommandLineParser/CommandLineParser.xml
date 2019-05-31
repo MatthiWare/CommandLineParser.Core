@@ -743,12 +743,7 @@
             Prefix for the long option
             </summary>
         </member>
-        <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PostfixShortOption">
-            <summary>
-            Postfix for the short option
-            </summary>
-        </member>
-        <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PostfixLongOption">
+        <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PostfixOption">
             <summary>
             Postfix for the long option
             </summary>

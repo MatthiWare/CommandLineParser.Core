@@ -15,14 +15,9 @@ namespace MatthiWare.CommandLine
         public string PrefixLongOption { get; set; } = "--";
 
         /// <summary>
-        /// Postfix for the short option
-        /// </summary>
-        public string PostfixShortOption { get; set; } = string.Empty;
-
-        /// <summary>
         /// Postfix for the long option
         /// </summary>
-        public string PostfixLongOption { get; set; } = string.Empty;
+        public string PostfixOption { get; set; } = "=";
 
         /// <summary>
         /// Help option name. 

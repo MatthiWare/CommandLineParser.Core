@@ -26,7 +26,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <summary>
         /// Describes the command, used in the usage output. 
         /// </summary>
-        /// <param name="desc">description of the command</param>
+        /// <param name="description">description of the command</param>
         /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
         ICommandBuilder<TOption> Description(string description);
 
