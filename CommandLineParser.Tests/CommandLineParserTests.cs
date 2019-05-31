@@ -29,7 +29,6 @@ namespace MatthiWare.CommandLine.Tests
             }
         }
 
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]

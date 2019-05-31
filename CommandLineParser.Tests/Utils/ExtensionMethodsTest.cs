@@ -1,8 +1,6 @@
 ﻿using Xunit;
 using MatthiWare.CommandLine.Core.Utils;
 using System.Linq;
-using System.Collections.Generic;
-using MatthiWare.CommandLine.Core;
 using Moq;
 using MatthiWare.CommandLine.Abstractions;
 
@@ -10,7 +8,6 @@ namespace MatthiWare.CommandLine.Tests.Utils
 {
     public class ExtensionMethodsTest
     {
-
         [Fact]
         public void TestSplitOnPostFixWorksCorrectly()
         {
@@ -78,6 +75,5 @@ namespace MatthiWare.CommandLine.Tests.Utils
 
             return mock;
         }
-
     }
 }
