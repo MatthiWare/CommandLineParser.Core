@@ -15,7 +15,7 @@
         /// <summary>
         /// Configures the description text for the command
         /// </summary>
-        /// <param name="required">True or false</param>
+        /// <param name="description">Description</param>
         /// <returns><see cref="ICommandConfigurationBuilder"/></returns>
         ICommandConfigurationBuilder Description(string description);
 

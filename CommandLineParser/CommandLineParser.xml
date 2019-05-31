@@ -743,6 +743,11 @@
             Prefix for the long option
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PostfixOption">
+            <summary>
+            Postfix for the long option
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.HelpOptionName">
             <summary>
             Help option name. 

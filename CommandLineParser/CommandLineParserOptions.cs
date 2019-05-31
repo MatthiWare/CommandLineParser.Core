@@ -15,6 +15,11 @@ namespace MatthiWare.CommandLine
         public string PrefixLongOption { get; set; } = "--";
 
         /// <summary>
+        /// Postfix for the long option
+        /// </summary>
+        public string PostfixOption { get; set; } = "=";
+
+        /// <summary>
         /// Help option name. 
         /// Accepts both formatted and unformatted help name. 
         /// If the name is a single string it will use the <see cref="PrefixLongOption"/>

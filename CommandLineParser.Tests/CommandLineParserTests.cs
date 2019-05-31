@@ -29,6 +29,24 @@ namespace MatthiWare.CommandLine.Tests
             }
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CommandLineParserParsesCorrectOptionsWithPostfix(bool useShort)
+        {
+            var query = $"{(useShort ? "-" : "--")}p=some text";
+
+            var parser = new CommandLineParser<AddOption>();
+
+            parser.Configure(p => p.Message).Name("p", "p").Required();
+
+            var result = parser.Parse(new string[] { query });
+
+            result.AssertNoErrors();
+
+            Assert.Equal("some text", result.Result.Message);
+        }
+
         [Fact]
         public void CommandLineParserUsesCorrectOptions()
         {
@@ -174,7 +192,7 @@ namespace MatthiWare.CommandLine.Tests
 
         [Theory]
         [InlineData(new[] { "app.exe", "-e", "Opt1" }, false, EnumOption.Opt1)]
-        [InlineData(new[] { "app.exe", "-e", "opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "app.exe", "-e=opt1" }, false, EnumOption.Opt1)]
         [InlineData(new[] { "app.exe", "-e", "Opt2" }, false, EnumOption.Opt2)]
         [InlineData(new[] { "app.exe", "-e", "bla" }, true, default(EnumOption))]
         [InlineData(new[] { "app.exe", "-e" }, true, default(EnumOption))]
@@ -195,11 +213,11 @@ namespace MatthiWare.CommandLine.Tests
 
         [Theory]
         // string
-        [InlineData(typeof(string), new[] { "-1", "message1", "-2", "-3" }, "default", "message1", "default", "default")]
+        [InlineData(typeof(string), new[] { "-1=message1", "-2", "-3" }, "default", "message1", "default", "default")]
         [InlineData(typeof(string), new[] { "-1", "-2", "message2", "-3" }, "default", "default", "message2", "default")]
         [InlineData(typeof(string), new[] { "-1", "-2", "-3" }, "default", "default", "default", "default")]
         // bool
-        [InlineData(typeof(bool), new[] { "-1", "false", "-2", "-3" }, false, false, true, true)]
+        [InlineData(typeof(bool), new[] { "-1=false", "-2", "-3" }, false, false, true, true)]
         [InlineData(typeof(bool), new[] { "-1", "-2", "false", "-3" }, false, true, false, true)]
         [InlineData(typeof(bool), new[] { "-1", "-2", "-3" }, false, true, true, true)]
         //// int
@@ -316,7 +334,7 @@ namespace MatthiWare.CommandLine.Tests
                 .Name("m", "message")
                 .Required();
 
-            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "add", "-m", "my message" });
+            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "add", "-m=my message" });
 
             parsed.AssertNoErrors();
 

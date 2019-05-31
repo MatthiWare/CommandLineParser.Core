@@ -3,7 +3,6 @@
     /// <summary>
     /// Defines a command
     /// </summary>
-    /// <typeparam name="TOptions">Base options of the command</typeparam>
     public abstract class Command
     {
         /// <summary>
