@@ -21,7 +21,6 @@ namespace MatthiWare.CommandLine.Core.Utils
                 string longStr = $"{option.LongName}{settings.PostfixOption}";
 
                 return (option.HasShortName && item.StartsWith(shortStr)) || (option.HasLongName && item.StartsWith(longStr));
-
             }).FirstOrDefault();
         }
 

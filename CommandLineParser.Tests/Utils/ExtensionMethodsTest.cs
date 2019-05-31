@@ -70,7 +70,6 @@ namespace MatthiWare.CommandLine.Tests.Utils
             {
                 mock.SetupGet(option => option.ShortName).Returns($"{settings.PrefixShortOption}{shortName}");
                 mock.SetupGet(option => option.HasShortName).Returns(true);
-
             }
 
             return mock;
