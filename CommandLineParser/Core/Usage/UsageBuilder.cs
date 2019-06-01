@@ -47,21 +47,20 @@ namespace MatthiWare.CommandLine.Core.Usage
             PrintCommandDescriptions(container.Commands);
         }
 
-        public void PrintCommandDescription(ICommandLineCommand command, int descriptionShift = 4)
-            => stringBuilder.AppendLine($"  {command.Name}{new string(' ', descriptionShift)}{command.Description}");
+        public void PrintCommandDescription(ICommandLineCommand command)
+            => stringBuilder.AppendLine($"  {command.Name,-20}{command.Description,-50}");
 
-        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands, int descriptionShift = 4)
+        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
         {
             if (!commands.Any()) return;
 
             stringBuilder.AppendLine().AppendLine("Commands: ");
 
-            var longestCommandName = commands.Max(x => x.Name.Length);
             foreach (var cmd in commands)
-                PrintCommandDescription(cmd, longestCommandName - cmd.Name.Length + descriptionShift);
+                PrintCommandDescription(cmd);
         }
 
-        public void PrintOption(ICommandLineOption option, int descriptionShift = 4, bool compensateSeparator = false)
+        public void PrintOption(ICommandLineOption option)
         {
             bool hasShort = option.HasShortName;
             bool hasLong = option.HasLongName;
@@ -71,29 +70,20 @@ namespace MatthiWare.CommandLine.Core.Usage
             string shortName = hasShort ? option.ShortName : string.Empty;
             string longName = hasLong ? option.LongName : string.Empty;
 
-            // We neeed to compensate a separator if given option doesn't have both (short & long) names.
-            int indentationLength = descriptionShift + ((compensateSeparator && !hasBoth) ? optionSeparator.Length : 0);
-            string indentation = new string(' ', indentationLength);
+            string key = $"{shortName}{hasBothSeparator}{longName}";
 
-            stringBuilder.AppendLine($"  {shortName}{hasBothSeparator}{longName}{indentation}{option.Description}");
+            stringBuilder.AppendLine($"  {key,-20}{option.Description,-50}");
         }
 
-        public void PrintOptions(IEnumerable<ICommandLineOption> options, int descriptionShift = 4)
+        public void PrintOptions(IEnumerable<ICommandLineOption> options)
         {
             if (!options.Any()) return;
 
             stringBuilder.AppendLine().AppendLine("Options: ");
 
-            var longestOptionName = options.Max(x => (x.HasShortName ? x.ShortName.Length : 0) + (x.HasLongName ? x.LongName.Length : 0));
-            var compensateSeparator = options.Any(x => x.HasShortName && x.HasLongName);
-
             foreach (var opt in options)
-            {
-                var longNameLength = opt.HasLongName ? opt.LongName.Length : 0;
-                var shortNameLength = opt.HasShortName ? opt.ShortName.Length : 0;
-                descriptionShift = longestOptionName - longNameLength - shortNameLength + descriptionShift;
-
-                PrintOption(opt, descriptionShift, compensateSeparator);
+            { 
+                PrintOption(opt);
             }
         }
     }
