@@ -101,7 +101,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             builderMock.Verify(mock => mock.Print(), Times.Never());
             builderMock.Verify(mock => mock.PrintCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()), Times.Never());
-            builderMock.Verify(mock => mock.PrintOption(It.IsAny<ICommandLineOption>(), It.IsAny<int>(), It.IsAny<bool>()), Times.Never());
+            builderMock.Verify(mock => mock.PrintOption(It.IsAny<ICommandLineOption>()), Times.Never());
 
             if (result.HelpRequested)
                 parser.Printer.PrintUsage(result.HelpRequestedFor);
@@ -125,7 +125,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 ToTimes(cmdPassed));
 
             builderMock.Verify(
-                mock => mock.PrintOption(It.IsAny<ICommandLineOption>(), It.IsAny<int>(), It.IsAny<bool>()),
+                mock => mock.PrintOption(It.IsAny<ICommandLineOption>()),
                 ToTimes(optPassed));
         }
 

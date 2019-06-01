@@ -7,10 +7,10 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
     {
         void Print();
         void PrintUsage(string name, bool hasOptions, bool hasCommands);
-        void PrintOptions(IEnumerable<ICommandLineOption> options, int descriptionShift = 4);
-        void PrintOption(ICommandLineOption option, int descriptionShift = 4, bool compensateSeparator = false);
-        void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands, int descriptionShift = 4);
-        void PrintCommandDescription(ICommandLineCommand command, int descriptionShift = 4);
+        void PrintOptions(IEnumerable<ICommandLineOption> options);
+        void PrintOption(ICommandLineOption option);
+        void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands);
+        void PrintCommandDescription(ICommandLineCommand command);
         void PrintCommand(string name, ICommandLineCommandContainer container);
     }
 }
