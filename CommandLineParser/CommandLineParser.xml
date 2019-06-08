@@ -345,6 +345,12 @@
             Inidicates if a default value has been specified for this option
             </summary>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1">
+            <summary>
+            Command line parser
+            </summary>
+            <typeparam name="TOption">Argument options model</typeparam>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Printer">
             <summary>
             Tool to print usage info.
@@ -418,22 +424,22 @@
             <summary>
             Help text to be displayed for this option
             </summary>
-            <param name="help"></param>
-            <returns></returns>
+            <param name="description">The description of the option</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder.Default(System.Object)">
             <summary>
             Specify the default value for this option
             </summary>
             <param name="defaultValue"></param>
-            <returns></returns>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder.Name(System.String)">
             <summary>
             Configures the name for the option
             </summary>
             <param name="shortName">short name</param>
-            <returns></returns>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder.Name(System.String,System.String)">
             <summary>
@@ -441,7 +447,62 @@
             </summary>
             <param name="shortName">Short name</param>
             <param name="longName">Long name</param>
-            <returns></returns>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder.Transform(System.Linq.Expressions.Expression{System.Func{System.Object,System.Object}})">
+            <summary>
+            Transforms the parsed value using the transform function
+            </summary>
+            <param name="transformation">Transformation function</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1">
+            <summary>
+            API for configuring options
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Required(System.Boolean)">
+            <summary>
+            Sets if the option is required
+            </summary>
+            <param name="required">Required or not</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Description(System.String)">
+            <summary>
+            Help text to be displayed for this option
+            </summary>
+            <param name="description">The description of the option</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Default(`0)">
+            <summary>
+            Specify the default value for this option
+            </summary>
+            <param name="defaultValue"></param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Name(System.String)">
+            <summary>
+            Configures the name for the option
+            </summary>
+            <param name="shortName">short name</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Name(System.String,System.String)">
+            <summary>
+            Configures the name for the option
+            </summary>
+            <param name="shortName">Short name</param>
+            <param name="longName">Long name</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Transform(System.Linq.Expressions.Expression{System.Func{`0,`0}})">
+            <summary>
+            Transforms the parsed value using the transform function
+            </summary>
+            <param name="transformation">Transformation function</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.IOptionConfigurator`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>

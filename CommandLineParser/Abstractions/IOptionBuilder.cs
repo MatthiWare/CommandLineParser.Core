@@ -1,4 +1,7 @@
-﻿namespace MatthiWare.CommandLine.Abstractions
+﻿using System;
+using System.Linq.Expressions;
+
+namespace MatthiWare.CommandLine.Abstractions
 {
     /// <summary>
     /// API for configuring options
@@ -15,22 +18,22 @@
         /// <summary>
         /// Help text to be displayed for this option
         /// </summary>
-        /// <param name="help"></param>
-        /// <returns></returns>
+        /// <param name="description">The description of the option</param>
+        /// <returns><see cref="IOptionBuilder"></see></returns>
         IOptionBuilder Description(string description);
 
         /// <summary>
         /// Specify the default value for this option
         /// </summary>
         /// <param name="defaultValue"></param>
-        /// <returns></returns>
+        /// <returns><see cref="IOptionBuilder"></see></returns>
         IOptionBuilder Default(object defaultValue);
 
         /// <summary>
         /// Configures the name for the option
         /// </summary>
         /// <param name="shortName">short name</param>
-        /// <returns></returns>
+        /// <returns><see cref="IOptionBuilder"></see></returns>
         IOptionBuilder Name(string shortName);
 
         /// <summary>
@@ -38,7 +41,14 @@
         /// </summary>
         /// <param name="shortName">Short name</param>
         /// <param name="longName">Long name</param>
-        /// <returns></returns>
+        /// <returns><see cref="IOptionBuilder"></see></returns>
         IOptionBuilder Name(string shortName, string longName);
+
+        /// <summary>
+        /// Transforms the parsed value using the transform function
+        /// </summary>
+        /// <param name="transformation">Transformation function</param>
+        /// <returns><see cref="IOptionBuilder"></see></returns>
+        IOptionBuilder Transform(Expression<Func<object, object>> transformation);
     }
 }

@@ -7,6 +7,10 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
+    /// <summary>
+    /// Command line parser
+    /// </summary>
+    /// <typeparam name="TOption">Argument options model</typeparam>
     public interface ICommandLineParser<TOption>
         where TOption : class, new()
     {
@@ -49,7 +53,7 @@ namespace MatthiWare.CommandLine.Abstractions
         /// <typeparam name="TProperty">The property type</typeparam>
         /// <param name="selector">Property selector</param>
         /// <returns><see cref="IOptionBuilder"/></returns>
-        IOptionBuilder Configure<TProperty>(Expression<Func<TOption, TProperty>> selector);
+        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TOption, TProperty>> selector);
 
         /// <summary>
         /// Adds a new command  and allowes to configure it. 
