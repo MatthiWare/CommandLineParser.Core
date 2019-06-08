@@ -459,6 +459,27 @@ namespace MatthiWare.CommandLine.Tests
             Assert.False(option.HasDefault);
         }
 
+        [Theory]
+        [InlineData(new string[] { "" }, "defaulttransformed", false)]
+        [InlineData(new string[] { "-m test" }, "testtransformed", false)]
+        [InlineData(new string[] { "--message test" }, "testtransformed", false)]
+        public void TransformationWorksAsExpected(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<AddOption>();
+
+            parser.Configure(a => a.Message)
+                .Name("m", "message")
+                .Required()
+                .Transform(msg => $"{msg}transformed")
+                .Default("default");
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(false));
+
+            Assert.Equal(expected, result.Result.Message);
+        }
+
         private class ObjOption
         {
             [Name("p"), Required]
