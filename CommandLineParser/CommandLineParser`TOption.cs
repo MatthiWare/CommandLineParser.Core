@@ -455,11 +455,11 @@ namespace MatthiWare.CommandLine
                 var actions = new List<Action>(4);
                 bool ignoreSet = false;
 
+                var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
+
                 foreach (var attribute in attributes)
                 {
                     if (ignoreSet) break;
-
-                    var method = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
 
                     switch (attribute)
                     {
@@ -468,16 +468,16 @@ namespace MatthiWare.CommandLine
                             ignoreSet = true;
                             continue;
                         case RequiredAttribute required:
-                            actions.Add(() => GetOption(method, propInfo, lambda, key).Required(required.Required));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Required(required.Required));
                             break;
                         case DefaultValueAttribute defaultValue:
-                            actions.Add(() => GetOption(method, propInfo, lambda, key).Default(defaultValue.DefaultValue));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue));
                             break;
                         case DescriptionAttribute helpText:
-                            actions.Add(() => GetOption(method, propInfo, lambda, key).Description(helpText.Description));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Description(helpText.Description));
                             break;
                         case NameAttribute name:
-                            actions.Add(() => GetOption(method, propInfo, lambda, key).Name(name.ShortName, name.LongName));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName));
                             break;
                     }
                 }

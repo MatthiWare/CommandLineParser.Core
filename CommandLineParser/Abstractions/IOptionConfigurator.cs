@@ -10,6 +10,6 @@ namespace MatthiWare.CommandLine.Abstractions
         /// </summary>
         /// <param name="selector">Property to configure</param>
         /// <returns><see cref="IOptionBuilder"/></returns>
-        IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
     }
 }
