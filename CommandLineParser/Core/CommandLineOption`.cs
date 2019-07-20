@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core
@@ -18,37 +14,35 @@ namespace MatthiWare.CommandLine.Core
 
         public IOptionBuilder<TOption> Required(bool required = true)
         {
-            IsRequired = required;
+            ((IOptionBuilder)this).Required(required);
 
             return this;
         }
 
-        IOptionBuilder<TOption> IOptionBuilder<TOption>.Description(string description)
+        public new IOptionBuilder<TOption> Description(string description)
         {
-            Description = description;
+            ((IOptionBuilder)this).Description(description);
 
             return this;
         }
 
         public IOptionBuilder<TOption> Default(TOption defaultValue)
         {
-            DefaultValue = defaultValue;
+            ((IOptionBuilder)this).Default(defaultValue);
 
             return this;
         }
 
         public IOptionBuilder<TOption> Name(string shortName)
         {
-            LongName = $"{m_parserOptions.PrefixLongOption}{shortName}";
-            ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
+            ((IOptionBuilder)this).Name(shortName);
 
             return this;
         }
 
         public IOptionBuilder<TOption> Name(string shortName, string longName)
         {
-            LongName = $"{m_parserOptions.PrefixLongOption}{longName}";
-            ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
+            ((IOptionBuilder)this).Name(shortName, longName);
 
             return this;
         }
@@ -69,7 +63,7 @@ namespace MatthiWare.CommandLine.Core
 
         IOptionBuilder IOptionBuilder.Description(string description)
         {
-            Description = description;
+            base.Description = description;
 
             return this;
         }
@@ -93,13 +87,6 @@ namespace MatthiWare.CommandLine.Core
         {
             LongName = $"{m_parserOptions.PrefixLongOption}{longName}";
             ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
-
-            return this;
-        }
-
-        IOptionBuilder IOptionBuilder.Transform(Expression<Func<object, object>> transformation)
-        {
-            SetTranslator(transformation.Compile());
 
             return this;
         }

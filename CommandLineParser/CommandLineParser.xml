@@ -449,13 +449,6 @@
             <param name="longName">Long name</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder.Transform(System.Linq.Expressions.Expression{System.Func{System.Object,System.Object}})">
-            <summary>
-            Transforms the parsed value using the transform function
-            </summary>
-            <param name="transformation">Transformation function</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
-        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1">
             <summary>
             API for configuring options

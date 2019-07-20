@@ -43,12 +43,5 @@ namespace MatthiWare.CommandLine.Abstractions
         /// <param name="longName">Long name</param>
         /// <returns><see cref="IOptionBuilder"></see></returns>
         IOptionBuilder Name(string shortName, string longName);
-
-        /// <summary>
-        /// Transforms the parsed value using the transform function
-        /// </summary>
-        /// <param name="transformation">Transformation function</param>
-        /// <returns><see cref="IOptionBuilder"></see></returns>
-        IOptionBuilder Transform(Expression<Func<object, object>> transformation);
     }
 }
