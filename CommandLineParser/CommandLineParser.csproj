@@ -21,12 +21,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>D:\Source\Repos\CommandLineParser\CommandLineParser\CommandLineParser.xml</DocumentationFile>
+    <DocumentationFile>.\CommandLineParser.xml</DocumentationFile>
   </PropertyGroup>
 
-  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Source\Repos\CommandLineParser\CommandLineParser\CommandLineParser.xml</DocumentationFile>
-  </PropertyGroup>-->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>.\CommandLineParser.xml</DocumentationFile>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.3" />
