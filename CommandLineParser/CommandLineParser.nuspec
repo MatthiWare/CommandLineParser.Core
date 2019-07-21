@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.2.2</version>
+    <version>0.2.3</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -10,14 +10,17 @@
     <projectUrl>https://github.com/MatthiWare/CommandLineParser.Core</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>
-		Command Line Parser for .NET Core written in .NET Standard.
+		Command Line Parser for .NET Core written in .NET Standard 2.0.
 		
-		Configuration is done through a option model class using attributes or fluent API can be used to configure the properties of the class. 
+		Configuration is done through a strongly typed option model class using attributes or a fluent API. Both can be used to configure the properties of the options class. 
 		This library allows to add commands with their own set of options as well. 
 	</description>
 	<summary>A simple, light-weight and strongly typed command line parser. Configuration using Fluent API, Attributes and model classes.</summary>
-    <releaseNotes>Fix issue with bool parsing, fix indenting, fix auto printing of errors</releaseNotes>
-    <copyright>Copyright Matthias Beerens 2018</copyright>
-    <tags>commandline parser commandline-parser</tags>
+  <releaseNotes>Fix bug with alignment, add postfix and value transformers</releaseNotes>
+  <copyright>Copyright Matthias Beerens 2018</copyright>
+  <tags>commandline parser commandline-parser</tags>
   </metadata>
+  <files>
+    <file src="..\..\..\CommandLineParser.xml" target="lib\netstandard2.0" />
+  </files>
 </package>
