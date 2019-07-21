@@ -73,24 +73,24 @@ namespace MatthiWare.CommandLine.Core.Command
             m_executor?.Invoke();
         }
 
-        public IOptionBuilder Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
+        public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
         {
             var memberInfo = ((MemberExpression)selector.Body).Member;
             var key = $"{memberInfo.DeclaringType.FullName}.{memberInfo.Name}";
 
-            return ConfigureInternal(selector, key);
+            return ConfigureInternal<TProperty>(selector, key);
         }
 
-        private IOptionBuilder ConfigureInternal(LambdaExpression selector, string key)
+        private IOptionBuilder<T> ConfigureInternal<T>(LambdaExpression selector, string key)
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption(m_parserOptions, m_commandOption, selector, m_resolverFactory);
+                var option = new CommandLineOption<T>(m_parserOptions, m_commandOption, selector, m_resolverFactory);
 
                 m_options.Add(key, option);
             }
 
-            return m_options[key] as IOptionBuilder;
+            return m_options[key] as IOptionBuilder<T>;
         }
 
         public override ICommandParserResult Parse(IArgumentManager argumentManager)
@@ -343,6 +343,8 @@ namespace MatthiWare.CommandLine.Core.Command
                 var actions = new List<Action>(4);
                 bool ignoreSet = false;
 
+                var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
+
                 foreach (var attribute in attributes)
                 {
                     if (ignoreSet) break;
@@ -354,16 +356,16 @@ namespace MatthiWare.CommandLine.Core.Command
                             ignoreSet = true;
                             continue;
                         case RequiredAttribute required:
-                            actions.Add(() => ConfigureInternal(lambda, key).Required(required.Required));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Required(required.Required));
                             break;
                         case DefaultValueAttribute defaultValue:
-                            actions.Add(() => ConfigureInternal(lambda, key).Default(defaultValue.DefaultValue));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue));
                             break;
                         case DescriptionAttribute helpText:
-                            actions.Add(() => ConfigureInternal(lambda, key).Description(helpText.Description));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Description(helpText.Description));
                             break;
                         case NameAttribute name:
-                            actions.Add(() => ConfigureInternal(lambda, key).Name(name.ShortName, name.LongName));
+                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName));
                             break;
                     }
                 }
@@ -384,6 +386,11 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 foreach (var action in actions)
                     action();
+            }
+
+            IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
+            {
+                return method.InvokeGenericMethod(prop, this, lambda, key) as IOptionBuilder;
             }
         }
 

@@ -18,7 +18,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <typeparam name="TProperty">Type of the property</typeparam>
         /// <param name="selector">Model property to configure</param>
         /// <returns><see cref="IOptionBuilder"/></returns>
-        IOptionBuilder Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
+        IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TSource, TProperty>> selector);
 
         /// <summary>
         /// Configures if the command is required

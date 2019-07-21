@@ -459,6 +459,76 @@ namespace MatthiWare.CommandLine.Tests
             Assert.False(option.HasDefault);
         }
 
+        [Theory]
+        [InlineData(new string[] { "" }, "defaulttransformed", false)]
+        [InlineData(new string[] { "-m", "test" }, "testtransformed", false)]
+        [InlineData(new string[] { "--message", "test" }, "testtransformed", false)]
+        public void TransformationWorksAsExpected(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<AddOption>();
+
+            parser.Configure(a => a.Message)
+                .Name("m", "message")
+                .Required()
+                .Transform(msg => $"{msg}transformed")
+                .Default("default");
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(false));
+
+            Assert.Equal(expected, result.Result.Message);
+        }
+
+        [Theory]
+        [InlineData(new string[] { "" }, 11, false)]
+        [InlineData(new string[] { "-i", "10" }, 20, false)]
+        [InlineData(new string[] { "--int", "10" }, 20, false)]
+        public void TransformationWorksAsExpectedForInts(string[] args, int expected, bool errors)
+        {
+            var parser = new CommandLineParser<IntOptions>();
+
+            parser.Configure(a => a.SomeInt)
+                .Name("i", "int")
+                .Required()
+                .Transform(value => value + 10)
+                .Default(1);
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(false));
+
+            Assert.Equal(expected, result.Result.SomeInt);
+        }
+
+        [Theory]
+        [InlineData(new string[] { "cmd" }, 11, false)]
+        [InlineData(new string[] { "cmd", "-i", "10" }, 20, false)]
+        [InlineData(new string[] { "cmd", "--int", "10" }, 20, false)]
+        public void TransformationWorksAsExpectedForCommandOptions(string[] args, int expected, bool errors)
+        {
+            int outcome = -1;
+
+            var parser = new CommandLineParser();
+
+            var cmd = parser.AddCommand<IntOptions>()
+                .Name("cmd")
+                .Required()
+                .OnExecuting((_, i) => outcome = i.SomeInt);
+
+            cmd.Configure(a => a.SomeInt)
+                .Name("i", "int")
+                .Required()
+                .Transform(value => value + 10)
+                .Default(1);
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(false));
+
+            Assert.Equal(expected, outcome);
+        }
+
         private class ObjOption
         {
             [Name("p"), Required]
@@ -492,6 +562,11 @@ namespace MatthiWare.CommandLine.Tests
             public T Option1 { get; set; }
             public T Option2 { get; set; }
             public T Option3 { get; set; }
+        }
+
+        private class IntOptions
+        {
+            public int SomeInt { get; set; }
         }
     }
 }

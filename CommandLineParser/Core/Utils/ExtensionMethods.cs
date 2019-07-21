@@ -49,6 +49,13 @@ namespace MatthiWare.CommandLine.Core.Utils
             return IsAssignableToGenericType(baseType, genericType);
         }
 
+        public static object InvokeGenericMethod(this MethodInfo method, PropertyInfo propertyInfo, object source, params object[] args)
+        {
+            var generic = method.MakeGenericMethod(propertyInfo.PropertyType);
+
+            return generic.Invoke(source, args);
+        }
+
         public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, ICollection<ICommandLineOption> options)
         {
             bool hasPostfix = !string.IsNullOrEmpty(settings.PostfixOption);

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core
@@ -12,53 +10,12 @@ namespace MatthiWare.CommandLine.Core
         CommandLineOptionBase,
         IOptionBuilder
     {
-        private readonly object m_source;
-        private readonly LambdaExpression m_selector;
-        private object m_defaultValue = null;
-        private readonly IArgumentResolverFactory m_resolverFactory;
-        private readonly CommandLineParserOptions m_parserOptions;
-
-        private ICommandLineArgumentResolver m_resolver;
-
         public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolverFactory resolver)
+            : base (parserOptions, source, selector, resolver)
         {
-            m_parserOptions = parserOptions;
-            m_source = source ?? throw new ArgumentNullException(nameof(source));
-            m_selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            m_resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
-        public ICommandLineArgumentResolver Resolver
-        {
-            get
-            {
-                if (m_resolver == null)
-                    m_resolver = m_resolverFactory.CreateResolver(m_selector.ReturnType);
-
-                return m_resolver;
-            }
-        }
-
-        public object DefaultValue
-        {
-            get => m_defaultValue;
-            set
-            {
-                HasDefault = true;
-                m_defaultValue = value;
-            }
-        }
-
-        public override void UseDefault()
-            => AssignValue(DefaultValue);
-
-        public override bool CanParse(ArgumentModel model)
-            => Resolver.CanResolve(model);
-
-        public override void Parse(ArgumentModel model)
-            => AssignValue(Resolver.Resolve(model));
-
-        IOptionBuilder IOptionBuilder.Default(object defaultValue)
+        public IOptionBuilder Default(object defaultValue)
         {
             DefaultValue = defaultValue;
 
@@ -72,7 +29,7 @@ namespace MatthiWare.CommandLine.Core
             return this;
         }
 
-        IOptionBuilder IOptionBuilder.Name(string shortName, string longName)
+        public IOptionBuilder Name(string shortName, string longName)
         {
             LongName = $"{m_parserOptions.PrefixLongOption}{longName}";
             ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
@@ -80,24 +37,25 @@ namespace MatthiWare.CommandLine.Core
             return this;
         }
 
-        IOptionBuilder IOptionBuilder.Required(bool required = true)
+        public IOptionBuilder Required(bool required = true)
         {
             IsRequired = required;
 
             return this;
         }
 
-        IOptionBuilder IOptionBuilder.Name(string shortName)
+        public IOptionBuilder Name(string shortName)
         {
             ShortName = $"{m_parserOptions.PrefixShortOption}{shortName}";
+            LongName = $"{m_parserOptions.PrefixLongOption}{shortName}";
 
             return this;
         }
-
-        private void AssignValue(object value)
+        public IOptionBuilder Transform(Expression<Func<object, object>> transformation)
         {
-            var property = (PropertyInfo)((MemberExpression)m_selector.Body).Member;
-            property.SetValue(m_source, value, null);
+            SetTranslator(transformation.Compile());
+
+            return this;
         }
     }
 }

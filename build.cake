@@ -1,6 +1,6 @@
 #tool "nuget:?package=xunit.runner.console&version=2.2.0"
 #tool nuget:?package=Codecov
-#addin nuget:?package=Cake.Codecov
+#addin "nuget:?package=Cake.Codecov&version=0.5.0""
 #addin nuget:?package=Cake.Coverlet
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -67,14 +67,9 @@ Task("Test")
                 Configuration = configuration
             }, coverletSettings);
 
-        Information("Print all files: ");
-        foreach(var file in GetFiles($".\\**\\**\\**\\*.*"))
-            {
-                Information(file.FullPath);
-            }
-
 
         // Upload a coverage report.
+		Information("Codecov: Uploading coverage.xml");
         Codecov($"{codeCoverageOutput}\\coverage.xml");
 });
 
@@ -89,6 +84,8 @@ Task("Publish")
             Configuration = configuration,
             OutputDirectory = publishPath
         });
+
+	Information("Publish: Done");
 });
 
 Task("Publish-NuGet")
@@ -109,6 +106,7 @@ Task("Publish-NuGet")
 
         NuGetPack(nuspecFile, nuGetPackSettings);
 
+		Information("NuGetPack: Done");
 	});
 
 Task("Default")
