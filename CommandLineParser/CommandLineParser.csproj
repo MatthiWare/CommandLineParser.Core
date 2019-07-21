@@ -24,9 +24,9 @@
     <DocumentationFile>D:\Source\Repos\CommandLineParser\CommandLineParser\CommandLineParser.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>D:\Source\Repos\CommandLineParser\CommandLineParser\CommandLineParser.xml</DocumentationFile>
-  </PropertyGroup>
+  </PropertyGroup>-->
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.3" />
