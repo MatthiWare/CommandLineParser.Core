@@ -1,15 +1,21 @@
 ﻿using System;
 using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Extensions.FluentValidations;
+using SampleApp.Validations;
 
 namespace SampleApp
 {
-    class Program
+    public class Program
     {
         static int Main(string[] args)
         {
             Console.WriteLine($"args: {string.Join(", ", args)}");
 
             var parser = new CommandLineParser<Options>();
+
+            // Example to add FluentValidations to the project
+            parser.UseFluentValidations((c) => c.AddValidator<Options, OptionsValidator>()
+                .AddValidator<CommandOptions, CommandOptionsValidator>());
 
             // setup
             parser.Configure(opt => opt.MyInt)
@@ -73,7 +79,7 @@ namespace SampleApp
             Console.WriteLine(exception.Message);
         }
 
-        private class Options
+        public class Options
         {
             public int MyInt { get; set; }
             public string MyString { get; set; }
