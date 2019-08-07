@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>MatthiWare.CommandLine.Extensions.FluentValidations</RootNamespace>
+    <AssemblyName>CommandLineParser.FluentValidations</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CommandLineParser\CommandLineParser.csproj" />
+  </ItemGroup>
+
+</Project>
