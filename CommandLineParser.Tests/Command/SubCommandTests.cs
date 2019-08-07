@@ -3,6 +3,7 @@ using System.Threading;
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
 
@@ -33,7 +34,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             Assert.True(lock2.Wait(1000), "SubCommand didn't execute in time.");
         }
 
-        private class CustomInstantiator : IContainerResolver
+        private class CustomInstantiator : DefaultContainerResolver
         {
             private readonly ManualResetEventSlim lock1;
             private readonly ManualResetEventSlim lock2;
@@ -46,14 +47,16 @@ namespace MatthiWare.CommandLine.Tests.Command
                 this.autoExecute = autoExecute;
             }
 
-            public T Resolve<T>()
+            public override T Resolve<T>() => (T)Resolve(typeof(T));
+
+            public override object Resolve(Type type)
             {
-                if (typeof(T) == typeof(MainCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock1, autoExecute);
-                else if (typeof(T) == typeof(SubCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock2, autoExecute);
+                if (type == typeof(MainCommand))
+                    return Activator.CreateInstance(type, lock1, autoExecute);
+                else if (type == typeof(SubCommand))
+                    return Activator.CreateInstance(type, lock2, autoExecute);
                 else
-                    return default;
+                    return base.Resolve(type);
             }
         }
     }
