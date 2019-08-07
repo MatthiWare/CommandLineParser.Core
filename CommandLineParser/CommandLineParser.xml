@@ -918,6 +918,11 @@
             Read-only list of commands specified
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Validators">
+            <summary>
+            Container for all validators
+            </summary>
+        </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor">
             <summary>
             Creates a new instance of the commandline parser

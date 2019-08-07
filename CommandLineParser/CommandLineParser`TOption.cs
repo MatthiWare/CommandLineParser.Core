@@ -12,6 +12,7 @@ using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
+using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Command;
@@ -20,6 +21,7 @@ using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Utils;
+using MatthiWare.CommandLine.Core.Validations;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -37,6 +39,7 @@ namespace MatthiWare.CommandLine
         private readonly List<CommandLineCommandBase> m_commands;
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
+        private readonly List<IValidator> validators;
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -70,10 +73,15 @@ namespace MatthiWare.CommandLine
         public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
         /// <summary>
+        /// Container for all validators
+        /// </summary>
+        public IValidatorsContainer Validators { get; }
+
+        /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
         public CommandLineParser()
-            : this(new CommandLineParserOptions(), new DefaultArgumentResolverFactory(), new DefaultContainerResolver())
+            : this(new CommandLineParserOptions(), new DefaultArgumentResolverFactory(new DefaultContainerResolver()), new DefaultContainerResolver())
         { }
 
         /// <summary>
@@ -81,7 +89,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="parserOptions">The parser options</param>
         public CommandLineParser(CommandLineParserOptions parserOptions)
-            : this(parserOptions, new DefaultArgumentResolverFactory(), new DefaultContainerResolver())
+            : this(parserOptions, new DefaultArgumentResolverFactory(new DefaultContainerResolver()), new DefaultContainerResolver())
         { }
 
         /// <summary>
@@ -106,7 +114,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="containerResolver">container resolver to use</param>
         public CommandLineParser(IContainerResolver containerResolver)
-            : this(new CommandLineParserOptions(), new DefaultArgumentResolverFactory(), containerResolver)
+            : this(new CommandLineParserOptions(), new DefaultArgumentResolverFactory(containerResolver), containerResolver)
         { }
 
         /// <summary>
@@ -115,7 +123,7 @@ namespace MatthiWare.CommandLine
         /// <param name="parserOptions">options that the parser will use</param>
         /// <param name="containerResolver">container resolver to use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IContainerResolver containerResolver)
-            : this(parserOptions, new DefaultArgumentResolverFactory(), containerResolver)
+            : this(parserOptions, new DefaultArgumentResolverFactory(containerResolver), containerResolver)
         { }
 
         /// <summary>
@@ -126,6 +134,8 @@ namespace MatthiWare.CommandLine
         /// <param name="parserOptions">The options the parser will use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
         {
+            Validators = new ValidatorsContainer(containerResolver);
+
             ParserOptions = parserOptions;
             m_option = new TOption();
 
