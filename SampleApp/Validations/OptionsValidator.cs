@@ -6,8 +6,8 @@ namespace SampleApp.Validations
     {
         public OptionsValidator()
         {
-            RuleFor(o => o.MyInt).InclusiveBetween(1, 10);
-            RuleFor(o => o.MyString).MinimumLength(5).MaximumLength(20);
+            RuleFor(o => o.MyInt).InclusiveBetween(5, 10);
+            RuleFor(o => o.MyString).MinimumLength(10).MaximumLength(20);
         }
     }
 }

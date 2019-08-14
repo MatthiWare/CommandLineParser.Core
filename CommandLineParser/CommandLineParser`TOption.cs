@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -22,6 +14,13 @@ using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Utils;
 using MatthiWare.CommandLine.Core.Validations;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -214,6 +213,8 @@ namespace MatthiWare.CommandLine
 
             CheckForExtraHelpArguments(result, argumentManager);
 
+            Validate(errors);
+
             result.MergeResult(errors);
 
             AutoExecuteCommands(result);
@@ -221,6 +222,24 @@ namespace MatthiWare.CommandLine
             AutoPrintUsageAndErrors(result, args.Length == 0);
 
             return result;
+        }
+
+        private void Validate(List<Exception> errors)
+        {
+            Validate<TOption>(errors);
+        }
+
+        private void Validate<T>(object @object, List<Exception> errors)
+        {
+            if (!Validators.HasValidatorFor<T>())
+                return;
+
+            var result = Validators.GetValidatorFor<T>().Validate(@object);
+
+            if (result.IsValid)
+                return;
+
+            errors.Add(result.Error);
         }
 
         private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager argumentManager)
@@ -317,25 +336,10 @@ namespace MatthiWare.CommandLine
             {
                 try
                 {
-                    if (!argumentManager.TryGetValue(cmd, out _))
-                    {
-                        result.MergeResult(new CommandNotFoundParserResult(cmd));
-
-                        if (cmd.IsRequired)
-                            throw new CommandNotFoundException(cmd);
-
-                        continue;
-                    }
-
-                    var cmdParseResult = cmd.Parse(argumentManager);
+                    ParseCommand(cmd, result, argumentManager);
 
                     if (result.HelpRequested)
                         break;
-
-                    result.MergeResult(cmdParseResult);
-
-                    if (cmdParseResult.HasErrors)
-                        throw new CommandParseException(cmd, cmdParseResult.Errors);
                 }
                 catch (Exception ex)
                 {
@@ -344,36 +348,34 @@ namespace MatthiWare.CommandLine
             }
         }
 
+        private void ParseCommand(CommandLineCommandBase cmd, ParseResult<TOption> result, IArgumentManager argumentManager)
+        {
+            if (!argumentManager.TryGetValue(cmd, out _))
+            {
+                result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                if (cmd.IsRequired)
+                    throw new CommandNotFoundException(cmd);
+
+                return;
+            }
+
+            var cmdParseResult = cmd.Parse(argumentManager);
+
+            result.MergeResult(cmdParseResult);
+
+            if (cmdParseResult.HasErrors)
+                throw new CommandParseException(cmd, cmdParseResult.Errors);
+        }
+
         private void ParseOptions(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
         {
             foreach (var o in m_options)
             {
                 try
                 {
-                    var option = o.Value;
-                    bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
-
-                    if (found && HelpRequested(result, option, model))
-                    {
-                        break;
-                    }
-                    else if (!found && option.IsRequired && !option.HasDefault)
-                    {
-                        throw new OptionNotFoundException(option);
-                    }
-                    else if ((!found && !model.HasValue && option.HasDefault) ||
-                        (found && !option.CanParse(model) && option.HasDefault))
-                    {
-                        option.UseDefault();
-
-                        continue;
-                    }
-                    else if (found && !option.CanParse(model))
-                    {
-                        throw new OptionParseException(option, model);
-                    }
-
-                    option.Parse(model);
+                    if (ParseOption(o.Value, result, argumentManager))
+                        break; // break here because help is requested!
                 }
                 catch (Exception ex)
                 {
@@ -382,6 +384,35 @@ namespace MatthiWare.CommandLine
             }
 
             result.MergeResult(m_option);
+        }
+
+        private bool ParseOption(CommandLineOptionBase option, ParseResult<TOption> result, IArgumentManager argumentManager)
+        {
+            bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
+
+            if (found && HelpRequested(result, option, model))
+            {
+                return true;
+            }
+            else if (!found && option.IsRequired && !option.HasDefault)
+            {
+                throw new OptionNotFoundException(option);
+            }
+            else if ((!found && !model.HasValue && option.HasDefault) ||
+                (found && !option.CanParse(model) && option.HasDefault))
+            {
+                option.UseDefault();
+
+                return false;
+            }
+            else if (found && !option.CanParse(model))
+            {
+                throw new OptionParseException(option, model);
+            }
+
+            option.Parse(model);
+
+            return false;
         }
 
         /// <summary>

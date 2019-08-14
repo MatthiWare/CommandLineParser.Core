@@ -11,7 +11,9 @@ namespace MatthiWare.CommandLine.Abstractions.Validations
         void AddValidator<TKey, V>() where V : IValidator<TKey>;
 
         bool HasValidatorFor<TKey>();
+        bool HasValidatorFor(Type type);
 
         IValidator<TKey> GetValidatorFor<TKey>();
+        IValidator GetValidatorFor(Type key);
     }
 }

@@ -42,6 +42,20 @@ namespace MatthiWare.CommandLine.Core.Validations
             return (IValidator<T>)m_cache[key];
         }
 
-        public bool HasValidatorFor<T>() => m_types.ContainsKey(typeof(T));
+        public IValidator GetValidatorFor(Type key)
+        {
+            if (!m_cache.ContainsKey(key))
+            {
+                var instance = containerResolver.Resolve(key);
+
+                m_cache.Add(key, instance);
+            }
+
+            return (IValidator)m_cache[key];
+        }
+
+        public bool HasValidatorFor<T>() => HasValidatorFor(typeof(T));
+
+        public bool HasValidatorFor(Type type) => m_types.ContainsKey(type);
     }
 }
