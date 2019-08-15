@@ -1,15 +1,12 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Attributes;
-
 using Moq;
-
+using System;
+using System.Linq;
+using System.Threading;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests
@@ -57,8 +54,10 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(opt, parser.ParserOptions);
         }
 
-        [Fact]
-        public void CommandLineParserUsesContainerCorrectly()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CommandLineParserUsesContainerCorrectly(bool generic)
         {
             var commandMock = new Mock<MyCommand>();
             commandMock.Setup(
@@ -72,7 +71,10 @@ namespace MatthiWare.CommandLine.Tests
 
             var parser = new CommandLineParser<object>(containerMock.Object);
 
-            parser.RegisterCommand<MyCommand, object>();
+            if (generic)
+                parser.RegisterCommand<MyCommand, object>();
+            else
+                parser.RegisterCommand(typeof(MyCommand), typeof(object));
 
             var result = parser.Parse(new[] { "app.exe", "my" });
 
