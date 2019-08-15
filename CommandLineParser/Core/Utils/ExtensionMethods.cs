@@ -1,10 +1,10 @@
-﻿using System;
+﻿using MatthiWare.CommandLine.Abstractions;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Linq;
-using MatthiWare.CommandLine.Abstractions;
 
 namespace MatthiWare.CommandLine.Core.Utils
 {
@@ -15,7 +15,7 @@ namespace MatthiWare.CommandLine.Core.Utils
             if (string.IsNullOrEmpty(settings.PostfixOption))
                 return null;
 
-            return options.Where(option => 
+            return options.Where(option =>
             {
                 string shortStr = $"{option.ShortName}{settings.PostfixOption}";
                 string longStr = $"{option.LongName}{settings.PostfixOption}";
@@ -54,6 +54,36 @@ namespace MatthiWare.CommandLine.Core.Utils
             var generic = method.MakeGenericMethod(propertyInfo.PropertyType);
 
             return generic.Invoke(source, args);
+        }
+
+        public static object ExecuteGenericRegisterCommand(this object obj, string methodName, Type cmdType, params Type[] optionTypes)
+        {
+            var baseType = obj.GetType();
+
+            var genericTypes = cmdType.BaseType.GenericTypeArguments;
+            var amountGenericTypes = genericTypes.Length;
+
+            //if (genericTypes.Length != amountGenericArgs)
+            //    throw new ArgumentException($"Generic method '{methodName}' takes {amountGenericTypes} generic type arguments but only '{amountGenericArgs}' provided.");
+
+            var method = baseType.GetMethods().FirstOrDefault(m =>
+            {
+                return (m.Name == methodName && m.IsGenericMethod && m.GetGenericArguments().Length == amountGenericTypes);
+            });
+
+            if (method == null)
+                throw new ArgumentException($"No method by the name '{methodName}' found that takes {amountGenericTypes} generic type arguments.");
+
+            List<Type> types = new List<Type>();
+            types.Add(cmdType);
+
+            if (optionTypes.Length > 1)
+                types.Add(optionTypes[1]);
+
+            var methodInstance = method.MakeGenericMethod(types.ToArray());
+
+            return methodInstance.Invoke(obj, null);
+
         }
 
         public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, ICollection<ICommandLineOption> options)
