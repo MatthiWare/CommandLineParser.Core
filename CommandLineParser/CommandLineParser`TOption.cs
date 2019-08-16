@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -20,6 +12,13 @@ using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Utils;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -407,6 +406,12 @@ namespace MatthiWare.CommandLine
         }
 
         /// <summary>
+        /// Registers a new command
+        /// </summary>
+        /// <param name="commandType">The type of the command</param>
+        public void RegisterCommand(Type commandType) => RegisterCommand(commandType, null);
+
+        /// <summary>
         /// Registers a command type
         /// </summary>
         /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions,TCommandOption}"/></typeparam>
@@ -424,6 +429,21 @@ namespace MatthiWare.CommandLine
             command.OnExecuting((Action<TOption, TCommandOption>)cmdConfigurator.OnExecute);
 
             m_commands.Add(command);
+        }
+
+        /// <summary>
+        /// Registers a new command
+        /// </summary>
+        /// <param name="commandType">The type of the command</param>
+        /// <param name="optionsType">Command options model</param>
+        public void RegisterCommand(Type commandType, Type optionsType)
+        {
+            if (!commandType.IsAssignableToGenericType(typeof(Command<>)))
+            {
+                throw new ArgumentException($"Provided command {commandType} is not assignable to {typeof(Command<>)}");
+            }
+
+            this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType, optionsType);
         }
 
         /// <summary>
@@ -484,16 +504,13 @@ namespace MatthiWare.CommandLine
 
                 if (ignoreSet) continue; // Ignore the configured actions for this option.
 
-                if (propInfo.PropertyType.IsAssignableToGenericType(typeof(Command<>)))
-                {
-                    var genericTypes = propInfo.PropertyType.BaseType.GenericTypeArguments;
-                    var method = GetType().GetMethods().First(m =>
-                    {
-                        return (m.Name == nameof(RegisterCommand) && m.IsGenericMethod && m.GetGenericArguments().Length == genericTypes.Length);
-                    });
-                    var registerCommand = genericTypes.Length > 1 ? method.MakeGenericMethod(propInfo.PropertyType, genericTypes[1]) : method.MakeGenericMethod(propInfo.PropertyType);
+                var cmdType = propInfo.PropertyType;
 
-                    registerCommand.Invoke(this, null);
+                if (cmdType.IsAssignableToGenericType(typeof(Command<>)))
+                {
+                    var genericTypes = cmdType.BaseType.GenericTypeArguments;
+
+                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), cmdType);
                 }
 
                 foreach (var action in actions)
