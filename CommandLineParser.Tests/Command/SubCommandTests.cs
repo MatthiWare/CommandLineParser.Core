@@ -3,6 +3,7 @@ using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using System;
+using System.Linq;
 using System.Threading;
 using Xunit;
 
@@ -11,26 +12,33 @@ namespace MatthiWare.CommandLine.Tests.Command
     public class SubCommandTests
     {
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TestSubCommandWorksCorrectlyInModel(bool autoExecute)
+        [InlineData(true, "something", 15, -1)]
+        [InlineData(false, "something", 15, -1)]
+        [InlineData(true, "", 15, -1)]
+        public void TestSubCommandWorksCorrectlyInModel(bool autoExecute, string bla, int i, int n)
         {
             var lock1 = new ManualResetEventSlim();
             var lock2 = new ManualResetEventSlim();
 
-            var containerResolver = new CustomInstantiator(lock1, lock2, autoExecute);
+            var containerResolver = new CustomInstantiator(lock1, lock2, autoExecute, bla, i, n);
 
             var parser = new CommandLineParser<MainModel>(containerResolver);
 
-            var result = parser.Parse(new[] { "main", "-b", "something", "sub", "-i", "15", "-n", "-1" });
+            var result = parser.Parse(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
 
             result.AssertNoErrors();
 
             if (!autoExecute)
+            {
+                Assert.All(result.CommandResults.Select(r => r.Executed), Assert.False);
+
                 result.ExecuteCommands();
+            }
 
             Assert.True(lock1.Wait(1000), "MainCommand didn't execute in time.");
             Assert.True(lock2.Wait(1000), "SubCommand didn't execute in time.");
+
+            Assert.All(result.CommandResults.Select(r => r.Executed), Assert.True);
         }
 
         private class CustomInstantiator : IContainerResolver
@@ -38,22 +46,28 @@ namespace MatthiWare.CommandLine.Tests.Command
             private readonly ManualResetEventSlim lock1;
             private readonly ManualResetEventSlim lock2;
             private readonly bool autoExecute;
+            private readonly string bla;
+            private readonly int i;
+            private readonly int n;
 
-            public CustomInstantiator(ManualResetEventSlim lock1, ManualResetEventSlim lock2, bool autoExecute)
+            public CustomInstantiator(ManualResetEventSlim lock1, ManualResetEventSlim lock2, bool autoExecute, string bla, int i, int n)
             {
                 this.lock1 = lock1;
                 this.lock2 = lock2;
                 this.autoExecute = autoExecute;
+                this.bla = bla;
+                this.i = i;
+                this.n = n;
             }
 
             public T Resolve<T>()
             {
                 if (typeof(T) == typeof(MainCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock1, autoExecute);
+                    return (T)Activator.CreateInstance(typeof(T), lock1, autoExecute, bla, i, n);
                 else if (typeof(T) == typeof(SubCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock2, autoExecute);
+                    return (T)Activator.CreateInstance(typeof(T), lock2, autoExecute, bla, i, n);
                 else
-                    return default;
+                    throw new InvalidCastException($"Unable to resolve {(typeof(T)).Name}");
             }
         }
     }
@@ -62,11 +76,17 @@ namespace MatthiWare.CommandLine.Tests.Command
     {
         private readonly ManualResetEventSlim locker;
         private readonly bool autoExecute;
+        private readonly string bla;
+        private readonly int i;
+        private readonly int n;
 
-        public MainCommand(ManualResetEventSlim locker, bool autoExecute)
+        public MainCommand(ManualResetEventSlim locker, bool autoExecute, string bla, int i, int n)
         {
             this.locker = locker;
             this.autoExecute = autoExecute;
+            this.bla = bla;
+            this.i = i;
+            this.n = n;
         }
 
         public override void OnConfigure(ICommandConfigurationBuilder<SubModel> builder)
@@ -81,6 +101,9 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
             base.OnExecute(options, commandOptions);
 
+            Assert.Equal(bla, options.Bla);
+            Assert.Equal(i, commandOptions.Item);
+
             locker.Set();
         }
     }
@@ -89,11 +112,17 @@ namespace MatthiWare.CommandLine.Tests.Command
     {
         private readonly ManualResetEventSlim locker;
         private readonly bool autoExecute;
+        private readonly string bla;
+        private readonly int i;
+        private readonly int n;
 
-        public SubCommand(ManualResetEventSlim locker, bool autoExecute)
+        public SubCommand(ManualResetEventSlim locker, bool autoExecute, string bla, int i, int n)
         {
             this.locker = locker;
             this.autoExecute = autoExecute;
+            this.bla = bla;
+            this.i = i;
+            this.n = n;
         }
 
         public override void OnConfigure(ICommandConfigurationBuilder<SubSubModel> builder)
@@ -107,6 +136,9 @@ namespace MatthiWare.CommandLine.Tests.Command
         public override void OnExecute(MainModel options, SubSubModel commandOptions)
         {
             base.OnExecute(options, commandOptions);
+
+            Assert.Equal(bla, options.Bla);
+            Assert.Equal(n, commandOptions.Nothing);
 
             locker.Set();
         }

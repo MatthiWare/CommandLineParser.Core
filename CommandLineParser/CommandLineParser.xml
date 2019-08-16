@@ -564,6 +564,11 @@
             Results fo the command that has been parsed
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Executed">
+            <summary>
+            Indicates if the command' <see cref="M:MatthiWare.CommandLine.Abstractions.Command.Command`2.OnExecute(`0,`1)"/> method has been executed.
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Found">
             <summary>
             Indicates if the command has been found.
