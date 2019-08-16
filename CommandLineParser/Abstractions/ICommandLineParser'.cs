@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using MatthiWare.CommandLine.Abstractions.Command;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
@@ -84,6 +84,19 @@ namespace MatthiWare.CommandLine.Abstractions
         void RegisterCommand<TCommand, TCommandOption>()
             where TCommand : Command<TOption, TCommandOption>
             where TCommandOption : class, new();
+
+        /// <summary>
+        /// Registers a new command
+        /// </summary>
+        /// <param name="commandType">The type of the command</param>
+        /// <param name="optionsType">Command options model</param>
+        void RegisterCommand(Type commandType, Type optionsType);
+
+        /// <summary>
+        /// Registers a new command
+        /// </summary>
+        /// <param name="commandType">The type of the command</param>
+        void RegisterCommand(Type commandType);
 
         #endregion
     }

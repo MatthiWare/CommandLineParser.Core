@@ -405,6 +405,10 @@ namespace MatthiWare.CommandLine
             m_commands.Add(command);
         }
 
+        /// <summary>
+        /// Registers a new command
+        /// </summary>
+        /// <param name="commandType">The type of the command</param>
         public void RegisterCommand(Type commandType) => RegisterCommand(commandType, null);
 
         /// <summary>
@@ -427,14 +431,19 @@ namespace MatthiWare.CommandLine
             m_commands.Add(command);
         }
 
-        public void RegisterCommand(Type commandType, Type optionType)
+        /// <summary>
+        /// Registers a new command
+        /// </summary>
+        /// <param name="commandType">The type of the command</param>
+        /// <param name="optionsType">Command options model</param>
+        public void RegisterCommand(Type commandType, Type optionsType)
         {
             if (!commandType.IsAssignableToGenericType(typeof(Command<>)))
             {
                 throw new ArgumentException($"Provided command {commandType} is not assignable to {typeof(Command<>)}");
             }
 
-            this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType, optionType);
+            this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType, optionsType);
         }
 
         /// <summary>
