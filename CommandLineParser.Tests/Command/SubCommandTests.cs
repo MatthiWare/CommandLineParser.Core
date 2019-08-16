@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using MatthiWare.CommandLine;
+﻿using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
+using System;
+using System.Threading;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Command

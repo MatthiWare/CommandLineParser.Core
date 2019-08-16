@@ -62,9 +62,7 @@ namespace MatthiWare.CommandLine.Core.Utils
 
             var genericTypes = cmdType.BaseType.GenericTypeArguments;
             var amountGenericTypes = genericTypes.Length;
-
-            //if (genericTypes.Length != amountGenericArgs)
-            //    throw new ArgumentException($"Generic method '{methodName}' takes {amountGenericTypes} generic type arguments but only '{amountGenericArgs}' provided.");
+            var nonNullOptionTypes = optionTypes.Where(t => t != null).ToArray();
 
             var method = baseType.GetMethods().FirstOrDefault(m =>
             {
@@ -77,8 +75,14 @@ namespace MatthiWare.CommandLine.Core.Utils
             List<Type> types = new List<Type>();
             types.Add(cmdType);
 
-            if (optionTypes.Length > 1)
-                types.Add(optionTypes[1]);
+            if (genericTypes.Length > 1)
+            {
+                if (nonNullOptionTypes.Length > 0)
+                    types.Add(nonNullOptionTypes[0]);
+                else
+                    types.Add(genericTypes[1]);
+            }
+
 
             var methodInstance = method.MakeGenericMethod(types.ToArray());
 
