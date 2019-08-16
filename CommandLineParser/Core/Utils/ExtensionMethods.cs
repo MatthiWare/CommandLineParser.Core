@@ -83,11 +83,9 @@ namespace MatthiWare.CommandLine.Core.Utils
                     types.Add(genericTypes[1]);
             }
 
-
             var methodInstance = method.MakeGenericMethod(types.ToArray());
 
             return methodInstance.Invoke(obj, null);
-
         }
 
         public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, ICollection<ICommandLineOption> options)

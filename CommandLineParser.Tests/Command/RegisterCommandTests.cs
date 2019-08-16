@@ -1,7 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Command
@@ -26,7 +24,6 @@ namespace MatthiWare.CommandLine.Tests.Command
 
         private class MyWrongCommand : Command<Exception, Exception>
         {
-
         }
     }
 }

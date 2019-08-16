@@ -70,97 +70,97 @@ namespace MatthiWare.CommandLine.Tests.Command
                     throw new InvalidCastException($"Unable to resolve {(typeof(T)).Name}");
             }
         }
-    }
 
-    public class MainCommand : Command<MainModel, SubModel>
-    {
-        private readonly ManualResetEventSlim locker;
-        private readonly bool autoExecute;
-        private readonly string bla;
-        private readonly int i;
-        private readonly int n;
-
-        public MainCommand(ManualResetEventSlim locker, bool autoExecute, string bla, int i, int n)
+        public class MainCommand : Command<MainModel, SubModel>
         {
-            this.locker = locker;
-            this.autoExecute = autoExecute;
-            this.bla = bla;
-            this.i = i;
-            this.n = n;
+            private readonly ManualResetEventSlim locker;
+            private readonly bool autoExecute;
+            private readonly string bla;
+            private readonly int i;
+            private readonly int n;
+
+            public MainCommand(ManualResetEventSlim locker, bool autoExecute, string bla, int i, int n)
+            {
+                this.locker = locker;
+                this.autoExecute = autoExecute;
+                this.bla = bla;
+                this.i = i;
+                this.n = n;
+            }
+
+            public override void OnConfigure(ICommandConfigurationBuilder<SubModel> builder)
+            {
+                builder
+                    .Name("main")
+                    .AutoExecute(autoExecute)
+                    .Required();
+            }
+
+            public override void OnExecute(MainModel options, SubModel commandOptions)
+            {
+                base.OnExecute(options, commandOptions);
+
+                Assert.Equal(bla, options.Bla);
+                Assert.Equal(i, commandOptions.Item);
+
+                locker.Set();
+            }
         }
 
-        public override void OnConfigure(ICommandConfigurationBuilder<SubModel> builder)
+        public class SubCommand : Command<MainModel, SubSubModel>
         {
-            builder
-                .Name("main")
-                .AutoExecute(autoExecute)
-                .Required();
+            private readonly ManualResetEventSlim locker;
+            private readonly bool autoExecute;
+            private readonly string bla;
+            private readonly int i;
+            private readonly int n;
+
+            public SubCommand(ManualResetEventSlim locker, bool autoExecute, string bla, int i, int n)
+            {
+                this.locker = locker;
+                this.autoExecute = autoExecute;
+                this.bla = bla;
+                this.i = i;
+                this.n = n;
+            }
+
+            public override void OnConfigure(ICommandConfigurationBuilder<SubSubModel> builder)
+            {
+                builder
+                    .Name("sub")
+                    .AutoExecute(autoExecute)
+                    .Required();
+            }
+
+            public override void OnExecute(MainModel options, SubSubModel commandOptions)
+            {
+                base.OnExecute(options, commandOptions);
+
+                Assert.Equal(bla, options.Bla);
+                Assert.Equal(n, commandOptions.Nothing);
+
+                locker.Set();
+            }
         }
 
-        public override void OnExecute(MainModel options, SubModel commandOptions)
+        public class MainModel
         {
-            base.OnExecute(options, commandOptions);
-
-            Assert.Equal(bla, options.Bla);
-            Assert.Equal(i, commandOptions.Item);
-
-            locker.Set();
-        }
-    }
-
-    public class SubCommand : Command<MainModel, SubSubModel>
-    {
-        private readonly ManualResetEventSlim locker;
-        private readonly bool autoExecute;
-        private readonly string bla;
-        private readonly int i;
-        private readonly int n;
-
-        public SubCommand(ManualResetEventSlim locker, bool autoExecute, string bla, int i, int n)
-        {
-            this.locker = locker;
-            this.autoExecute = autoExecute;
-            this.bla = bla;
-            this.i = i;
-            this.n = n;
+            [Required, Name("b")]
+            public string Bla { get; set; }
+            public MainCommand MainCommand { get; set; }
         }
 
-        public override void OnConfigure(ICommandConfigurationBuilder<SubSubModel> builder)
+        public class SubModel
         {
-            builder
-                .Name("sub")
-                .AutoExecute(autoExecute)
-                .Required();
+            [Required, Name("i")]
+            public int Item { get; set; }
+            public SubCommand SubCommand { get; set; }
         }
 
-        public override void OnExecute(MainModel options, SubSubModel commandOptions)
+        public class SubSubModel
         {
-            base.OnExecute(options, commandOptions);
-
-            Assert.Equal(bla, options.Bla);
-            Assert.Equal(n, commandOptions.Nothing);
-
-            locker.Set();
+            [Required, Name("n")]
+            public int Nothing { get; set; }
         }
-    }
-
-    public class MainModel
-    {
-        [Required, Name("b")]
-        public string Bla { get; set; }
-        public MainCommand MainCommand { get; set; }
-    }
-
-    public class SubModel
-    {
-        [Required, Name("i")]
-        public int Item { get; set; }
-        public SubCommand SubCommand { get; set; }
-    }
-
-    public class SubSubModel
-    {
-        [Required, Name("n")]
-        public int Nothing { get; set; }
     }
 }
