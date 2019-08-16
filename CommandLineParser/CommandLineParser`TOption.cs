@@ -213,7 +213,7 @@ namespace MatthiWare.CommandLine
 
             CheckForExtraHelpArguments(result, argumentManager);
 
-            Validate(errors);
+            Validate(m_option, errors);
 
             result.MergeResult(errors);
 
@@ -224,12 +224,7 @@ namespace MatthiWare.CommandLine
             return result;
         }
 
-        private void Validate(List<Exception> errors)
-        {
-            Validate<TOption>(errors);
-        }
-
-        private void Validate<T>(object @object, List<Exception> errors)
+        private void Validate<T>(T @object, List<Exception> errors)
         {
             if (!Validators.HasValidatorFor<T>())
                 return;
