@@ -4,10 +4,7 @@
     <a href="https://codecov.io/gh/MatthiWare/CommandLineParser.Core"><img src="https://codecov.io/gh/MatthiWare/CommandLineParser.Core/branch/master/graph/badge.svg" alt="Codecov" /></a>
     <a href="https://www.codefactor.io/repository/github/matthiware/commandlineparser.core"><img src="https://www.codefactor.io/repository/github/matthiware/commandlineparser.core/badge" alt="Codefactor badge"></a>
     <a href="https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="AGPL v3"></a>
-    <a href="https://www.nuget.org/packages/MatthiWare.CommandLineParser">
-        <img src="https://img.shields.io/nuget/v/MatthiWare.CommandLineParser.svg" alt="NuGet badge">
-        <img src="https://img.shields.io/nuget/dt/MatthiWare.CommandLineParser.svg" alt="NuGet Downloads badge">
-    </a>
+    <a href="https://www.nuget.org/packages/MatthiWare.CommandLineParser"><img src="https://buildstats.info/nuget/MatthiWare.CommandLineParser" alt="NuGet badge"></a>
 </p>
 <p align="center">
     <img src="https://buildstats.info/appveyor/chart/Matthiee/commandlineparser-core?branch=master" />
