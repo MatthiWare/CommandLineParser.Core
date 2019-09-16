@@ -22,6 +22,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentValidationsExtensions", "Extensions\FluentValidationsExtensions\FluentValidationsExtensions.csproj", "{5B43A461-C8AC-44C0-94D5-DAEE102A5F41}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5046CC21-D258-4313-8866-E952ABB472E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentValidationsExtensions.Tests", "Extensions\Tests\FluentValidationsExtensions.Tests\FluentValidationsExtensions.Tests.csproj", "{07BCB8B9-AFA2-485B-A01D-EB11FAFD5061}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,12 +48,18 @@ Global
 		{5B43A461-C8AC-44C0-94D5-DAEE102A5F41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B43A461-C8AC-44C0-94D5-DAEE102A5F41}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B43A461-C8AC-44C0-94D5-DAEE102A5F41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07BCB8B9-AFA2-485B-A01D-EB11FAFD5061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07BCB8B9-AFA2-485B-A01D-EB11FAFD5061}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07BCB8B9-AFA2-485B-A01D-EB11FAFD5061}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07BCB8B9-AFA2-485B-A01D-EB11FAFD5061}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5B43A461-C8AC-44C0-94D5-DAEE102A5F41} = {9AE7A2BC-8475-4331-9C61-3B5045A1389A}
+		{5046CC21-D258-4313-8866-E952ABB472E4} = {9AE7A2BC-8475-4331-9C61-3B5045A1389A}
+		{07BCB8B9-AFA2-485B-A01D-EB11FAFD5061} = {5046CC21-D258-4313-8866-E952ABB472E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CE28B97B-DDE7-41B6-B779-91914BDBCB80}
