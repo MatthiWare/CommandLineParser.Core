@@ -229,12 +229,15 @@ namespace MatthiWare.CommandLine
             if (!Validators.HasValidatorFor<T>())
                 return;
 
-            var result = Validators.GetValidatorFor<T>().Validate(@object);
+            var results = Validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
 
-            if (result.IsValid)
-                return;
+            foreach(var result in results)
+            {
+                if (result.IsValid)
+                    return;
 
-            errors.Add(result.Error);
+                errors.Add(result.Error);
+            }
         }
 
         private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager argumentManager)

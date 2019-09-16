@@ -10,7 +10,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations
         public static void UseFluentValidations<T>(this CommandLineParser<T> parser, Action<FluentValidationConfiguration> configAction)
             where T : class, new()
         {
-            var config = new FluentValidationConfiguration(parser.Validators);
+            var config = new FluentValidationConfiguration(parser.Validators, parser.ContainerResolver);
 
             configAction(config);
         }

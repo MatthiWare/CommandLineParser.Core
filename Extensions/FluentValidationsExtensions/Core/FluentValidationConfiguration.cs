@@ -3,25 +3,29 @@ using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
 {
-    public sealed class FluentValidationConfiguration
+    public sealed class FluentValidationConfiguration : ValidationConfigurationBase
     {
-        private readonly IValidatorsContainer container;
+        private readonly IContainerResolver resolver;
 
-        public FluentValidationConfiguration(IValidatorsContainer container)
+        public FluentValidationConfiguration(IValidatorsContainer container, IContainerResolver resolver)
+            : base(container)
         {
-            this.container = container;
+            this.resolver = resolver;
         }
 
         public FluentValidationConfiguration AddValidator<K, V>()
             where V : AbstractValidator<K>, new()
         {
-            var validator = new Validator<K>(typeof(V));
+            V instance = resolver.Resolve<V>();
 
-            container.AddValidator(validator);
+            var validator = new FluentTypeValidatorCollection<K>(resolver);
+
+            Validators.AddValidator(validator);
 
             return this;
         }
@@ -34,11 +38,16 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
                 throw new ArgumentNullException(nameof(instance));
             }
 
-            var validator = new Validator<K>(instance);
+            var validator = new FluentTypeValidatorCollection<K>(resolver);
 
-            container.AddValidator(validator);
+            Validators.AddValidator(validator);
 
             return this;
+        }
+
+        public override IValidationResult Validate(object @object)
+        {
+            return null;
         }
     }
 }

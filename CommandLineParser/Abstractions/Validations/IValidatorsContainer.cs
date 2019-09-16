@@ -13,7 +13,7 @@ namespace MatthiWare.CommandLine.Abstractions.Validations
         bool HasValidatorFor<TKey>();
         bool HasValidatorFor(Type type);
 
-        IValidator<TKey> GetValidatorFor<TKey>();
-        IValidator GetValidatorFor(Type key);
+        IReadOnlyCollection<IValidator> GetValidators<TKey>();
+        IReadOnlyCollection<IValidator> GetValidators(Type key);
     }
 }
