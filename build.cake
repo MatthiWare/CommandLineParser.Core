@@ -18,6 +18,7 @@ var solution = $"./{project}.sln";
 var cmdParserProject = $"./{project}/{project}.csproj";
 var nuspecFile = $"./{project}/{project}.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
+var fveTests = $"./{project}/Extensions/Tests/FluentValidationsExtensions.Tests/FluentValidationsExtensions.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
 var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
@@ -69,7 +70,18 @@ Task("Test")
 
 
         // Upload a coverage report.
-		Information("Codecov: Uploading coverage.xml");
+		Information("(1) Codecov: Uploading coverage.xml");
+        Codecov($"{codeCoverageOutput}\\coverage.xml");
+
+        DotNetCoreTest(fveTests,
+            new DotNetCoreTestSettings {
+                NoBuild = true,
+                NoRestore = true,
+                Configuration = configuration
+            }, coverletSettings);
+
+        // Upload a coverage report.
+		Information("(2) Codecov: Uploading coverage.xml");
         Codecov($"{codeCoverageOutput}\\coverage.xml");
 });
 
