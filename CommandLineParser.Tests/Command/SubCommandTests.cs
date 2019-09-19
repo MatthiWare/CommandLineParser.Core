@@ -65,12 +65,12 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             public override object Resolve(Type type)
             {
-                if (typeof(T) == typeof(MainCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock1, autoExecute, bla, i, n);
-                else if (typeof(T) == typeof(SubCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock2, autoExecute, bla, i, n);
+                if (type == typeof(MainCommand))
+                    return Activator.CreateInstance(type, lock1, autoExecute, bla, i, n);
+                else if (type == typeof(SubCommand))
+                    return Activator.CreateInstance(type, lock2, autoExecute, bla, i, n);
                 else
-                    throw new InvalidCastException($"Unable to resolve {(typeof(T)).Name}");
+                    return base.Resolve(type);
             }
         }
 
