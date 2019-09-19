@@ -234,7 +234,7 @@ namespace MatthiWare.CommandLine
             foreach(var result in results)
             {
                 if (result.IsValid)
-                    return;
+                    continue;
 
                 errors.Add(result.Error);
             }
@@ -420,7 +420,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
 
             m_commands.Add(command);
 
@@ -436,7 +436,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -456,7 +456,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
 
             cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
@@ -471,7 +471,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
 
             m_commands.Add(command);
 

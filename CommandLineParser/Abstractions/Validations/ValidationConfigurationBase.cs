@@ -8,7 +8,5 @@
         {
             Validators = validators;
         }
-
-        public abstract IValidationResult Validate(object @object);
     }
 }

@@ -8,6 +8,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
+using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing.Command;
@@ -30,6 +31,7 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly IArgumentResolverFactory m_resolverFactory;
         private readonly IContainerResolver m_containerResolver;
         private readonly CommandLineParserOptions m_parserOptions;
+        private readonly IValidatorsContainer m_validators;
 
         private Action m_executor;
         private Action<TOption> m_executor1;
@@ -38,11 +40,12 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option, IValidatorsContainer validators)
         {
             m_parserOptions = parserOptions;
             m_commandOption = new TCommandOption();
 
+            m_validators = validators;
             m_containerResolver = containerResolver;
             m_resolverFactory = resolverFactory;
             m_baseOption = option;
@@ -101,6 +104,8 @@ namespace MatthiWare.CommandLine.Core.Command
             ParseCommands(errors, result, argumentManager);
 
             ParseOptions(errors, result, argumentManager);
+
+            Validate(m_commandOption, errors);
 
             result.MergeResult(errors);
 
@@ -199,6 +204,22 @@ namespace MatthiWare.CommandLine.Core.Command
             }
 
             return false;
+        }
+
+        private void Validate<T>(T @object, List<Exception> errors)
+        {
+            if (!m_validators.HasValidatorFor<T>())
+                return;
+
+            var results = m_validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
+
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                    continue;
+
+                errors.Add(result.Error);
+            }
         }
 
         public ICommandBuilder<TOption, TCommandOption> Required(bool required = true)
@@ -403,7 +424,7 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TCommandOption, object>(m_parserOptions, m_resolverFactory, m_containerResolver, m_commandOption);
+            var command = new CommandLineCommand<TCommandOption, object>(m_parserOptions, m_resolverFactory, m_containerResolver, m_commandOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -423,7 +444,7 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_resolverFactory, m_containerResolver, m_baseOption);
+            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_resolverFactory, m_containerResolver, m_baseOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 

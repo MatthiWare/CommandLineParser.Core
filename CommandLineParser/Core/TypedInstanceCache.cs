@@ -28,7 +28,7 @@ namespace MatthiWare.CommandLine.Core
         public void Add(Type type)
         {
             if (!instances.ContainsKey(type))
-                instances.Add(typeof(TValue), new InstanceMetadata<TValue>());
+                instances.Add(typeof(TValue), new InstanceMetadata<TValue>(type));
             else
                 instances[type].Clear();
         }
@@ -53,14 +53,14 @@ namespace MatthiWare.CommandLine.Core
             return instances.Values.Select(meta => meta.Instance).ToList();
         }
 
-        private struct InstanceMetadata<T>
+        private class InstanceMetadata<T>
         {
-            public bool Created;
-            public T Instance;
-            public Type Type;
+            public bool Created { get; private set; }
+            public T Instance { get; private set; }
+
+            public readonly Type Type;
 
             public InstanceMetadata(Type type, T instance)
-                : this()
             {
                 Type = type;
 
@@ -68,7 +68,6 @@ namespace MatthiWare.CommandLine.Core
             }
 
             public InstanceMetadata(Type type)
-                : this()
             {
                 Type = type;
 

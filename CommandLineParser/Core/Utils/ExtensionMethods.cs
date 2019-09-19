@@ -8,7 +8,7 @@ using MatthiWare.CommandLine.Abstractions;
 
 namespace MatthiWare.CommandLine.Core.Utils
 {
-    internal static class ExtensionMethods
+    public static class ExtensionMethods
     {
         private static ICommandLineOption FindMatchingOption(ICollection<ICommandLineOption> options, CommandLineParserOptions settings, string item)
         {

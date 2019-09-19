@@ -8,26 +8,26 @@ using System.Linq;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
 {
-    internal class FluentTypeValidatorCollection<T> : Abstractions.Validations.IValidator<T>
+    internal class FluentTypeValidatorCollection : Abstractions.Validations.IValidator
     {
-        private readonly TypedInstanceCache<FluentValidation.IValidator<T>> validators;
+        private readonly TypedInstanceCache<FluentValidation.IValidator> validators;
 
         public FluentTypeValidatorCollection(IContainerResolver resolver)
         {
-            validators = new TypedInstanceCache<FluentValidation.IValidator<T>>(resolver);
+            validators = new TypedInstanceCache<FluentValidation.IValidator>(resolver);
         }
 
-        public void AddValidator(FluentValidation.IValidator<T> validator)
+        public void AddValidator(FluentValidation.IValidator validator)
         {
             validators.Add(validator);
         }
 
         public void AddValidator(Type t) => validators.Add(t);
 
-        public void AddValidator<K>() where K : FluentValidation.IValidator<T>
+        public void AddValidator<K>() where K : FluentValidation.IValidator
             => AddValidator(typeof(K));
 
-        public IValidationResult Validate(T @object)
+        public IValidationResult Validate(object @object)
         {
             var errors = validators.Get()
                 .Select(v => v.Validate(@object))
@@ -44,6 +44,6 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
             }
         }
 
-        public IValidationResult Validate(object @object) => Validate((T)@object);
+        // public IValidationResult Validate(object @object) => Validate((T)@object);
     }
 }

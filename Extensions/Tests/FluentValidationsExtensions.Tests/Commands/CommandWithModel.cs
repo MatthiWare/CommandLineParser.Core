@@ -12,5 +12,10 @@ namespace FluentValidationsExtensions.Tests.Commands
 
             builder.Name("cmd");
         }
+
+        public override void OnConfigure(ICommandConfigurationBuilder builder)
+        {
+            base.OnConfigure(builder);
+        }
     }
 }

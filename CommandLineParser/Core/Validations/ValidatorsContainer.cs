@@ -19,6 +19,12 @@ namespace MatthiWare.CommandLine.Core.Validations
             this.containerResolver = containerResolver;
         }
 
+        public void AddValidator(Type key, IValidator validator)
+        {
+            GetOrCreateTypeListFor(key).Add(validator.GetType());
+            GetOrCreateCacheListFor(key).Add((key, validator));
+        }
+
         public void AddValidator<TKey>(IValidator<TKey> validator)
         {
             var key = typeof(TKey);
@@ -28,6 +34,8 @@ namespace MatthiWare.CommandLine.Core.Validations
         }
 
         public void AddValidator<TKey, V>() where V : IValidator<TKey> => GetOrCreateTypeListFor(typeof(TKey)).Add(typeof(V));
+
+        public void AddValidator(Type key, Type validator) => GetOrCreateTypeListFor(key).Add(validator);
 
         public IReadOnlyCollection<IValidator> GetValidators<T>()
         {
@@ -41,7 +49,7 @@ namespace MatthiWare.CommandLine.Core.Validations
             var types = GetOrCreateTypeListFor(key);
             var instances = GetOrCreateCacheListFor(key);
 
-            var typesNotInList = types.Except(instances.Select(kvp => kvp.key)).ToArray();
+            var typesNotInList = types.Except(instances.Select(kvp => kvp.validator.GetType())).ToArray();
 
             foreach (var type in typesNotInList)
             {
