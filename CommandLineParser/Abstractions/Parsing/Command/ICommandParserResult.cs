@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
 {
@@ -10,6 +10,11 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
     /// </summary>
     public interface ICommandParserResult
     {
+        /// <summary>
+        /// Indicates if the command' <see cref="Command{TOptions, TCommandOptions}.OnExecute(TOptions, TCommandOptions)"/> method has been executed.
+        /// </summary>
+        bool Executed { get; }
+
         /// <summary>
         /// Indicates if the command has been found.
         /// </summary>

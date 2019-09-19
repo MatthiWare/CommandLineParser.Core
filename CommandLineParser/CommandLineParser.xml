@@ -408,6 +408,19 @@
             <typeparam name="TCommand">The command</typeparam>
             <typeparam name="TCommandOption">Command options model</typeparam>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.RegisterCommand(System.Type,System.Type)">
+            <summary>
+            Registers a new command
+            </summary>
+            <param name="commandType">The type of the command</param>
+            <param name="optionsType">Command options model</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.RegisterCommand(System.Type)">
+            <summary>
+            Registers a new command
+            </summary>
+            <param name="commandType">The type of the command</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder">
             <summary>
             API for configuring options
@@ -562,6 +575,11 @@
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult">
             <summary>
             Results fo the command that has been parsed
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Executed">
+            <summary>
+            Indicates if the command' <see cref="M:MatthiWare.CommandLine.Abstractions.Command.Command`2.OnExecute(`0,`1)"/> method has been executed.
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Found">
@@ -996,12 +1014,25 @@
             </summary>
             <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`1"/></typeparam>
         </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.RegisterCommand(System.Type)">
+            <summary>
+            Registers a new command
+            </summary>
+            <param name="commandType">The type of the command</param>
+        </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.RegisterCommand``2">
             <summary>
             Registers a command type
             </summary>
             <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`2"/></typeparam>
             <typeparam name="TCommandOption">The command options</typeparam>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.RegisterCommand(System.Type,System.Type)">
+            <summary>
+            Registers a new command
+            </summary>
+            <param name="commandType">The type of the command</param>
+            <param name="optionsType">Command options model</param>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.AddCommand">
             <summary>

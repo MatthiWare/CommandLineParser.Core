@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Core.Command;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Command
 {
@@ -27,6 +27,8 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
         public IReadOnlyCollection<Exception> Errors => exceptions;
 
         public bool Found => true;
+
+        public bool Executed { get; private set; } = false;
 
         public CommandParserResult(CommandLineCommandBase command)
         {
@@ -52,6 +54,10 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
             commandParserResults.Add(result);
         }
 
-        public void ExecuteCommand() => m_cmd.Execute();
+        public void ExecuteCommand()
+        {
+            m_cmd.Execute();
+            Executed = true;
+        }
     }
 }
