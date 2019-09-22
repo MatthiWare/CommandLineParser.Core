@@ -59,10 +59,12 @@ Task("Test")
                 CoverletOutputDirectory = codeCoverageOutput,
                 CoverletOutputFormat = CoverletOutputFormat.opencover,
                 CoverletOutputName = $"coverage.xml",
-                MergeWithFile = $"./coverage.xml"
+                MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
             };
 
         Information($"MergeWithFile: {coverletSettings.MergeWithFile.FullPath}");
+
+        Information(FileSystem.GetFile(coverletSettings.MergeWithFile).Length);
 
         var testSettings = new DotNetCoreTestSettings {
                 NoBuild = true,
