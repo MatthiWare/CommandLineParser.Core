@@ -62,6 +62,14 @@ Task("Test")
                 MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
             };
 
+        var coverletSettings2 = new CoverletSettings {
+            CollectCoverage = true,
+            CoverletOutputDirectory = codeCoverageOutput,
+            CoverletOutputFormat = CoverletOutputFormat.opencover,
+            CoverletOutputName = $"coverage2.xml",
+            MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
+        };
+
         Information($"MergeWithFile: {coverletSettings.MergeWithFile.FullPath}");
 
         //Information(FileSize(coverletSettings.MergeWithFile));
@@ -78,11 +86,11 @@ Task("Test")
 
         DotNetCoreTest(fveTests, testSettings, coverletSettings);
 
-		DotNetCoreTest(tests, testSettings, coverletSettings);
+		DotNetCoreTest(tests, testSettings, coverletSettings2);
 
         // Upload a coverage report.
 		Information("(1) Codecov: Uploading coverage.xml (merged)");
-        Codecov($"{codeCoverageOutput}\\coverage.xml");
+        Codecov($"{codeCoverageOutput}\\coverage2.xml");
 });
 
 Task("Publish")
