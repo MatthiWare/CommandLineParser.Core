@@ -62,6 +62,8 @@ Task("Test")
                 MergeWithFile = $"./coverage.xml"
             };
 
+        Information($"MergeWithFile: {coverletSettings.MergeWithFile.FullPath}");
+
         var testSettings = new DotNetCoreTestSettings {
                 NoBuild = true,
                 NoRestore = true,
