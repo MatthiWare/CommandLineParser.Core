@@ -62,24 +62,19 @@ Task("Test")
                 MergeWithFile = $"./coverage.xml"
             };
 
-		DotNetCoreTest(tests,
-            new DotNetCoreTestSettings {
+        var testSettings = new DotNetCoreTestSettings {
                 NoBuild = true,
                 NoRestore = true,
                 Configuration = configuration
-            }, coverletSettings);
-
+            };
 
         // Upload a coverage report.
 		// Information("(1) Codecov: Uploading coverage.xml");
         // Codecov($"{codeCoverageOutput}\\coverage.xml");
 
-        DotNetCoreTest(fveTests,
-            new DotNetCoreTestSettings {
-                NoBuild = true,
-                NoRestore = true,
-                Configuration = configuration
-            }, coverletSettings);
+        DotNetCoreTest(fveTests, testSettings, coverletSettings);
+
+		DotNetCoreTest(tests, testSettings, coverletSettings);
 
         // Upload a coverage report.
 		Information("(1) Codecov: Uploading coverage.xml (merged)");
