@@ -64,7 +64,7 @@ Task("Test")
 
         Information($"MergeWithFile: {coverletSettings.MergeWithFile.FullPath}");
 
-        Information(FileSize(coverletSettings.MergeWithFile));
+        //Information(FileSize(coverletSettings.MergeWithFile));
 
         var testSettings = new DotNetCoreTestSettings {
                 NoBuild = true,
