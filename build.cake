@@ -58,7 +58,8 @@ Task("Test")
                 CollectCoverage = true,
                 CoverletOutputDirectory = codeCoverageOutput,
                 CoverletOutputFormat = CoverletOutputFormat.opencover,
-                CoverletOutputName = $"coverage.xml"
+                CoverletOutputName = $"coverage.xml",
+                MergeWithFile = $"./coverage.xml"
             };
 
 		DotNetCoreTest(tests,
@@ -70,8 +71,8 @@ Task("Test")
 
 
         // Upload a coverage report.
-		Information("(1) Codecov: Uploading coverage.xml");
-        Codecov($"{codeCoverageOutput}\\coverage.xml");
+		// Information("(1) Codecov: Uploading coverage.xml");
+        // Codecov($"{codeCoverageOutput}\\coverage.xml");
 
         DotNetCoreTest(fveTests,
             new DotNetCoreTestSettings {
@@ -81,7 +82,7 @@ Task("Test")
             }, coverletSettings);
 
         // Upload a coverage report.
-		Information("(2) Codecov: Uploading coverage.xml");
+		Information("(1) Codecov: Uploading coverage.xml (merged)");
         Codecov($"{codeCoverageOutput}\\coverage.xml");
 });
 
