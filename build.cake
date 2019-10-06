@@ -27,6 +27,25 @@ var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
 
+Task("Publish-NuGet")
+    .IsDependentOn("Generate-NuGet")
+    .Does(() => {
+        var feed = new
+        {
+            Name = "Github",
+            Source = "https://nuget.pkg.github.com/MatthiWare/index.json"
+        };
+
+        NuGetAddSource(feed.Name, feed.Source);
+
+        var pushSettings = new NuGetPushSettings {
+            Source = "Github",
+            ApiKey = EnvironmentVariable("GH_PKG_TOKEN")
+        };
+
+        NuGetPush("./nuget/*.*", pushSettings);
+    });
+
 Task("Clean")
     .Does( () => {
         CleanDirectories($"./{project}/obj/**/*.*");
@@ -55,12 +74,12 @@ Task("Test")
     .Does( () => {
 		
         var coverletSettings = new CoverletSettings {
-                CollectCoverage = true,
-                CoverletOutputDirectory = codeCoverageOutput,
-                CoverletOutputFormat = CoverletOutputFormat.opencover,
-                CoverletOutputName = $"coverage.xml",
-                MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
-            };
+            CollectCoverage = true,
+            CoverletOutputDirectory = codeCoverageOutput,
+            CoverletOutputFormat = CoverletOutputFormat.opencover,
+            CoverletOutputName = $"coverage.xml",
+            MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
+        };
 
         var coverletSettings2 = new CoverletSettings {
             CollectCoverage = true,
@@ -108,7 +127,7 @@ Task("Publish")
 	Information("Publish: Done");
 });
 
-Task("Publish-NuGet")
+Task("Generate-NuGet")
 	.IsDependentOn("Publish")
 	.Does(() => 
 	{
