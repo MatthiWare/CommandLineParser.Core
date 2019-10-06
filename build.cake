@@ -124,6 +124,12 @@ Task("Publish-NuGet")
             }
         };
 
+        var files = GetFiles(publishPath);
+        foreach(var file in files)
+        {
+            Information("File: {0}", file);
+        }
+
         NuGetPack(nuspecFile, nuGetPackSettings);
 
 		Information("NuGetPack: Done");
