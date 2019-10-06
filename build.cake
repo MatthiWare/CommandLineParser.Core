@@ -30,6 +30,8 @@ var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
 Task("Publish-NuGet")
     .IsDependentOn("Generate-NuGet")
     .Does(() => {
+        return;
+
         var feed = new
         {
             Name = "Github",
