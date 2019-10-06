@@ -124,7 +124,7 @@ Task("Publish-NuGet")
             }
         };
 
-        var files = GetFiles(publishPath);
+        var files = GetFiles("./output/**/*.*");
         foreach(var file in files)
         {
             Information("File: {0}", file);
