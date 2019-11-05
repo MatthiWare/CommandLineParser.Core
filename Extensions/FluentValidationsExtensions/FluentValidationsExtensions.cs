@@ -5,6 +5,12 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations
 {
     public static class FluentValidationsExtensions
     {
+        /// <summary>
+        /// Extensions to configure FluentValidations for the Parser
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parser"></param>
+        /// <param name="configAction">Configuration action</param>
         public static void UseFluentValidations<T>(this CommandLineParser<T> parser, Action<FluentValidationConfiguration> configAction)
             where T : class, new()
         {
