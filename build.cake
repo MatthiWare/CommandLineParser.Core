@@ -16,7 +16,9 @@ var configuration = Argument("configuration", "Release");
 var project = "CommandLineParser";
 var solution = $"./{project}.sln";
 var cmdParserProject = $"./{project}/{project}.csproj";
+var fveProject = $"./{project}/Extensions/FluentValidationsExtensions/FluentValidationsExtensions.csproj";
 var nuspecFile = $"./{project}/{project}.nuspec";
+var fvNuspecFile = $"./{project}/Extensions/FluentValidationsExtensions/FluentValidationsExtensions.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
 var fveTests = $"./Extensions/Tests/FluentValidationsExtensions.Tests/FluentValidationsExtensions.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
@@ -118,13 +120,21 @@ Task("Publish")
     .IsDependentOn("Test")
     .IsDependentOn("Clean-Publish")
     .Does( () => {
-    DotNetCorePublish(cmdParserProject,
-        new DotNetCorePublishSettings {
+		DotNetCorePublish(cmdParserProject,
+			new DotNetCorePublishSettings {
 
-            NoRestore = true,
-            Configuration = configuration,
-            OutputDirectory = publishPath
-        });
+				NoRestore = true,
+				Configuration = configuration,
+				OutputDirectory = publishPath
+			});
+
+		DotNetCorePublish(fveProject,
+			new DotNetCorePublishSettings {
+
+				NoRestore = true,
+				Configuration = configuration,
+				OutputDirectory = publishPath
+			});
 
 	Information("Publish: Done");
 });
@@ -152,6 +162,7 @@ Task("Generate-NuGet")
         }
 
         NuGetPack(nuspecFile, nuGetPackSettings);
+        NuGetPack(fvNuspecFile, nuGetPackSettings);
 
 		Information("NuGetPack: Done");
 	});
