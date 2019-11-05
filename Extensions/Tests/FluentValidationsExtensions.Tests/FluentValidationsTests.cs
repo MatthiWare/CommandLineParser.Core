@@ -1,25 +1,31 @@
-using FluentValidationsExtensions.Tests.Models;
-using MatthiWare.CommandLine;
-using Xunit;
-using MatthiWare.CommandLine.Extensions.FluentValidations;
-using FluentValidationsExtensions.Tests.Validators;
 using FluentValidationsExtensions.Tests.Commands;
+using FluentValidationsExtensions.Tests.Models;
+using FluentValidationsExtensions.Tests.Validators;
+using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Extensions.FluentValidations;
+using MatthiWare.CommandLine.Extensions.FluentValidations.Core;
 using MatthiWare.CommandLine.Tests;
+using Xunit;
 
 namespace FluentValidationsExtensions.Tests
 {
     public class FluentValidationsTests
     {
-        [Fact]
-        public void FluentValidationsShouldWork()
+        private static readonly EmailModelValidator emailModelValidator = new EmailModelValidator();
+        private static readonly FirstModelValidator firstModelValidator = new FirstModelValidator();
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void FluentValidationsShouldWork(bool useGeneric, bool useInstance)
         {
             var parser = new CommandLineParser<FirstModel>();
 
             parser.UseFluentValidations(config =>
             {
-                config
-                .AddValidator<EmailModel, EmailModelValidator>()
-                .AddValidator<FirstModel, FirstModelValidator>();
+                OnConfigureFluentValidations(config, useGeneric, useInstance);
             });
 
             parser.RegisterCommand<CommandWithModel<FirstModel, EmailModel>, EmailModel>();
@@ -29,16 +35,18 @@ namespace FluentValidationsExtensions.Tests
             result.AssertNoErrors();
         }
 
-        [Fact]
-        public void WrongArgumentsShouldThrowValidationError()
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void WrongArgumentsShouldThrowValidationError(bool useGeneric, bool useInstance)
         {
             var parser = new CommandLineParser<FirstModel>();
 
             parser.UseFluentValidations(config =>
             {
-                config
-                .AddValidator<EmailModel, EmailModelValidator>()
-                .AddValidator<FirstModel, FirstModelValidator>();
+                OnConfigureFluentValidations(config, useGeneric, useInstance);
             });
 
             parser.RegisterCommand<CommandWithModel<FirstModel, EmailModel>, EmailModel>();
@@ -48,16 +56,18 @@ namespace FluentValidationsExtensions.Tests
             Assert.True(result.AssertNoErrors(false));
         }
 
-        [Fact]
-        public void SubCommandShouldFailIfValidationFailsForModel()
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void SubCommandShouldFailIfValidationFailsForModel(bool useGeneric, bool useInstance)
         {
             var parser = new CommandLineParser<FirstModel>();
 
             parser.UseFluentValidations(config =>
             {
-                config
-                .AddValidator<EmailModel, EmailModelValidator>()
-                .AddValidator<FirstModel, FirstModelValidator>();
+                OnConfigureFluentValidations(config, useGeneric, useInstance);
             });
 
             parser.RegisterCommand<CommandWithModel<FirstModel, EmailModel>, EmailModel>();
@@ -65,6 +75,36 @@ namespace FluentValidationsExtensions.Tests
             var result = parser.Parse(new string[] { "app.exe", "-f", "JamesJames1", "-l", "BondBond1231456", "cmd", "-e", "jane.doe@provider.com", "-i", "0" });
 
             Assert.True(result.AssertNoErrors(false));
+        }
+
+        private void OnConfigureFluentValidations(FluentValidationConfiguration config, bool useGeneric, bool useInstantiated)
+        {
+            if (useGeneric)
+            {
+                if (useInstantiated)
+                {
+                    config.AddValidatorInstance<EmailModel, EmailModelValidator>(emailModelValidator)
+                       .AddValidatorInstance<FirstModel, FirstModelValidator>(firstModelValidator);
+                }
+                else
+                {
+                    config.AddValidator<EmailModel, EmailModelValidator>()
+                        .AddValidator<FirstModel, FirstModelValidator>();
+                }
+            }
+            else
+            {
+                if (useInstantiated)
+                {
+                    config.AddValidatorInstance(typeof(EmailModel), emailModelValidator)
+                    .AddValidatorInstance(typeof(FirstModel), firstModelValidator);
+                }
+                else
+                {
+                    config.AddValidator(typeof(EmailModel), typeof(EmailModelValidator))
+                    .AddValidator(typeof(FirstModel), typeof(FirstModelValidator));
+                }
+            }
         }
     }
 }

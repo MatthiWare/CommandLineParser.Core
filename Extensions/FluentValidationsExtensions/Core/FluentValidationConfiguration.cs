@@ -4,8 +4,6 @@ using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
 {
@@ -14,12 +12,23 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         private readonly IContainerResolver resolver;
         private readonly Dictionary<Type, FluentTypeValidatorCollection> validators = new Dictionary<Type, FluentTypeValidatorCollection>();
 
+        /// <summary>
+        /// Creates a new fluent validation configuration
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="resolver"></param>
         public FluentValidationConfiguration(IValidatorsContainer container, IContainerResolver resolver)
             : base(container)
         {
             this.resolver = resolver;
         }
 
+        /// <summary>
+        /// Adds a validator 
+        /// </summary>
+        /// <param name="key">type to validate</param>
+        /// <param name="validator">Validator type</param>
+        /// <returns>Self</returns>
         public FluentValidationConfiguration AddValidator(Type key, Type validator)
         {
             if (!validator.IsAssignableToGenericType(typeof(FluentValidation.IValidator<>)))
@@ -32,6 +41,12 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
             return this;
         }
 
+        /// <summary>
+        /// Adds a validator 
+        /// </summary>
+        /// <typeparam name="K">Type to validate</typeparam>
+        /// <typeparam name="V">Validator type</typeparam>
+        /// <returns>Self</returns>
         public FluentValidationConfiguration AddValidator<K, V>()
             where V : AbstractValidator<K>, new()
         {
@@ -40,6 +55,13 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
             return this;
         }
 
+        /// <summary>
+        /// Adds an instantiated validator
+        /// </summary>
+        /// <typeparam name="K">Type to validate</typeparam>
+        /// <typeparam name="V">Validator type</typeparam>
+        /// <param name="instance">Instance</param>
+        /// <returns>Self</returns>
         public FluentValidationConfiguration AddValidatorInstance<K, V>(V instance)
             where V : AbstractValidator<K>, new()
         {
@@ -49,6 +71,24 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
             }
 
             GetValidatorCollection(typeof(K)).AddValidator(instance);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Add an instantiated validator
+        /// </summary>
+        /// <param name="key">Type to validate</param>
+        /// <param name="instance">Validator instance</param>
+        /// <returns>Self</returns>
+        public FluentValidationConfiguration AddValidatorInstance(Type key, FluentValidation.IValidator instance)
+        {
+            if (instance is null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
+            GetValidatorCollection(key).AddValidator(instance);
 
             return this;
         }

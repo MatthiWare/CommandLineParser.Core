@@ -1,9 +1,7 @@
-﻿using FluentValidation;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
@@ -43,7 +41,5 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
                 return FluentValidationsResult.Succes();
             }
         }
-
-        // public IValidationResult Validate(object @object) => Validate((T)@object);
     }
 }

@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Extensions.FluentValidations.Core;
+﻿using MatthiWare.CommandLine.Extensions.FluentValidations.Core;
 using System;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations
