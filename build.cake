@@ -16,8 +16,11 @@ var configuration = Argument("configuration", "Release");
 var project = "CommandLineParser";
 var solution = $"./{project}.sln";
 var cmdParserProject = $"./{project}/{project}.csproj";
+var fveProject = $"./Extensions/FluentValidationsExtensions/FluentValidationsExtensions.csproj";
 var nuspecFile = $"./{project}/{project}.nuspec";
+var fvNuspecFile = $"./Extensions/FluentValidationsExtensions/FluentValidationsExtensions.nuspec";
 var tests = $"./{project}.Tests/{project}.Tests.csproj";
+var fveTests = $"./Extensions/Tests/FluentValidationsExtensions.Tests/FluentValidationsExtensions.Tests.csproj";
 var publishPath = MakeAbsolute(Directory("./output"));
 var nugetPackageDir = MakeAbsolute(Directory("./nuget"));
 var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
@@ -25,6 +28,27 @@ var codeCoverageOutput = MakeAbsolute(Directory("./code-coverage/"));
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
 ///////////////////////////////////////////////////////////////////////////////
+
+Task("Publish-NuGet")
+    .IsDependentOn("Generate-NuGet")
+    .Does(() => {
+        return;
+
+        var feed = new
+        {
+            Name = "Github",
+            Source = "https://nuget.pkg.github.com/MatthiWare/index.json"
+        };
+
+        NuGetAddSource(feed.Name, feed.Source);
+
+        var pushSettings = new NuGetPushSettings {
+            Source = "Github",
+            ApiKey = EnvironmentVariable("GH_PKG_TOKEN")
+        };
+
+        NuGetPush("./nuget/*.*", pushSettings);
+    });
 
 Task("Clean")
     .Does( () => {
@@ -54,41 +78,68 @@ Task("Test")
     .Does( () => {
 		
         var coverletSettings = new CoverletSettings {
-                CollectCoverage = true,
-                CoverletOutputDirectory = codeCoverageOutput,
-                CoverletOutputFormat = CoverletOutputFormat.opencover,
-                CoverletOutputName = $"coverage.xml"
-            };
+            CollectCoverage = true,
+            CoverletOutputDirectory = codeCoverageOutput,
+            CoverletOutputFormat = CoverletOutputFormat.opencover,
+            CoverletOutputName = $"coverage.xml",
+            MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
+        };
 
-		DotNetCoreTest(tests,
-            new DotNetCoreTestSettings {
+        var coverletSettings2 = new CoverletSettings {
+            CollectCoverage = true,
+            CoverletOutputDirectory = codeCoverageOutput,
+            CoverletOutputFormat = CoverletOutputFormat.opencover,
+            CoverletOutputName = $"coverage2.xml",
+            MergeWithFile = $"{codeCoverageOutput}\\coverage.xml"
+        };
+
+        Information($"MergeWithFile: {coverletSettings.MergeWithFile.FullPath}");
+
+        //Information(FileSize(coverletSettings.MergeWithFile));
+
+        var testSettings = new DotNetCoreTestSettings {
                 NoBuild = true,
                 NoRestore = true,
                 Configuration = configuration
-            }, coverletSettings);
-
+            };
 
         // Upload a coverage report.
-		Information("Codecov: Uploading coverage.xml");
-        Codecov($"{codeCoverageOutput}\\coverage.xml");
+		// Information("(1) Codecov: Uploading coverage.xml");
+        // Codecov($"{codeCoverageOutput}\\coverage.xml");
+
+        DotNetCoreTest(fveTests, testSettings, coverletSettings);
+
+		DotNetCoreTest(tests, testSettings, coverletSettings2);
+
+        // Upload a coverage report.
+		Information("(1) Codecov: Uploading coverage.xml (merged)");
+        Codecov($"{codeCoverageOutput}\\coverage2.xml");
 });
 
 Task("Publish")
     .IsDependentOn("Test")
     .IsDependentOn("Clean-Publish")
     .Does( () => {
-    DotNetCorePublish(cmdParserProject,
-        new DotNetCorePublishSettings {
+		DotNetCorePublish(cmdParserProject,
+			new DotNetCorePublishSettings {
 
-            NoRestore = true,
-            Configuration = configuration,
-            OutputDirectory = publishPath
-        });
+				NoRestore = true,
+				Configuration = configuration,
+				OutputDirectory = publishPath
+			});
+
+		DotNetCorePublish(fveProject,
+			new DotNetCorePublishSettings {
+
+				NoRestore = true,
+				Configuration = configuration,
+				OutputDirectory = publishPath
+			});
 
 	Information("Publish: Done");
 });
 
-Task("Publish-NuGet")
+Task("Generate-NuGet")
 	.IsDependentOn("Publish")
 	.Does(() => 
 	{
@@ -104,7 +155,14 @@ Task("Publish-NuGet")
             }
         };
 
+        var files = GetFiles("./output/**/*.*");
+        foreach(var file in files)
+        {
+            Information("File: {0}", file);
+        }
+
         NuGetPack(nuspecFile, nuGetPackSettings);
+        NuGetPack(fvNuspecFile, nuGetPackSettings);
 
 		Information("NuGetPack: Done");
 	});

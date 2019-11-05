@@ -3,6 +3,10 @@ os: Visual Studio 2017
 
 version: 0.1.{build}
 
+environment:
+  GH_PKG_TOKEN:
+    secure: bnq6VslCdaO6sR3mk0X31tZ3QOXnBtftA09+T9m9qBkxFIENdBRAD8bPHxRvESc5
+
 # Build script
 build_script:
   - ps: .\build.ps1 --target="AppVeyor" --verbosity=Verbose

@@ -6,6 +6,8 @@ namespace MatthiWare.CommandLine.Core
 {
     internal class DefaultContainerResolver : IContainerResolver
     {
-        public T Resolve<T>() => Activator.CreateInstance<T>();
+        public virtual T Resolve<T>() => Activator.CreateInstance<T>();
+
+        public virtual object Resolve(Type type) => Activator.CreateInstance(type);
     }
 }

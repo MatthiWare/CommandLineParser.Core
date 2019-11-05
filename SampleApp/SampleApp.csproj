@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="8.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj" />
+    <ProjectReference Include="..\Extensions\FluentValidationsExtensions\FluentValidationsExtensions.csproj" />
   </ItemGroup>
 
 </Project>

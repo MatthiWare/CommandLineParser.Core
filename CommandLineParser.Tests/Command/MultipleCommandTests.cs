@@ -12,7 +12,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(new string[] { }, false)]
         public void NonRequiredCommandShouldNotSetResultInErrorStateWhenRequiredOptionsAreMissing(string[] args, bool _)
         {
-            var parser = new CommandLineParser<object>();
+            var parser = new CommandLineParser();
 
             parser.AddCommand<MultipleCOmmandTestsOptions>()
                 .Name("cmd1")
