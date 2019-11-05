@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -21,6 +21,7 @@
   <tags>commandline parser commandline-parser</tags>
   </metadata>
   <files>
+    <file src="CommandLineParser.dll" target="lib\netstandard2.0" />
     <file src=".\CommandLineParser.xml" target="lib\netstandard2.0" />
   </files>
 </package>

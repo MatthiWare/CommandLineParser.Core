@@ -1,6 +1,7 @@
 ﻿using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Attributes;
 using System;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             Assert.All(result.CommandResults.Select(r => r.Executed), Assert.True);
         }
 
-        private class CustomInstantiator : IContainerResolver
+        private class CustomInstantiator : DefaultContainerResolver
         {
             private readonly ManualResetEventSlim lock1;
             private readonly ManualResetEventSlim lock2;
@@ -60,14 +61,16 @@ namespace MatthiWare.CommandLine.Tests.Command
                 this.n = n;
             }
 
-            public T Resolve<T>()
+            public override T Resolve<T>() => (T)Resolve(typeof(T));
+
+            public override object Resolve(Type type)
             {
-                if (typeof(T) == typeof(MainCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock1, autoExecute, bla, i, n);
-                else if (typeof(T) == typeof(SubCommand))
-                    return (T)Activator.CreateInstance(typeof(T), lock2, autoExecute, bla, i, n);
+                if (type == typeof(MainCommand))
+                    return Activator.CreateInstance(type, lock1, autoExecute, bla, i, n);
+                else if (type == typeof(SubCommand))
+                    return Activator.CreateInstance(type, lock2, autoExecute, bla, i, n);
                 else
-                    throw new InvalidCastException($"Unable to resolve {(typeof(T)).Name}");
+                    return base.Resolve(type);
             }
         }
 

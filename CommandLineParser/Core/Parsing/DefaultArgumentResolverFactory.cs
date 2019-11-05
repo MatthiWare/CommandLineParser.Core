@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Utils;
@@ -12,8 +12,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private IDictionary<Type, Type> m_types = new Dictionary<Type, Type>();
         private IDictionary<Type, object> m_cache = new Dictionary<Type, object>();
 
-        public DefaultArgumentResolverFactory()
+        private readonly IContainerResolver containerResolver;
+
+        public DefaultArgumentResolverFactory(IContainerResolver containerResolver)
         {
+            this.containerResolver = containerResolver;
+
             Register<string, StringResolver>();
             Register<bool, BoolResolver>();
             Register<int, IntResolver>();
@@ -39,8 +43,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 bool isEnum = type.IsEnum;
 
                 var instance = isEnum ?
-                    (ICommandLineArgumentResolver)Activator.CreateInstance(m_types[typeof(Enum)].MakeGenericType(type)) :
-                    (ICommandLineArgumentResolver)Activator.CreateInstance(m_types[type]);
+                    (ICommandLineArgumentResolver)containerResolver.Resolve(m_types[typeof(Enum)].MakeGenericType(type)) :
+                    (ICommandLineArgumentResolver)containerResolver.Resolve(m_types[type]);
 
                 m_cache.Add(type, instance);
             }

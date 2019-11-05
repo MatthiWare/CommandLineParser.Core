@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CommandLineParser.FluentValidations</name>
+    </assembly>
+    <members>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.#ctor(MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
+            <summary>
+            Creates a new fluent validation configuration
+            </summary>
+            <param name="container"></param>
+            <param name="resolver"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.AddValidator(System.Type,System.Type)">
+            <summary>
+            Adds a validator 
+            </summary>
+            <param name="key">type to validate</param>
+            <param name="validator">Validator type</param>
+            <returns>Self</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.AddValidator``2">
+            <summary>
+            Adds a validator 
+            </summary>
+            <typeparam name="K">Type to validate</typeparam>
+            <typeparam name="V">Validator type</typeparam>
+            <returns>Self</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.AddValidatorInstance``2(``1)">
+            <summary>
+            Adds an instantiated validator
+            </summary>
+            <typeparam name="K">Type to validate</typeparam>
+            <typeparam name="V">Validator type</typeparam>
+            <param name="instance">Instance</param>
+            <returns>Self</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.AddValidatorInstance(System.Type,FluentValidation.IValidator)">
+            <summary>
+            Add an instantiated validator
+            </summary>
+            <param name="key">Type to validate</param>
+            <param name="instance">Validator instance</param>
+            <returns>Self</returns>
+        </member>
+    </members>
+</doc>

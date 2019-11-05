@@ -2,6 +2,7 @@
 
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 
@@ -25,7 +26,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ContainsWork()
         {
-            var factory = new DefaultArgumentResolverFactory();
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
             Assert.True(factory.Contains<string>());
             Assert.True(factory.Contains<int>());
@@ -39,7 +40,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void CreateEnumResolver()
         {
-            var factory = new DefaultArgumentResolverFactory();
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
             var output = factory.CreateResolver<Output>();
             var output2 = factory.CreateResolver(typeof(Output));
@@ -59,7 +60,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
             mockResolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
             mockResolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(instance);
 
-            var factory = new DefaultArgumentResolverFactory();
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
             factory.Register(mockResolver.Object);
 
@@ -79,7 +80,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         {
             var mockResolver = new Mock<ArgumentResolver<string>>();
 
-            var factory = new DefaultArgumentResolverFactory();
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
             factory.Register(typeof(string), mockResolver.Object.GetType(), true);
             factory.Register<string, StringResolver>(true);
@@ -90,7 +91,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         {
             var mockResolver = new Mock<ArgumentResolver<string>>();
 
-            var factory = new DefaultArgumentResolverFactory();
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
             Assert.Throws<ArgumentException>(() => factory.Register<string, StringResolver>());
         }
@@ -105,7 +106,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
             resolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
             resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
 
-            var factory = new DefaultArgumentResolverFactory();
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
             var dummyArg = new ArgumentModel();
 
             factory.Register(resolver.Object);
