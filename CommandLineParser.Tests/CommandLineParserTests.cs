@@ -552,8 +552,8 @@ namespace MatthiWare.CommandLine.Tests
 
         [Theory]
         [InlineData(new string[] { "cmd" }, "", true)]
-        [InlineData(new string[] { "cmd", "-s", "test" }, "test", false)]
-        [InlineData(new string[] { "cmd", "--string", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test" }, "test", false)]
         public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
         {
             var parser = new CommandLineParser<StringTypeOptions>();
@@ -563,7 +563,10 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(errors, result.AssertNoErrors(!errors));
 
             if (!result.HasErrors)
+            {
                 Assert.Equal(expected, result.Result.String.Result);
+                Assert.Equal(expected, result.Result.String2.Result);
+            }
         }
 
         private class ObjOption
@@ -610,6 +613,9 @@ namespace MatthiWare.CommandLine.Tests
         {
             [Name("s", "string"), Required]
             public StringType String { get; set; }
+
+            [Name("s2"), Required]
+            public StringType4 String2 { get; set; }
         }
 
         private class StringTryParseTypeOptions
@@ -660,6 +666,21 @@ namespace MatthiWare.CommandLine.Tests
             {
                 result = new StringType3(input);
                 return true;
+            }
+        }
+
+        private class StringType4
+        {
+            private StringType4(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static StringType4 Parse(string input)
+            {
+                return new StringType4(input);
             }
         }
     }

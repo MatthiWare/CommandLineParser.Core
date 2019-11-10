@@ -9,8 +9,8 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
     internal class DefaultResolver<T> : ArgumentResolver<T>
     {
-        private readonly Type m_type;
         private static readonly string TryParseName = "TryParse";
+        private static readonly string ParseName = "Parse";
 
         public override bool CanResolve(ArgumentModel model)
         {
@@ -43,8 +43,8 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
             }
 
             // search for TryParse method and take one with most arguments
-            var tryParseMethod = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                .Where(FindTryParse).Reverse().FirstOrDefault();
+            var tryParseMethod = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(FindTryParse).OrderByDescending(m => m.GetParameters().Length).FirstOrDefault();
 
             if (tryParseMethod != null)
             {
@@ -64,12 +64,38 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                 }
             }
 
+            // search for Parse method and take one with most arguments
+            var parseMethod = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(FindParse).OrderByDescending(m => m.GetParameters().Length).FirstOrDefault();
+
+            if (parseMethod != null)
+            {
+                int amountOfParams = parseMethod.GetParameters().Length;
+
+                if (amountOfParams == 2)
+                {
+                    var parse = (CustomParseWithFormat)parseMethod.CreateDelegate(typeof(CustomParseWithFormat));
+
+                    result = parse(model.Value, CultureInfo.InvariantCulture);
+                    return true;
+                }
+                else if (amountOfParams == 1)
+                {
+                    var parse = (CustomParse)parseMethod.CreateDelegate(typeof(CustomParse));
+
+                    result = parse(model.Value);
+                    return true;
+                }
+            }
+
             result = default;
             return false;
         }
 
         private delegate bool CustomTryParseWithFormat(string input, IFormatProvider format, out T result);
         private delegate bool CustomTryParse(string input, out T result);
+        private delegate T CustomParseWithFormat(string input, IFormatProvider format);
+        private delegate T CustomParse(string input);
 
         /// <summary>
         /// Finds the Type.TryParse(String, IFormatProvider, out T result) method
@@ -94,11 +120,40 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                 return false;
 
             // Last one should be out param
-            if (!args[args.Length - 1].IsOut)
+            if (!args[args.Length - 1].IsOut || args[args.Length - 1].ParameterType != typeof(T).MakeByRefType())
                 return false;
 
             // If provided the 2nd param should be an IFormatProvider
             if (args.Length == 3 && args[1].ParameterType != typeof(IFormatProvider))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Finds the Type.TryParse(String, IFormatProvider, out T result) method
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns>True or false</returns>
+        private bool FindParse(MethodInfo method)
+        {
+            if (method.Name != ParseName)
+                return false;
+
+            if (method.ReturnType != typeof(T))
+                return false;
+
+            var args = method.GetParameters();
+
+            if (args.Length < 1 || args.Length > 2)
+                return false;
+
+            // Starts with string
+            if (args[0].ParameterType != typeof(string))
+                return false;
+
+            // If provided the 2nd param should be an IFormatProvider
+            if (args.Length == 2 && args[1].ParameterType != typeof(IFormatProvider))
                 return false;
 
             return true;
