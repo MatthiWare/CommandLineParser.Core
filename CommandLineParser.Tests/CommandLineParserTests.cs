@@ -533,6 +533,7 @@ namespace MatthiWare.CommandLine.Tests
 
         [Theory]
         [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "-s2" }, "", true)]
         [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test" }, "test", false)]
         [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test" }, "test", false)]
         public void CustomTypeWithStringTryParseGetsParsedCorrectly(string[] args, string expected, bool errors)
@@ -552,6 +553,7 @@ namespace MatthiWare.CommandLine.Tests
 
         [Theory]
         [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "-s2", "-s3" }, "", true)]
         [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test", "-s3", "test" }, "test", false)]
         [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test", "-s3", "test" }, "test", false)]
         public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
@@ -638,6 +640,11 @@ namespace MatthiWare.CommandLine.Tests
                 Result = input;
             }
 
+            public StringType(string input, string input2)
+            {
+                Result = input;
+            }
+
             public string Result { get; }
         }
 
@@ -654,6 +661,19 @@ namespace MatthiWare.CommandLine.Tests
             {
                 result = new StringType2(input);
                 return true;
+            }
+
+            public static bool TryParse() => false;
+
+            public static void Tryparse(string input, IFormatProvider format, out StringType2 result)
+            {
+                result = default;
+            }
+
+            public static bool TryParse(string input, StringType2 xd, out StringType2 stringType2)
+            {
+                stringType2 = default;
+                return false;
             }
         }
 
@@ -700,6 +720,16 @@ namespace MatthiWare.CommandLine.Tests
             public static StringType5 Parse(string input, IFormatProvider provider)
             {
                 return new StringType5(input);
+            }
+
+            public static StringType4 Parse(string input)
+            {
+                return null;
+            }
+
+            public static StringType5 Parse(string input, IFormatProvider provider, IFormatProvider xd)
+            {
+                return null;
             }
         }
     }
