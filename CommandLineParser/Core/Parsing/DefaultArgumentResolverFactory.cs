@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
@@ -42,9 +42,17 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 bool isEnum = type.IsEnum;
 
-                var instance = isEnum ?
-                    (ICommandLineArgumentResolver)containerResolver.Resolve(m_types[typeof(Enum)].MakeGenericType(type)) :
-                    (ICommandLineArgumentResolver)containerResolver.Resolve(m_types[type]);
+                ICommandLineArgumentResolver instance = null;
+
+                if (!isEnum && !m_types.ContainsKey(type))
+                    instance = (ICommandLineArgumentResolver)containerResolver.Resolve(typeof(DefaultResolver<>).MakeGenericType(type));
+
+                if (instance == null)
+                {
+                    instance = isEnum ?
+                        (ICommandLineArgumentResolver)containerResolver.Resolve(m_types[typeof(Enum)].MakeGenericType(type)) :
+                        (ICommandLineArgumentResolver)containerResolver.Resolve(m_types[type]);
+                }
 
                 m_cache.Add(type, instance);
             }

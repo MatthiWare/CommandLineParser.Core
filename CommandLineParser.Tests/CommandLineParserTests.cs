@@ -531,6 +531,47 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(expected, outcome);
         }
 
+        [Theory]
+        [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "-s2" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test" }, "test", false)]
+        public void CustomTypeWithStringTryParseGetsParsedCorrectly(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<StringTryParseTypeOptions>();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(!errors));
+
+            if (!result.HasErrors)
+            {
+                Assert.Equal(expected, result.Result.String.Result);
+                Assert.Equal(expected, result.Result.String2.Result);
+            }
+        }
+
+        [Theory]
+        [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "-s2", "-s3" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test", "-s3", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test", "-s3", "test" }, "test", false)]
+        public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<StringTypeOptions>();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(!errors));
+
+            if (!result.HasErrors)
+            {
+                Assert.Equal(expected, result.Result.String.Result);
+                Assert.Equal(expected, result.Result.String2.Result);
+                Assert.Equal(expected, result.Result.String3.Result);
+            }
+        }
+
         private class ObjOption
         {
             [Name("p"), Required]
@@ -569,6 +610,127 @@ namespace MatthiWare.CommandLine.Tests
         private class IntOptions
         {
             public int SomeInt { get; set; }
+        }
+
+        private class StringTypeOptions
+        {
+            [Name("s", "string"), Required]
+            public StringType String { get; set; }
+
+            [Name("s2"), Required]
+            public StringType4 String2 { get; set; }
+
+            [Name("s3"), Required]
+            public StringType5 String3 { get; set; }
+        }
+
+        private class StringTryParseTypeOptions
+        {
+            [Name("s", "string"), Required]
+            public StringType2 String { get; set; }
+
+            [Name("s2"), Required]
+            public StringType3 String2 { get; set; }
+        }
+
+        private class StringType
+        {
+            public StringType(string input)
+            {
+                Result = input;
+            }
+
+            public StringType(string input, string input2)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+        }
+
+        private class StringType2
+        {
+            private StringType2(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static bool TryParse(string input, IFormatProvider format, out StringType2 result)
+            {
+                result = new StringType2(input);
+                return true;
+            }
+
+            public static bool TryParse() => false;
+
+            public static void Tryparse(string input, IFormatProvider format, out StringType2 result)
+            {
+                result = default;
+            }
+
+            public static bool TryParse(string input, StringType2 xd, out StringType2 stringType2)
+            {
+                stringType2 = default;
+                return false;
+            }
+        }
+
+        private class StringType3
+        {
+            private StringType3(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static bool TryParse(string input, out StringType3 result)
+            {
+                result = new StringType3(input);
+                return true;
+            }
+        }
+
+        private class StringType4
+        {
+            private StringType4(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static StringType4 Parse(string input)
+            {
+                return new StringType4(input);
+            }
+        }
+
+        private class StringType5
+        {
+            private StringType5(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static StringType5 Parse(string input, IFormatProvider provider)
+            {
+                return new StringType5(input);
+            }
+
+            public static StringType4 Parse(string input)
+            {
+                return null;
+            }
+
+            public static StringType5 Parse(string input, IFormatProvider provider, IFormatProvider xd)
+            {
+                return null;
+            }
         }
     }
 }

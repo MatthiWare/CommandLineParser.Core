@@ -1234,6 +1234,20 @@
             <param name="startOffset">Search offset</param>
             <returns></returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindTryParse(System.Reflection.MethodInfo)">
+            <summary>
+            Finds the Type.TryParse(String, IFormatProvider, out T result) method
+            </summary>
+            <param name="method"></param>
+            <returns>True or false</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindParse(System.Reflection.MethodInfo)">
+            <summary>
+            Finds the Type.TryParse(String, IFormatProvider, out T result) method
+            </summary>
+            <param name="method"></param>
+            <returns>True or false</returns>
+        </member>
         <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.IsAssignableToGenericType(System.Type,System.Type)">
             <summary>
             Checks if an open generic type is assignable to the generic type
