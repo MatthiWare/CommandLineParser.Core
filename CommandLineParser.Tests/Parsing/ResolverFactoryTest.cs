@@ -1,13 +1,10 @@
-﻿using System;
-
-using MatthiWare.CommandLine.Abstractions.Models;
+﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
-
 using Moq;
-
+using System;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Parsing
@@ -84,6 +81,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
 
             factory.Register(typeof(string), mockResolver.Object.GetType(), true);
             factory.Register<string, StringResolver>(true);
+            factory.Register<string, StringResolver>(true);
         }
 
         [Fact]
@@ -94,6 +92,14 @@ namespace MatthiWare.CommandLine.Tests.Parsing
             var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
             Assert.Throws<ArgumentException>(() => factory.Register<string, StringResolver>());
+        }
+
+        [Fact]
+        public void NonAssignableTypeThrowsException()
+        {
+            var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
+
+            Assert.Throws<InvalidCastException>(() => factory.Register(typeof(string), typeof(Mock), true));
         }
 
         [Fact]
