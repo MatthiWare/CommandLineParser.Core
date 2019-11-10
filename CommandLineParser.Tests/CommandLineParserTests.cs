@@ -533,6 +533,25 @@ namespace MatthiWare.CommandLine.Tests
 
         [Theory]
         [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test" }, "test", false)]
+        public void CustomTypeWithStringTryParseGetsParsedCorrectly(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<StringTryParseTypeOptions>();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(!errors));
+
+            if (!result.HasErrors)
+            {
+                Assert.Equal(expected, result.Result.String.Result);
+                Assert.Equal(expected, result.Result.String2.Result);
+            }
+        }
+
+        [Theory]
+        [InlineData(new string[] { "cmd" }, "", true)]
         [InlineData(new string[] { "cmd", "-s", "test" }, "test", false)]
         [InlineData(new string[] { "cmd", "--string", "test" }, "test", false)]
         public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
@@ -541,7 +560,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var result = parser.Parse(args);
 
-            Assert.Equal(errors, result.AssertNoErrors(false));
+            Assert.Equal(errors, result.AssertNoErrors(!errors));
 
             if (!result.HasErrors)
                 Assert.Equal(expected, result.Result.String.Result);
@@ -593,6 +612,15 @@ namespace MatthiWare.CommandLine.Tests
             public StringType String { get; set; }
         }
 
+        private class StringTryParseTypeOptions
+        {
+            [Name("s", "string"), Required]
+            public StringType2 String { get; set; }
+
+            [Name("s2"), Required]
+            public StringType3 String2 { get; set; }
+        }
+
         private class StringType
         {
             public StringType(string input)
@@ -601,6 +629,38 @@ namespace MatthiWare.CommandLine.Tests
             }
 
             public string Result { get; }
+        }
+
+        private class StringType2
+        {
+            private StringType2(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static bool TryParse(string input, IFormatProvider format, out StringType2 result)
+            {
+                result = new StringType2(input);
+                return true;
+            }
+        }
+
+        private class StringType3
+        {
+            private StringType3(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static bool TryParse(string input, out StringType3 result)
+            {
+                result = new StringType3(input);
+                return true;
+            }
         }
     }
 }
