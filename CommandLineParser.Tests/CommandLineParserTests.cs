@@ -531,6 +531,22 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(expected, outcome);
         }
 
+        [Theory]
+        [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test" }, "test", false)]
+        public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<StringTypeOptions>();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(false));
+
+            if (!result.HasErrors)
+                Assert.Equal(expected, result.Result.String.Result);
+        }
+
         private class ObjOption
         {
             [Name("p"), Required]
@@ -569,6 +585,22 @@ namespace MatthiWare.CommandLine.Tests
         private class IntOptions
         {
             public int SomeInt { get; set; }
+        }
+
+        private class StringTypeOptions
+        {
+            [Name("s", "string"), Required]
+            public StringType String { get; set; }
+        }
+
+        private class StringType
+        {
+            public StringType(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
         }
     }
 }

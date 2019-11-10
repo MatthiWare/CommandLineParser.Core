@@ -44,5 +44,13 @@
             <param name="instance">Validator instance</param>
             <returns>Self</returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.FluentValidationsExtensions.UseFluentValidations``1(MatthiWare.CommandLine.CommandLineParser{``0},System.Action{MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration})">
+            <summary>
+            Extensions to configure FluentValidations for the Parser
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="parser"></param>
+            <param name="configAction">Configuration action</param>
+        </member>
     </members>
 </doc>
