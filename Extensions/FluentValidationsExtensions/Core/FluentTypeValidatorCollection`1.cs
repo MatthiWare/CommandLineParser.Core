@@ -3,6 +3,8 @@ using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
 {
@@ -29,6 +31,23 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         {
             var errors = validators.Get()
                 .Select(v => v.Validate(@object))
+                .SelectMany(r => r.Errors)
+                .ToList();
+
+            if (errors.Any())
+            {
+                return FluentValidationsResult.Failure(errors);
+            }
+            else
+            {
+                return FluentValidationsResult.Succes();
+            }
+        }
+
+        public async Task<IValidationResult> ValidateAsync(object @object, CancellationToken cancellationToken = default)
+        {
+            var errors = (await Task.WhenAll(validators.Get()
+                .Select(async v => await v.ValidateAsync(@object, cancellationToken))))
                 .SelectMany(r => r.Errors)
                 .ToList();
 
