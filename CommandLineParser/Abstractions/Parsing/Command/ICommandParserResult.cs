@@ -2,6 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
 {
@@ -57,5 +59,14 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
         /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Errors"/> properties.
         /// </exception>
         void ExecuteCommand();
+
+        /// <summary>
+        /// Executes the command async
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Errors"/> properties.
+        /// </exception>
+        /// <returns>A task</returns>
+        Task ExecuteCommandAsync(CancellationToken cancellationToken);
     }
 }

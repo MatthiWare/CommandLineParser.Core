@@ -21,6 +21,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -194,12 +196,7 @@ namespace MatthiWare.CommandLine
             return m_options[key] as IOptionBuilder<T>;
         }
 
-        /// <summary>
-        /// Parses the commandline arguments
-        /// </summary>
-        /// <param name="args">arguments from the commandline</param>
-        /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
-        public IParserResult<TOption> Parse(string[] args)
+        private (ParseResult<TOption> result, List<Exception> errors) ParseInternal(string[] args)
         {
             var errors = new List<Exception>();
 
@@ -213,15 +210,48 @@ namespace MatthiWare.CommandLine
 
             CheckForExtraHelpArguments(result, argumentManager);
 
-            Validate(m_option, errors);
+            return (result, errors);
+        }
 
-            result.MergeResult(errors);
+        /// <summary>
+        /// Parses the commandline arguments
+        /// </summary>
+        /// <param name="args">arguments from the commandline</param>
+        /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
+        public IParserResult<TOption> Parse(string[] args)
+        {
+            var parsed = ParseInternal(args);
 
-            AutoExecuteCommands(result);
+            Validate(m_option, parsed.errors);
 
-            AutoPrintUsageAndErrors(result, args.Length == 0);
+            parsed.result.MergeResult(parsed.errors);
 
-            return result;
+            AutoExecuteCommands(parsed.result);
+
+            AutoPrintUsageAndErrors(parsed.result, args.Length == 0);
+
+            return parsed.result;
+        }
+
+        /// <summary>
+        /// Parses the commandline arguments async
+        /// </summary>
+        /// <param name="args">arguments from the commandline</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
+        public async Task<IParserResult<TOption>> ParseAsync(string[] args, CancellationToken cancellationToken = default)
+        {
+            var parsed = ParseInternal(args);
+
+            await ValidateAsync(m_option, parsed.errors, cancellationToken);
+
+            parsed.result.MergeResult(parsed.errors);
+
+            await AutoExecuteCommandsAsync(parsed.result, cancellationToken);
+
+            AutoPrintUsageAndErrors(parsed.result, args.Length == 0);
+
+            return parsed.result;
         }
 
         private void Validate<T>(T @object, List<Exception> errors)
@@ -231,7 +261,24 @@ namespace MatthiWare.CommandLine
 
             var results = Validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
 
-            foreach(var result in results)
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                    continue;
+
+                errors.Add(result.Error);
+            }
+        }
+
+        private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
+        {
+            if (!Validators.HasValidatorFor<T>())
+                return;
+
+            var results = (await Task.WhenAll(Validators.GetValidators<T>()
+                .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
+
+            foreach (var result in results)
             {
                 if (result.IsValid)
                     continue;
@@ -289,6 +336,13 @@ namespace MatthiWare.CommandLine
             ExecuteCommandParserResults(result, result.CommandResults.Where(sub => sub.Command.AutoExecute));
         }
 
+        private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
+        {
+            if (result.HasErrors) return;
+
+            await ExecuteCommandParserResultsAsync(result, result.CommandResults.Where(sub => sub.Command.AutoExecute), cancellationToken);
+        }
+
         private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
         {
             if (!ParserOptions.EnableHelpOption) return false;
@@ -326,6 +380,29 @@ namespace MatthiWare.CommandLine
 
             foreach (var cmd in cmds)
                 ExecuteCommandParserResults(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
+        }
+
+        private async Task ExecuteCommandParserResultsAsync(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds, CancellationToken cancellationToken)
+        {
+            var errors = new List<Exception>();
+
+            foreach (var cmd in cmds)
+            {
+                try
+                {
+                    await cmd.ExecuteCommandAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+            }
+
+            if (errors.Any())
+                results.MergeResult(errors);
+
+            foreach (var cmd in cmds)
+                await ExecuteCommandParserResultsAsync(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute), cancellationToken);
         }
 
         private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)

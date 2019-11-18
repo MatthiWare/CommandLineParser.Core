@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -13,6 +8,13 @@ using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
@@ -33,9 +35,13 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
 
-        private Action m_executor;
-        private Action<TOption> m_executor1;
-        private Action<TOption, TCommandOption> m_executor2;
+        private Action m_executor1;
+        private Action<TOption> m_executor2;
+        private Action<TOption, TCommandOption> m_executor3;
+
+        private Func<CancellationToken, Task> m_executorAsync1;
+        private Func<TOption, CancellationToken, Task> m_executorAsync2;
+        private Func<TOption, TCommandOption, CancellationToken, Task> m_executorAsync3;
 
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
@@ -71,9 +77,16 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override void Execute()
         {
-            m_executor2?.Invoke(m_baseOption, m_commandOption);
-            m_executor1?.Invoke(m_baseOption);
-            m_executor?.Invoke();
+            m_executor3?.Invoke(m_baseOption, m_commandOption);
+            m_executor2?.Invoke(m_baseOption);
+            m_executor1?.Invoke();
+        }
+
+        public override async Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            await m_executorAsync3?.Invoke(m_baseOption, m_commandOption, cancellationToken);
+            await m_executorAsync2?.Invoke(m_baseOption, cancellationToken);
+            await m_executorAsync1?.Invoke(cancellationToken);
         }
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
@@ -231,21 +244,42 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption> action)
         {
-            m_executor1 = action;
+            m_executor2 = action;
 
             return this;
         }
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action action)
         {
-            m_executor = action;
+            m_executor1 = action;
 
             return this;
         }
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption, TCommandOption> action)
         {
-            m_executor2 = action;
+            m_executor3 = action;
+
+            return this;
+        }
+        public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<CancellationToken, Task> action)
+        {
+            m_executorAsync1 = action;
+
+            return this;
+        }
+
+        public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<TOption, CancellationToken, Task> action)
+        {
+            m_executorAsync2 = action;
+
+            return this;
+        }
+
+
+        public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<TOption, TCommandOption, CancellationToken, Task> action)
+        {
+            m_executorAsync3 = action;
 
             return this;
         }
@@ -273,7 +307,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
         ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecuting(Action<TOption> action)
         {
-            m_executor1 = action;
+            m_executor2 = action;
 
             return this;
         }

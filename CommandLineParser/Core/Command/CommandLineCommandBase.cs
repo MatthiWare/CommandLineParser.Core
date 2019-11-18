@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
@@ -26,6 +28,8 @@ namespace MatthiWare.CommandLine.Core.Command
         public bool AutoExecute { get; protected set; } = true;
 
         public abstract void Execute();
+
+        public abstract Task ExecuteAsync(CancellationToken cancellationToken);
 
         public abstract ICommandParserResult Parse(IArgumentManager argumentManager);
     }

@@ -245,6 +245,27 @@
             <param name="action">Action to execute</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2.OnExecutingAsync(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the async command execute action 
+            </summary>
+            <param name="action">Action to execute</param>
+            <returns>A task of <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2.OnExecutingAsync(System.Func{`0,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the async command execute action
+            </summary>
+            <param name="action">Action to execute</param>
+            <returns>A task of <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2.OnExecutingAsync(System.Func{`0,`1,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the async command execute action
+            </summary>
+            <param name="action">Action to execute</param>
+            <returns>A task of <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand">
             <summary>
             Command configuration options
@@ -369,10 +390,18 @@
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Parse(System.String[])">
             <summary>
-            Parses the current command and returns the result
+            Parses the arguments
             </summary>
-            <param name="args">command arguments</param>
+            <param name="args">CLI Arguments</param>
             <returns>The <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/> result</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ParseAsync(System.String[],System.Threading.CancellationToken)">
+            <summary>
+            Parses the arguments async
+            </summary>
+            <param name="args">CLI Arguments</param>
+            <param name="cancellationToken"></param>
+            <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
@@ -624,6 +653,15 @@
             <exception cref="T:System.InvalidOperationException">
             Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Errors"/> properties.
             </exception>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.ExecuteCommandAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the command async
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+            Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Errors"/> properties.
+            </exception>
+            <returns>A task</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager">
             <summary>
@@ -999,6 +1037,14 @@
             Parses the commandline arguments
             </summary>
             <param name="args">arguments from the commandline</param>
+            <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.ParseAsync(System.String[],System.Threading.CancellationToken)">
+            <summary>
+            Parses the commandline arguments async
+            </summary>
+            <param name="args">arguments from the commandline</param>
+            <param name="cancellationToken"></param>
             <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.AddCommand``1">
