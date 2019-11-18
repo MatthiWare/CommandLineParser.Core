@@ -85,6 +85,36 @@ namespace MatthiWare.CommandLine.Tests
             containerMock.VerifyAll();
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task CommandLineParserUsesContainerCorrectlyAsync(bool generic)
+        {
+            var commandMock = new Mock<MyCommand>();
+            commandMock.Setup(
+                c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
+                .CallBase().Verifiable("OnConfigure not called");
+
+            commandMock.Setup(c => c.OnExecuteAsync(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Verifiable("OnExecute not called");
+
+            var containerMock = new Mock<IContainerResolver>();
+            containerMock.Setup(c => c.Resolve<MyCommand>()).Returns(commandMock.Object).Verifiable();
+
+            var parser = new CommandLineParser<object>(containerMock.Object);
+
+            if (generic)
+                parser.RegisterCommand<MyCommand, object>();
+            else
+                parser.RegisterCommand(typeof(MyCommand), typeof(object));
+
+            var result = await parser.ParseAsync(new[] { "app.exe", "my" });
+
+            result.AssertNoErrors();
+
+            commandMock.VerifyAll();
+            containerMock.VerifyAll();
+        }
+
         [Fact]
         public void CommandLinerParserPassesContainerCorreclty()
         {

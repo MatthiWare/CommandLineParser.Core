@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Core.Attributes;
+using MatthiWare.CommandLine.Core.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Core.Attributes;
-using MatthiWare.CommandLine.Core.Exceptions;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Exceptions
@@ -28,11 +29,27 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         }
 
         [Fact]
-        public void OptionNotFoundTest()
+        public async Task CommandNotFoundTestAsync()
+        {
+            var parser = new CommandLineParser();
+
+            parser.AddCommand().Name("missing").Required();
+
+            var result = await parser.ParseAsync(new string[] { });
+
+            Assert.True(result.HasErrors);
+
+            Assert.IsType<CommandNotFoundException>(result.Errors.First());
+
+            Assert.Same(parser.Commands.First(), result.Errors.Cast<CommandNotFoundException>().First().Command);
+        }
+
+        [Fact]
+        public async Task OptionNotFoundTestAsync()
         {
             var parser = new CommandLineParser<Options>();
 
-            var result = parser.Parse(new string[] { });
+            var result = await parser.ParseAsync(new string[] { });
 
             Assert.True(result.HasErrors);
 
@@ -63,11 +80,46 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         }
 
         [Fact]
+        public async Task CommandParseExceptionTestAsync()
+        {
+            var parser = new CommandLineParser();
+
+            parser.AddCommand<Options>()
+                .Name("missing")
+                .Required()
+                .Configure(opt => opt.MissingOption)
+                .Name("o")
+                .Required();
+
+            var result = await parser.ParseAsync(new string[] { "missing", "-o", "bla" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.IsType<CommandParseException>(result.Errors.First());
+
+            Assert.Same(parser.Commands.First(), result.Errors.Cast<CommandParseException>().First().Command);
+        }
+
+        [Fact]
         public void OptionParseExceptionTest()
         {
             var parser = new CommandLineParser<Options>();
 
             var result = parser.Parse(new string[] { "-m", "bla" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.IsType<OptionParseException>(result.Errors.First());
+
+            Assert.Same(parser.Options.First(), result.Errors.Cast<OptionParseException>().First().Option);
+        }
+
+        [Fact]
+        public async Task OptionParseExceptionTestAsync()
+        {
+            var parser = new CommandLineParser<Options>();
+
+            var result = await parser.ParseAsync(new string[] { "-m", "bla" });
 
             Assert.True(result.HasErrors);
 
