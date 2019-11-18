@@ -1,4 +1,7 @@
-﻿namespace MatthiWare.CommandLine.Abstractions.Command
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace MatthiWare.CommandLine.Abstractions.Command
 {
     /// <summary>
     /// Defines a command
@@ -18,7 +21,6 @@
         public virtual void OnConfigure(ICommandConfigurationBuilder<TCommandOptions> builder)
         {
             base.OnConfigure(builder);
-            // OnConfigure((ICommandConfigurationBuilder)builder);
         }
 
         /// <summary>
@@ -29,6 +31,16 @@
         public virtual void OnExecute(TOptions options, TCommandOptions commandOptions)
         {
             OnExecute(options);
+        }
+
+        /// <summary>
+        /// Executes the command
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="commandOptions"></param>
+        public virtual Task OnExecuteAsync(TOptions options, TCommandOptions commandOptions, CancellationToken cancellationToken)
+        {
+            return OnExecuteAsync(options, cancellationToken);
         }
     }
 }

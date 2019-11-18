@@ -20,7 +20,11 @@
             <summary>
             Executes the command
             </summary>
-            <param name="options">Parsed options</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command.OnExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the command async
+            </summary>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.Command`1">
             <summary>
@@ -29,6 +33,12 @@
             <typeparam name="TOptions">Base options of the command</typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`1.OnExecute(`0)">
+            <summary>
+            Executes the command
+            </summary>
+            <param name="options">Parsed options</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`1.OnExecuteAsync(`0,System.Threading.CancellationToken)">
             <summary>
             Executes the command
             </summary>
@@ -49,6 +59,13 @@
             <param name="builder"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`2.OnExecute(`0,`1)">
+            <summary>
+            Executes the command
+            </summary>
+            <param name="options"></param>
+            <param name="commandOptions"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`2.OnExecuteAsync(`0,`1,System.Threading.CancellationToken)">
             <summary>
             Executes the command
             </summary>

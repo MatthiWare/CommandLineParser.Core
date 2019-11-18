@@ -84,11 +84,12 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await m_executorAsync3?.Invoke(m_baseOption, m_commandOption, cancellationToken);
-            await m_executorAsync2?.Invoke(m_baseOption, cancellationToken);
-            await m_executorAsync1?.Invoke(cancellationToken);
-        }
+            // await null-conditional doesn't work see https://github.com/dotnet/csharplang/issues/35
 
+            if (m_executorAsync3 != null) await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
+            if (m_executorAsync2 != null) await m_executorAsync2(m_baseOption, cancellationToken);
+            if (m_executorAsync1 != null) await m_executorAsync1(cancellationToken);
+        }
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
         {
             var memberInfo = ((MemberExpression)selector.Body).Member;
@@ -463,6 +464,7 @@ namespace MatthiWare.CommandLine.Core.Command
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TCommandOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -483,6 +485,7 @@ namespace MatthiWare.CommandLine.Core.Command
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TOption, V>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, V, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }

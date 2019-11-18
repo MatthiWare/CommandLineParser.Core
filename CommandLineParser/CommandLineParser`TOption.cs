@@ -518,6 +518,7 @@ namespace MatthiWare.CommandLine
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -544,6 +545,7 @@ namespace MatthiWare.CommandLine
             cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
             command.OnExecuting((Action<TOption, TCommandOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
