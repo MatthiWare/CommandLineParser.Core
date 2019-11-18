@@ -148,7 +148,13 @@
             Configures the execution of the command
             </summary>
             <param name="action">The execution action</param>
-            <param name="required">True or false</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1.OnExecutingAsync(System.Func{`0,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Configures the execution of the command async
+            </summary>
+            <param name="action">The execution action</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1"/></returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder">

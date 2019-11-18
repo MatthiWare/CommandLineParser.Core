@@ -503,5 +503,12 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return this;
         }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecutingAsync(Func<TOption, CancellationToken, Task> action)
+        {
+            m_executorAsync2 = action;
+
+            return this;
+        }
     }
 }

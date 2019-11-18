@@ -7,6 +7,7 @@ using Moq;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests
@@ -144,6 +145,30 @@ namespace MatthiWare.CommandLine.Tests
                 .OnExecuting(_ => throw ex);
 
             var result = parser.Parse(new[] { "test" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.Equal(ex, result.Errors.First());
+        }
+
+        [Fact]
+        public async Task AutoExecuteCommandsWithExceptionDoesntCrashTheParserAsync()
+        {
+            var parser = new CommandLineParser();
+
+            var ex = new Exception("uh-oh");
+
+            parser.AddCommand()
+                .Name("test")
+                .InvokeCommand(true)
+                .Required(true)
+                .OnExecutingAsync(async (_, __) =>
+                {
+                    await Task.Delay(1);
+                    throw ex;
+                });
+
+            var result = await parser.ParseAsync(new[] { "test" });
 
             Assert.True(result.HasErrors);
 
@@ -347,6 +372,49 @@ namespace MatthiWare.CommandLine.Tests
             Assert.True(wait.WaitOne(2000));
         }
 
+        [Fact]
+        public async Task ParseWithCommandTestsAsync()
+        {
+            var wait = new ManualResetEvent(false);
+
+            var parser = new CommandLineParser<Options>();
+
+            parser.Configure(opt => opt.Option1)
+                .Name("o")
+                .Default("Default message")
+                .Required();
+
+            var addCmd = parser.AddCommand<AddOption>()
+                .Name("add")
+                .OnExecutingAsync(async (opt, cmdOpt, ctx) =>
+                {
+                    await Task.Delay(100);
+
+                    Assert.Equal("test", opt.Option1);
+                    Assert.Equal("my message", cmdOpt.Message);
+
+                    await Task.Delay(100);
+
+                    wait.Set();
+
+                    await Task.Delay(100);
+                });
+
+            addCmd.Configure(opt => opt.Message)
+                .Name("m", "message")
+                .Required();
+
+            var parsed = await parser.ParseAsync(new string[] { "app.exe", "-o", "test", "add", "-m=my message" });
+
+            parsed.AssertNoErrors();
+
+            Assert.Equal("test", parsed.Result.Option1);
+
+            parsed.ExecuteCommands();
+
+            Assert.True(wait.WaitOne(2000));
+        }
+
         [Theory]
         [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
         [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
@@ -375,6 +443,44 @@ namespace MatthiWare.CommandLine.Tests
                 .Required();
 
             var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Equal(result1, result.Result.Message);
+
+            Assert.True(wait.WaitOne(2000));
+        }
+
+        [Theory]
+        [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        public async Task ParseCommandTestsAsync(string[] args, string result1, string result2)
+        {
+            var parser = new CommandLineParser<AddOption>();
+            var wait = new ManualResetEvent(false);
+
+            parser.AddCommand<AddOption>()
+                .Name("add")
+                .Required()
+                .OnExecutingAsync(async (opt1, opt2, ctx) =>
+                {
+                    await Task.Delay(100);
+
+                    wait.Set();
+
+                    Assert.Equal(result2, opt2.Message);
+                })
+                .Configure(c => c.Message)
+                    .Name("m", "message")
+                    .Required();
+
+            parser.Configure(opt => opt.Message)
+                .Name("m", "message")
+                .Required();
+
+            var result = await parser.ParseAsync(args);
 
             result.AssertNoErrors();
 
