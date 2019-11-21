@@ -32,5 +32,6 @@ namespace MatthiWare.CommandLine.Core.Command
         public abstract Task ExecuteAsync(CancellationToken cancellationToken);
 
         public abstract ICommandParserResult Parse(IArgumentManager argumentManager);
+        public abstract Task<ICommandParserResult> ParseAsync(IArgumentManager argumentManager, CancellationToken cancellationToken);
     }
 }

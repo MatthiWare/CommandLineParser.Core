@@ -77,6 +77,14 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override void Execute()
         {
+            ExecuteInternal();
+
+            // Also executes the async stuff.
+            ExecuteInternalAsync(default).Wait();
+        }
+
+        private void ExecuteInternal()
+        {
             m_executor3?.Invoke(m_baseOption, m_commandOption);
             m_executor2?.Invoke(m_baseOption);
             m_executor1?.Invoke();
@@ -84,12 +92,21 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            await ExecuteInternalAsync(cancellationToken);
+
+            // Also executes the sync stuff.
+            ExecuteInternal();
+        }
+
+        private async Task ExecuteInternalAsync(CancellationToken cancellationToken)
+        {
             // await null-conditional doesn't work see https://github.com/dotnet/csharplang/issues/35
 
             if (m_executorAsync3 != null) await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
             if (m_executorAsync2 != null) await m_executorAsync2(m_baseOption, cancellationToken);
             if (m_executorAsync1 != null) await m_executorAsync1(cancellationToken);
         }
+
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
         {
             var memberInfo = ((MemberExpression)selector.Body).Member;
@@ -120,6 +137,22 @@ namespace MatthiWare.CommandLine.Core.Command
             ParseOptions(errors, result, argumentManager);
 
             Validate(m_commandOption, errors);
+
+            result.MergeResult(errors);
+
+            return result;
+        }
+
+        public override async Task<ICommandParserResult> ParseAsync(IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            var result = new CommandParserResult(this);
+            var errors = new List<Exception>();
+
+            await ParseCommandsAsync(errors, result, argumentManager, cancellationToken);
+
+            ParseOptions(errors, result, argumentManager);
+
+            await ValidateAsync(m_commandOption, errors, cancellationToken);
 
             result.MergeResult(errors);
 
@@ -197,6 +230,39 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
+        private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            foreach (var cmd in m_commands)
+            {
+                try
+                {
+                    if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
+                    {
+                        result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                        if (cmd.IsRequired)
+                            throw new CommandNotFoundException(cmd);
+
+                        continue;
+                    }
+
+                    var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
+
+                    if (cmdParseResult.HelpRequested)
+                        break;
+
+                    result.MergeResult(cmdParseResult);
+
+                    if (cmdParseResult.HasErrors)
+                        throw new CommandParseException(cmd, cmdParseResult.Errors);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+            }
+        }
+
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
         {
             if (!m_parserOptions.EnableHelpOption) return false;
@@ -226,6 +292,23 @@ namespace MatthiWare.CommandLine.Core.Command
                 return;
 
             var results = m_validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
+
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                    continue;
+
+                errors.Add(result.Error);
+            }
+        }
+
+        private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
+        {
+            if (!m_validators.HasValidatorFor<T>())
+                return;
+
+            var results = (await Task.WhenAll(m_validators.GetValidators<T>()
+                .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
 
             foreach (var result in results)
             {
