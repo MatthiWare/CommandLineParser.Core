@@ -20,7 +20,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <param name="builder"></param>
         public virtual void OnConfigure(ICommandConfigurationBuilder<TCommandOptions> builder)
         {
-            base.OnConfigure(builder);
+            OnConfigure((ICommandConfigurationBuilder)builder);
         }
 
         /// <summary>
