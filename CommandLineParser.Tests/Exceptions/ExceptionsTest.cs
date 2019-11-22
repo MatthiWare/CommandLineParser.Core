@@ -1,4 +1,5 @@
 ﻿using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using System;
@@ -12,6 +13,34 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
 {
     public class ExceptionsTest
     {
+        [Fact]
+        public void SubCommandNotFoundTest()
+        {
+            var parser = new CommandLineParser<Options2>();
+
+            var result = parser.Parse(new string[] { "cmd" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.IsType<CommandNotFoundException>(result.Errors.First());
+
+            Assert.Same(parser.Commands.First(), result.Errors.Cast<CommandNotFoundException>().First().Command);
+        }
+
+        [Fact]
+        public async Task SubCommandNotFoundTestAsync()
+        {
+            var parser = new CommandLineParser<Options2>();
+
+            var result = await parser.ParseAsync(new string[] { "cmd" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.IsType<CommandNotFoundException>(result.Errors.First());
+
+            Assert.Same(parser.Commands.First(), result.Errors.Cast<CommandNotFoundException>().First().Command);
+        }
+
         [Fact]
         public void CommandNotFoundTest()
         {
@@ -132,6 +161,31 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         {
             [Required, Name("m", "missing")]
             public int MissingOption { get; set; }
+        }
+
+        private class Options2
+        {
+            public SubCmd SubCmd { get; set; }
+        }
+
+        private class Cmd : Command<Options2>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                base.OnConfigure(builder);
+
+                builder.Name("cmd").Required();
+            }
+        }
+
+        private class SubCmd : Command<Options2>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                base.OnConfigure(builder);
+
+                builder.Name("sub").Required();
+            }
         }
     }
 }
