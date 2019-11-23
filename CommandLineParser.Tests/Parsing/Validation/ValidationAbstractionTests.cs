@@ -81,7 +81,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Validation
             public bool Prop { get; set; }
 
             public Cmd Cmd { get; set; }
-
         }
 
         public class Option

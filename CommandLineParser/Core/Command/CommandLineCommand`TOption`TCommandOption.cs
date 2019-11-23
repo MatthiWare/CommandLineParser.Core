@@ -360,7 +360,6 @@ namespace MatthiWare.CommandLine.Core.Command
             return this;
         }
 
-
         public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<TOption, TCommandOption, CancellationToken, Task> action)
         {
             m_executorAsync3 = action;
