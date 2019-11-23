@@ -53,7 +53,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         {
             public MyTestType2(int someInt)
             {
-
             }
         }
     }
