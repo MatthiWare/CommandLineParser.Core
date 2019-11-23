@@ -1317,6 +1317,30 @@
             <param name="method"></param>
             <returns>True or false</returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.TypedInstanceCache`1">
+            <summary>
+            A strongly-typed instance cache
+            </summary>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Add(`0)">
+            <summary>
+            Adds a new instance to the cache
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Add(System.Type)">
+            <summary>
+            Adds a type to the cache that will be resolved later
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Get">
+            <summary>
+            Gets the values from the cache. This will instantiate unresolved items. 
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.IsAssignableToGenericType(System.Type,System.Type)">
             <summary>
             Checks if an open generic type is assignable to the generic type

@@ -5,6 +5,10 @@ using System.Linq;
 
 namespace MatthiWare.CommandLine.Core
 {
+    /// <summary>
+    /// A strongly-typed instance cache
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
     public class TypedInstanceCache<TValue>
     {
         private readonly IContainerResolver resolver;
@@ -15,6 +19,10 @@ namespace MatthiWare.CommandLine.Core
             this.resolver = resolver;
         }
 
+        /// <summary>
+        /// Adds a new instance to the cache
+        /// </summary>
+        /// <param name="value"></param>
         public void Add(TValue value)
         {
             var key = typeof(TValue);
@@ -25,6 +33,10 @@ namespace MatthiWare.CommandLine.Core
                 instances[key].SetInstance(value);
         }
 
+        /// <summary>
+        /// Adds a type to the cache that will be resolved later
+        /// </summary>
+        /// <param name="type"></param>
         public void Add(Type type)
         {
             if (!instances.ContainsKey(type))
@@ -33,12 +45,10 @@ namespace MatthiWare.CommandLine.Core
                 instances[type].Clear();
         }
 
-        public void Add<T>() 
-            where T : TValue
-        {
-            Add(typeof(T));
-        }
-
+        /// <summary>
+        /// Gets the values from the cache. This will instantiate unresolved items. 
+        /// </summary>
+        /// <returns></returns>
         public IReadOnlyList<TValue> Get()
         {
             var toResolve = instances.Values.Where(meta => !meta.Created).ToArray();
