@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Abstractions.Command
 {
@@ -41,8 +43,14 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// Configures the execution of the command
         /// </summary>
         /// <param name="action">The execution action</param>
-        /// <param name="required">True or false</param>
         /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
         ICommandBuilder<TOption> OnExecuting(Action<TOption> action);
+
+        /// <summary>
+        /// Configures the execution of the command async
+        /// </summary>
+        /// <param name="action">The execution action</param>
+        /// <returns><see cref="ICommandBuilder{TOption}"/></returns>
+        ICommandBuilder<TOption> OnExecutingAsync(Func<TOption, CancellationToken, Task> action);
     }
 }

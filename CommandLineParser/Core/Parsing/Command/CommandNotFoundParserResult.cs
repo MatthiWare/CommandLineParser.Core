@@ -4,6 +4,8 @@ using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Command
 {
@@ -26,6 +28,8 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
         public bool Executed => false;
 
         public void ExecuteCommand() { }
+
+        public Task ExecuteCommandAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         public CommandNotFoundParserResult(ICommandLineCommand cmd) => Command = cmd;
     }

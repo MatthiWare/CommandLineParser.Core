@@ -21,6 +21,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -224,6 +226,37 @@ namespace MatthiWare.CommandLine
             return result;
         }
 
+        /// <summary>
+        /// Parses the commandline arguments async
+        /// </summary>
+        /// <param name="args">arguments from the commandline</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
+        public async Task<IParserResult<TOption>> ParseAsync(string[] args, CancellationToken cancellationToken = default)
+        {
+            var errors = new List<Exception>();
+
+            var result = new ParseResult<TOption>();
+
+            var argumentManager = new ArgumentManager(args, ParserOptions, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values.Cast<ICommandLineOption>().ToArray());
+
+            await ParseCommandsAsync(errors, result, argumentManager, cancellationToken);
+
+            ParseOptions(errors, result, argumentManager);
+
+            CheckForExtraHelpArguments(result, argumentManager);
+
+            await ValidateAsync(m_option, errors, cancellationToken);
+
+            result.MergeResult(errors);
+
+            await AutoExecuteCommandsAsync(result, cancellationToken);
+
+            AutoPrintUsageAndErrors(result, args.Length == 0);
+
+            return result;
+        }
+
         private void Validate<T>(T @object, List<Exception> errors)
         {
             if (!Validators.HasValidatorFor<T>())
@@ -231,7 +264,24 @@ namespace MatthiWare.CommandLine
 
             var results = Validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
 
-            foreach(var result in results)
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                    continue;
+
+                errors.Add(result.Error);
+            }
+        }
+
+        private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
+        {
+            if (!Validators.HasValidatorFor<T>())
+                return;
+
+            var results = (await Task.WhenAll(Validators.GetValidators<T>()
+                .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
+
+            foreach (var result in results)
             {
                 if (result.IsValid)
                     continue;
@@ -289,6 +339,13 @@ namespace MatthiWare.CommandLine
             ExecuteCommandParserResults(result, result.CommandResults.Where(sub => sub.Command.AutoExecute));
         }
 
+        private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
+        {
+            if (result.HasErrors) return;
+
+            await ExecuteCommandParserResultsAsync(result, result.CommandResults.Where(sub => sub.Command.AutoExecute), cancellationToken);
+        }
+
         private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
         {
             if (!ParserOptions.EnableHelpOption) return false;
@@ -328,6 +385,29 @@ namespace MatthiWare.CommandLine
                 ExecuteCommandParserResults(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
         }
 
+        private async Task ExecuteCommandParserResultsAsync(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds, CancellationToken cancellationToken)
+        {
+            var errors = new List<Exception>();
+
+            foreach (var cmd in cmds)
+            {
+                try
+                {
+                    await cmd.ExecuteCommandAsync(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+            }
+
+            if (errors.Any())
+                results.MergeResult(errors);
+
+            foreach (var cmd in cmds)
+                await ExecuteCommandParserResultsAsync(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute), cancellationToken);
+        }
+
         private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
         {
             foreach (var cmd in m_commands)
@@ -359,6 +439,44 @@ namespace MatthiWare.CommandLine
             }
 
             var cmdParseResult = cmd.Parse(argumentManager);
+
+            result.MergeResult(cmdParseResult);
+
+            if (cmdParseResult.HasErrors)
+                throw new CommandParseException(cmd, cmdParseResult.Errors);
+        }
+
+        private async Task ParseCommandsAsync(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            foreach (var cmd in m_commands)
+            {
+                try
+                {
+                    await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
+
+                    if (result.HelpRequested)
+                        break;
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+            }
+        }
+
+        private async Task ParseCommandAsync(CommandLineCommandBase cmd, ParseResult<TOption> result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            if (!argumentManager.TryGetValue(cmd, out _))
+            {
+                result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                if (cmd.IsRequired)
+                    throw new CommandNotFoundException(cmd);
+
+                return;
+            }
+
+            var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
 
             result.MergeResult(cmdParseResult);
 
@@ -441,6 +559,7 @@ namespace MatthiWare.CommandLine
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -467,6 +586,7 @@ namespace MatthiWare.CommandLine
             cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
             command.OnExecuting((Action<TOption, TCommandOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }

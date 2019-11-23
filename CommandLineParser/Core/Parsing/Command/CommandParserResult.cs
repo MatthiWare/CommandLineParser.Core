@@ -5,6 +5,8 @@ using MatthiWare.CommandLine.Core.Command;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Command
 {
@@ -57,6 +59,12 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
         public void ExecuteCommand()
         {
             m_cmd.Execute();
+            Executed = true;
+        }
+
+        public async Task ExecuteCommandAsync(CancellationToken cancellationToken)
+        {
+            await m_cmd.ExecuteAsync(cancellationToken);
             Executed = true;
         }
     }

@@ -14,12 +14,12 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
             var parser = new CommandLineParser();
 
-            parser.AddCommand<MultipleCOmmandTestsOptions>()
+            parser.AddCommand<MultipleCommandTestsOptions>()
                 .Name("cmd1")
                 .Required(false)
                 .Description("cmd1");
 
-            parser.AddCommand<MultipleCOmmandTestsOptions>()
+            parser.AddCommand<MultipleCommandTestsOptions>()
                 .Name("cmd2")
                 .Required(false)
                 .Description("cmd2");
@@ -29,7 +29,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             result.AssertNoErrors();
         }
 
-        private class MultipleCOmmandTestsOptions
+        private class MultipleCommandTestsOptions
         {
             [Required, Name("x", "bla"), Description("some description")]
             public int Option { get; set; }

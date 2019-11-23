@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
@@ -13,6 +8,13 @@ using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
@@ -33,9 +35,13 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
 
-        private Action m_executor;
-        private Action<TOption> m_executor1;
-        private Action<TOption, TCommandOption> m_executor2;
+        private Action m_executor1;
+        private Action<TOption> m_executor2;
+        private Action<TOption, TCommandOption> m_executor3;
+
+        private Func<CancellationToken, Task> m_executorAsync1;
+        private Func<TOption, CancellationToken, Task> m_executorAsync2;
+        private Func<TOption, TCommandOption, CancellationToken, Task> m_executorAsync3;
 
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
@@ -71,9 +77,34 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override void Execute()
         {
-            m_executor2?.Invoke(m_baseOption, m_commandOption);
-            m_executor1?.Invoke(m_baseOption);
-            m_executor?.Invoke();
+            ExecuteInternal();
+
+            // Also executes the async stuff.
+            ExecuteInternalAsync(default).Wait();
+        }
+
+        private void ExecuteInternal()
+        {
+            m_executor3?.Invoke(m_baseOption, m_commandOption);
+            m_executor2?.Invoke(m_baseOption);
+            m_executor1?.Invoke();
+        }
+
+        public override async Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            await ExecuteInternalAsync(cancellationToken);
+
+            // Also executes the sync stuff.
+            ExecuteInternal();
+        }
+
+        private async Task ExecuteInternalAsync(CancellationToken cancellationToken)
+        {
+            // await null-conditional doesn't work see https://github.com/dotnet/csharplang/issues/35
+
+            if (m_executorAsync3 != null) await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
+            if (m_executorAsync2 != null) await m_executorAsync2(m_baseOption, cancellationToken);
+            if (m_executorAsync1 != null) await m_executorAsync1(cancellationToken);
         }
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
@@ -106,6 +137,22 @@ namespace MatthiWare.CommandLine.Core.Command
             ParseOptions(errors, result, argumentManager);
 
             Validate(m_commandOption, errors);
+
+            result.MergeResult(errors);
+
+            return result;
+        }
+
+        public override async Task<ICommandParserResult> ParseAsync(IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            var result = new CommandParserResult(this);
+            var errors = new List<Exception>();
+
+            await ParseCommandsAsync(errors, result, argumentManager, cancellationToken);
+
+            ParseOptions(errors, result, argumentManager);
+
+            await ValidateAsync(m_commandOption, errors, cancellationToken);
 
             result.MergeResult(errors);
 
@@ -183,6 +230,39 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
+        private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            foreach (var cmd in m_commands)
+            {
+                try
+                {
+                    if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
+                    {
+                        result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                        if (cmd.IsRequired)
+                            throw new CommandNotFoundException(cmd);
+
+                        continue;
+                    }
+
+                    var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
+
+                    if (cmdParseResult.HelpRequested)
+                        break;
+
+                    result.MergeResult(cmdParseResult);
+
+                    if (cmdParseResult.HasErrors)
+                        throw new CommandParseException(cmd, cmdParseResult.Errors);
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+            }
+        }
+
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
         {
             if (!m_parserOptions.EnableHelpOption) return false;
@@ -222,6 +302,23 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
+        private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
+        {
+            if (!m_validators.HasValidatorFor<T>())
+                return;
+
+            var results = (await Task.WhenAll(m_validators.GetValidators<T>()
+                .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
+
+            foreach (var result in results)
+            {
+                if (result.IsValid)
+                    continue;
+
+                errors.Add(result.Error);
+            }
+        }
+
         public ICommandBuilder<TOption, TCommandOption> Required(bool required = true)
         {
             IsRequired = required;
@@ -231,21 +328,42 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption> action)
         {
-            m_executor1 = action;
+            m_executor2 = action;
 
             return this;
         }
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action action)
         {
-            m_executor = action;
+            m_executor1 = action;
 
             return this;
         }
 
         public ICommandBuilder<TOption, TCommandOption> OnExecuting(Action<TOption, TCommandOption> action)
         {
-            m_executor2 = action;
+            m_executor3 = action;
+
+            return this;
+        }
+        public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<CancellationToken, Task> action)
+        {
+            m_executorAsync1 = action;
+
+            return this;
+        }
+
+        public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<TOption, CancellationToken, Task> action)
+        {
+            m_executorAsync2 = action;
+
+            return this;
+        }
+
+
+        public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<TOption, TCommandOption, CancellationToken, Task> action)
+        {
+            m_executorAsync3 = action;
 
             return this;
         }
@@ -273,7 +391,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
         ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecuting(Action<TOption> action)
         {
-            m_executor1 = action;
+            m_executor2 = action;
 
             return this;
         }
@@ -429,6 +547,7 @@ namespace MatthiWare.CommandLine.Core.Command
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TCommandOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -449,6 +568,7 @@ namespace MatthiWare.CommandLine.Core.Command
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TOption, V>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, V, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -463,6 +583,13 @@ namespace MatthiWare.CommandLine.Core.Command
         ICommandConfigurationBuilder ICommandConfigurationBuilder.AutoExecute(bool autoExecute)
         {
             AutoExecute = autoExecute;
+
+            return this;
+        }
+
+        ICommandBuilder<TOption> ICommandBuilder<TOption>.OnExecutingAsync(Func<TOption, CancellationToken, Task> action)
+        {
+            m_executorAsync2 = action;
 
             return this;
         }
