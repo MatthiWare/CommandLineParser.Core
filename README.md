@@ -62,4 +62,9 @@ Run command line
 dotnet myapp --port 2551
 ```
 
-### For more advanced configuration options see [the wiki](https://github.com/MatthiWare/CommandLineParser.Core/wiki). 
+#### For more advanced configuration options see [the wiki](https://github.com/MatthiWare/CommandLineParser.Core/wiki). 
+
+
+# Contributors
+
+[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/0)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/0)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/1)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/1)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/2)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/2)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/3)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/3)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/4)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/4)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/5)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/5)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/6)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/6)[![](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/images/7)](https://sourcerer.io/fame/Matthiee/MatthiWare/CommandLineParser.Core/links/7)
