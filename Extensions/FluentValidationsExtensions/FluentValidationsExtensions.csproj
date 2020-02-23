@@ -14,8 +14,8 @@
     <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
     <PackageTags>Commandline parser commandline-parser cli fluent-validations extension</PackageTags>
     <LangVersion>7.3</LangVersion>
-    <AssemblyVersion>0.3.4.0</AssemblyVersion>
-    <FileVersion>0.2.0.0</FileVersion>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
+    <FileVersion>0.3.0.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReleaseNotes>Async API, package version bump</PackageReleaseNotes>
     <Copyright>Copyright Matthias Beerens 2019</Copyright>
@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="8.6.1" />
+    <PackageReference Include="FluentValidation" Version="8.5.1" />
     <PackageReference Include="MatthiWare.CommandLineParser" Version="0.3.0" />
   </ItemGroup>
 
