@@ -306,7 +306,7 @@ namespace MatthiWare.CommandLine
         {
             if (!ParserOptions.AutoPrintUsageAndErrors) return;
 
-            if (noArgsSupplied)
+            if (noArgsSupplied && (Options.Any(opt => !opt.HasDefault) || Commands.Any(cmd => cmd.IsRequired)))
                 PrintHelp();
             else if (result.HelpRequested)
                 Printer.PrintUsage(result.HelpRequestedFor);

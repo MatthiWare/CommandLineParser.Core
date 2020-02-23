@@ -12,6 +12,38 @@ namespace MatthiWare.CommandLine.Tests.Usage
 {
     public class UsagePrinterTests
     {
+        #region Issue_60
+
+        private class Options_Issue60
+        {
+            [Name("c", "check")]
+            [Description("Reports the amount of duplicates without changing anything")]
+            [DefaultValue(true)] // Note defaults to true and not required
+            public bool OnlyCheck { get; set; }
+        }
+
+        [Theory]
+        // https://github.com/MatthiWare/CommandLineParser.Core/issues/60
+        [InlineData(new string[] { }, false)]
+        [InlineData(new string[] { "-c" }, false)]
+        [InlineData(new string[] { "-c", "true" }, false)]
+        [InlineData(new string[] { "-c", "false" }, false)]
+        public void AllOptionsHaveDefaultValueShouldNotPrintUsages(string[] args, bool called)
+        {
+            var printerMock = new Mock<IUsagePrinter>();
+
+            var parser = new CommandLineParser<Options_Issue60>
+            {
+                Printer = printerMock.Object
+            };
+
+            parser.Parse(args);
+
+            printerMock.Verify(mock => mock.PrintUsage(), called ? Times.Once() : Times.Never());
+        }
+
+        #endregion
+
         private class UsagePrinterGetsCalledOptions
         {
             [Name("o"), Required]
