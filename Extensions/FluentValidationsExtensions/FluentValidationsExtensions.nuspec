@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser.Extensions.FluentValidations</id>
-    <version>0.2.4</version>
+    <version>0.3.0</version>
     <title>CommandLineParser.Core.Extensions.FluentValidations</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -13,9 +13,12 @@
 		Fluent Validations extension for MatthiWare.CommandLineParser.Core
 	</description>
 	<summary>Fluent Validations extension for CommandLineParser.Core</summary>
-  <releaseNotes>Add Fluent Validations</releaseNotes>
+  <releaseNotes>Add Async API, package version bump, bugfixes</releaseNotes>
   <copyright>Copyright Matthias Beerens 2019</copyright>
   <tags>commandline parser commandline-parser extension fluent-validation validations</tags>
+  <dependencies>
+    <dependency id="MatthiWare.CommandLineParser" version="0.3.0" />
+  </dependencies>
   </metadata>
   <files>
     <file src="CommandLineParser.FluentValidations.dll" target="lib\netstandard2.0" />

@@ -7,6 +7,7 @@ using Moq;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests
@@ -84,6 +85,36 @@ namespace MatthiWare.CommandLine.Tests
             containerMock.VerifyAll();
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task CommandLineParserUsesContainerCorrectlyAsync(bool generic)
+        {
+            var commandMock = new Mock<MyCommand>();
+            commandMock.Setup(
+                c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
+                .CallBase().Verifiable("OnConfigure not called");
+
+            commandMock.Setup(c => c.OnExecuteAsync(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Verifiable("OnExecute not called");
+
+            var containerMock = new Mock<IContainerResolver>();
+            containerMock.Setup(c => c.Resolve<MyCommand>()).Returns(commandMock.Object).Verifiable();
+
+            var parser = new CommandLineParser<object>(containerMock.Object);
+
+            if (generic)
+                parser.RegisterCommand<MyCommand, object>();
+            else
+                parser.RegisterCommand(typeof(MyCommand), typeof(object));
+
+            var result = await parser.ParseAsync(new[] { "app.exe", "my" });
+
+            result.AssertNoErrors();
+
+            commandMock.VerifyAll();
+            containerMock.VerifyAll();
+        }
+
         [Fact]
         public void CommandLinerParserPassesContainerCorreclty()
         {
@@ -144,6 +175,30 @@ namespace MatthiWare.CommandLine.Tests
                 .OnExecuting(_ => throw ex);
 
             var result = parser.Parse(new[] { "test" });
+
+            Assert.True(result.HasErrors);
+
+            Assert.Equal(ex, result.Errors.First());
+        }
+
+        [Fact]
+        public async Task AutoExecuteCommandsWithExceptionDoesntCrashTheParserAsync()
+        {
+            var parser = new CommandLineParser();
+
+            var ex = new Exception("uh-oh");
+
+            parser.AddCommand()
+                .Name("test")
+                .InvokeCommand(true)
+                .Required(true)
+                .OnExecutingAsync(async (_, __) =>
+                {
+                    await Task.Delay(1);
+                    throw ex;
+                });
+
+            var result = await parser.ParseAsync(new[] { "test" });
 
             Assert.True(result.HasErrors);
 
@@ -347,6 +402,49 @@ namespace MatthiWare.CommandLine.Tests
             Assert.True(wait.WaitOne(2000));
         }
 
+        [Fact]
+        public async Task ParseWithCommandTestsAsync()
+        {
+            var wait = new ManualResetEvent(false);
+
+            var parser = new CommandLineParser<Options>();
+
+            parser.Configure(opt => opt.Option1)
+                .Name("o")
+                .Default("Default message")
+                .Required();
+
+            var addCmd = parser.AddCommand<AddOption>()
+                .Name("add")
+                .OnExecutingAsync(async (opt, cmdOpt, ctx) =>
+                {
+                    await Task.Delay(100);
+
+                    Assert.Equal("test", opt.Option1);
+                    Assert.Equal("my message", cmdOpt.Message);
+
+                    await Task.Delay(100);
+
+                    wait.Set();
+
+                    await Task.Delay(100);
+                });
+
+            addCmd.Configure(opt => opt.Message)
+                .Name("m", "message")
+                .Required();
+
+            var parsed = await parser.ParseAsync(new string[] { "app.exe", "-o", "test", "add", "-m=my message" });
+
+            parsed.AssertNoErrors();
+
+            Assert.Equal("test", parsed.Result.Option1);
+
+            parsed.ExecuteCommands();
+
+            Assert.True(wait.WaitOne(2000));
+        }
+
         [Theory]
         [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
         [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
@@ -375,6 +473,44 @@ namespace MatthiWare.CommandLine.Tests
                 .Required();
 
             var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Equal(result1, result.Result.Message);
+
+            Assert.True(wait.WaitOne(2000));
+        }
+
+        [Theory]
+        [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        public async Task ParseCommandTestsAsync(string[] args, string result1, string result2)
+        {
+            var parser = new CommandLineParser<AddOption>();
+            var wait = new ManualResetEvent(false);
+
+            parser.AddCommand<AddOption>()
+                .Name("add")
+                .Required()
+                .OnExecutingAsync(async (opt1, opt2, ctx) =>
+                {
+                    await Task.Delay(100);
+
+                    wait.Set();
+
+                    Assert.Equal(result2, opt2.Message);
+                })
+                .Configure(c => c.Message)
+                    .Name("m", "message")
+                    .Required();
+
+            parser.Configure(opt => opt.Message)
+                .Name("m", "message")
+                .Required();
+
+            var result = await parser.ParseAsync(args);
 
             result.AssertNoErrors();
 
@@ -531,6 +667,47 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(expected, outcome);
         }
 
+        [Theory]
+        [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "-s2" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test" }, "test", false)]
+        public void CustomTypeWithStringTryParseGetsParsedCorrectly(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<StringTryParseTypeOptions>();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(!errors));
+
+            if (!result.HasErrors)
+            {
+                Assert.Equal(expected, result.Result.String.Result);
+                Assert.Equal(expected, result.Result.String2.Result);
+            }
+        }
+
+        [Theory]
+        [InlineData(new string[] { "cmd" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "-s2", "-s3" }, "", true)]
+        [InlineData(new string[] { "cmd", "-s", "test", "-s2", "test", "-s3", "test" }, "test", false)]
+        [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test", "-s3", "test" }, "test", false)]
+        public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
+        {
+            var parser = new CommandLineParser<StringTypeOptions>();
+
+            var result = parser.Parse(args);
+
+            Assert.Equal(errors, result.AssertNoErrors(!errors));
+
+            if (!result.HasErrors)
+            {
+                Assert.Equal(expected, result.Result.String.Result);
+                Assert.Equal(expected, result.Result.String2.Result);
+                Assert.Equal(expected, result.Result.String3.Result);
+            }
+        }
+
         private class ObjOption
         {
             [Name("p"), Required]
@@ -569,6 +746,127 @@ namespace MatthiWare.CommandLine.Tests
         private class IntOptions
         {
             public int SomeInt { get; set; }
+        }
+
+        private class StringTypeOptions
+        {
+            [Name("s", "string"), Required]
+            public StringType String { get; set; }
+
+            [Name("s2"), Required]
+            public StringType4 String2 { get; set; }
+
+            [Name("s3"), Required]
+            public StringType5 String3 { get; set; }
+        }
+
+        private class StringTryParseTypeOptions
+        {
+            [Name("s", "string"), Required]
+            public StringType2 String { get; set; }
+
+            [Name("s2"), Required]
+            public StringType3 String2 { get; set; }
+        }
+
+        private class StringType
+        {
+            public StringType(string input)
+            {
+                Result = input;
+            }
+
+            public StringType(string input, string input2)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+        }
+
+        private class StringType2
+        {
+            private StringType2(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static bool TryParse(string input, IFormatProvider format, out StringType2 result)
+            {
+                result = new StringType2(input);
+                return true;
+            }
+
+            public static bool TryParse() => false;
+
+            public static void Tryparse(string input, IFormatProvider format, out StringType2 result)
+            {
+                result = default;
+            }
+
+            public static bool TryParse(string input, StringType2 xd, out StringType2 stringType2)
+            {
+                stringType2 = default;
+                return false;
+            }
+        }
+
+        private class StringType3
+        {
+            private StringType3(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static bool TryParse(string input, out StringType3 result)
+            {
+                result = new StringType3(input);
+                return true;
+            }
+        }
+
+        private class StringType4
+        {
+            private StringType4(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static StringType4 Parse(string input)
+            {
+                return new StringType4(input);
+            }
+        }
+
+        private class StringType5
+        {
+            private StringType5(string input)
+            {
+                Result = input;
+            }
+
+            public string Result { get; }
+
+            public static StringType5 Parse(string input, IFormatProvider provider)
+            {
+                return new StringType5(input);
+            }
+
+            public static StringType4 Parse(string input)
+            {
+                return null;
+            }
+
+            public static StringType5 Parse(string input, IFormatProvider provider, IFormatProvider xd)
+            {
+                return null;
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using MatthiWare.CommandLine.Core.Attributes;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Command
@@ -26,6 +27,36 @@ namespace MatthiWare.CommandLine.Tests.Command
             var parser = new CommandLineParser<MainModel>(containerResolver);
 
             var result = parser.Parse(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
+
+            result.AssertNoErrors();
+
+            if (!autoExecute)
+            {
+                Assert.All(result.CommandResults.Select(r => r.Executed), Assert.False);
+
+                result.ExecuteCommands();
+            }
+
+            Assert.True(lock1.Wait(1000), "MainCommand didn't execute in time.");
+            Assert.True(lock2.Wait(1000), "SubCommand didn't execute in time.");
+
+            Assert.All(result.CommandResults.Select(r => r.Executed), Assert.True);
+        }
+
+        [Theory]
+        [InlineData(true, "something", 15, -1)]
+        [InlineData(false, "something", 15, -1)]
+        [InlineData(true, "", 15, -1)]
+        public async Task TestSubCommandWorksCorrectlyInModelAsync(bool autoExecute, string bla, int i, int n)
+        {
+            var lock1 = new ManualResetEventSlim();
+            var lock2 = new ManualResetEventSlim();
+
+            var containerResolver = new CustomInstantiator(lock1, lock2, autoExecute, bla, i, n);
+
+            var parser = new CommandLineParser<MainModel>(containerResolver);
+
+            var result = await parser.ParseAsync(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
 
             result.AssertNoErrors();
 
@@ -108,6 +139,18 @@ namespace MatthiWare.CommandLine.Tests.Command
 
                 locker.Set();
             }
+
+            public override Task OnExecuteAsync(MainModel options, SubModel commandOptions, CancellationToken cancellationToken)
+            {
+                base.OnExecuteAsync(options, commandOptions, cancellationToken);
+
+                Assert.Equal(bla, options.Bla);
+                Assert.Equal(i, commandOptions.Item);
+
+                locker.Set();
+
+                return Task.CompletedTask;
+            }
         }
 
         public class SubCommand : Command<MainModel, SubSubModel>
@@ -143,6 +186,18 @@ namespace MatthiWare.CommandLine.Tests.Command
                 Assert.Equal(n, commandOptions.Nothing);
 
                 locker.Set();
+            }
+
+            public override Task OnExecuteAsync(MainModel options, SubSubModel commandOptions, CancellationToken cancellationToken)
+            {
+                base.OnExecuteAsync(options, commandOptions, cancellationToken);
+
+                Assert.Equal(bla, options.Bla);
+                Assert.Equal(n, commandOptions.Nothing);
+
+                locker.Set();
+
+                return Task.CompletedTask;
             }
         }
 

@@ -21,7 +21,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 
         [Theory]
         [InlineData(TestEnum.Error, "-m", "Error")]
+        [InlineData(TestEnum.Error, "-m", "error")]
         [InlineData(TestEnum.Verbose, "-m", "Verbose")]
+        [InlineData(TestEnum.Verbose, "-m", "verbose")]
         public void TestResolve(TestEnum expected, string key, string value)
         {
             var resolver = new EnumResolver<TestEnum>();

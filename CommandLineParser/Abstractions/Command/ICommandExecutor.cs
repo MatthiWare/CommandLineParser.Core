@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Abstractions.Command
 {
@@ -39,5 +41,26 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <param name="action">Action to execute</param>
         /// <returns><see cref="ICommandBuilder{TOption,TSource}"/></returns>
         ICommandBuilder<TOption, TSource> OnExecuting(Action<TOption, TSource> action);
+
+        /// <summary>
+        /// Sets the async command execute action 
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>A task of <see cref="ICommandBuilder{TOption,TSource}"/></returns>
+        ICommandBuilder<TOption, TSource> OnExecutingAsync(Func<CancellationToken, Task> action);
+
+        /// <summary>
+        /// Sets the async command execute action
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>A task of <see cref="ICommandBuilder{TOption,TSource}"/></returns>
+        ICommandBuilder<TOption, TSource> OnExecutingAsync(Func<TOption, CancellationToken, Task> action);
+
+        /// <summary>
+        /// Sets the async command execute action
+        /// </summary>
+        /// <param name="action">Action to execute</param>
+        /// <returns>A task of <see cref="ICommandBuilder{TOption,TSource}"/></returns>
+        ICommandBuilder<TOption, TSource> OnExecutingAsync(Func<TOption, TSource, CancellationToken, Task> action);
     }
 }

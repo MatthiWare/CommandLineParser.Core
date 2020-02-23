@@ -1,11 +1,9 @@
-﻿using System;
-using MatthiWare.CommandLine;
+﻿using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
-
 using Moq;
-
+using System;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests

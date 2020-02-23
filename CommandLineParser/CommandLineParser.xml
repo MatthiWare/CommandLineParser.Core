@@ -20,7 +20,11 @@
             <summary>
             Executes the command
             </summary>
-            <param name="options">Parsed options</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command.OnExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the command async
+            </summary>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.Command`1">
             <summary>
@@ -29,6 +33,12 @@
             <typeparam name="TOptions">Base options of the command</typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`1.OnExecute(`0)">
+            <summary>
+            Executes the command
+            </summary>
+            <param name="options">Parsed options</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`1.OnExecuteAsync(`0,System.Threading.CancellationToken)">
             <summary>
             Executes the command
             </summary>
@@ -49,6 +59,13 @@
             <param name="builder"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`2.OnExecute(`0,`1)">
+            <summary>
+            Executes the command
+            </summary>
+            <param name="options"></param>
+            <param name="commandOptions"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.Command`2.OnExecuteAsync(`0,`1,System.Threading.CancellationToken)">
             <summary>
             Executes the command
             </summary>
@@ -131,7 +148,13 @@
             Configures the execution of the command
             </summary>
             <param name="action">The execution action</param>
-            <param name="required">True or false</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1.OnExecutingAsync(System.Func{`0,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Configures the execution of the command async
+            </summary>
+            <param name="action">The execution action</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`1"/></returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder">
@@ -244,6 +267,27 @@
             </summary>
             <param name="action">Action to execute</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2.OnExecutingAsync(System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the async command execute action 
+            </summary>
+            <param name="action">Action to execute</param>
+            <returns>A task of <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2.OnExecutingAsync(System.Func{`0,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the async command execute action
+            </summary>
+            <param name="action">Action to execute</param>
+            <returns>A task of <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2.OnExecutingAsync(System.Func{`0,`1,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Sets the async command execute action
+            </summary>
+            <param name="action">Action to execute</param>
+            <returns>A task of <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandBuilder`2"/></returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand">
             <summary>
@@ -369,10 +413,18 @@
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Parse(System.String[])">
             <summary>
-            Parses the current command and returns the result
+            Parses the arguments
             </summary>
-            <param name="args">command arguments</param>
+            <param name="args">CLI Arguments</param>
             <returns>The <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/> result</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ParseAsync(System.String[],System.Threading.CancellationToken)">
+            <summary>
+            Parses the arguments async
+            </summary>
+            <param name="args">CLI Arguments</param>
+            <param name="cancellationToken"></param>
+            <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
@@ -624,6 +676,15 @@
             <exception cref="T:System.InvalidOperationException">
             Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Errors"/> properties.
             </exception>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.ExecuteCommandAsync(System.Threading.CancellationToken)">
+            <summary>
+            Executes the command async
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+            Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Errors"/> properties.
+            </exception>
+            <returns>A task</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager">
             <summary>
@@ -1001,6 +1062,14 @@
             <param name="args">arguments from the commandline</param>
             <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.ParseAsync(System.String[],System.Threading.CancellationToken)">
+            <summary>
+            Parses the commandline arguments async
+            </summary>
+            <param name="args">arguments from the commandline</param>
+            <param name="cancellationToken"></param>
+            <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
+        </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.AddCommand``1">
             <summary>
             Adds a command to the parser
@@ -1232,6 +1301,44 @@
             <param name="args">List of arguments to search</param>
             <param name="model">object to find</param>
             <param name="startOffset">Search offset</param>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindTryParse(System.Reflection.MethodInfo)">
+            <summary>
+            Finds the Type.TryParse(String, IFormatProvider, out T result) method
+            </summary>
+            <param name="method"></param>
+            <returns>True or false</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindParse(System.Reflection.MethodInfo)">
+            <summary>
+            Finds the Type.TryParse(String, IFormatProvider, out T result) method
+            </summary>
+            <param name="method"></param>
+            <returns>True or false</returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.TypedInstanceCache`1">
+            <summary>
+            A strongly-typed instance cache
+            </summary>
+            <typeparam name="TValue"></typeparam>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Add(`0)">
+            <summary>
+            Adds a new instance to the cache
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Add(System.Type)">
+            <summary>
+            Adds a type to the cache that will be resolved later
+            </summary>
+            <param name="type"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Get">
+            <summary>
+            Gets the values from the cache. This will instantiate unresolved items. 
+            </summary>
             <returns></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.IsAssignableToGenericType(System.Type,System.Type)">

@@ -4,6 +4,8 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Abstractions
 {
@@ -37,11 +39,19 @@ namespace MatthiWare.CommandLine.Abstractions
         #region Parsing
 
         /// <summary>
-        /// Parses the current command and returns the result
+        /// Parses the arguments
         /// </summary>
-        /// <param name="args">command arguments</param>
+        /// <param name="args">CLI Arguments</param>
         /// <returns>The <see cref="IParserResult{TOption}"/> result</returns>
         IParserResult<TOption> Parse(string[] args);
+
+        /// <summary>
+        /// Parses the arguments async
+        /// </summary>
+        /// <param name="args">CLI Arguments</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>The task that resolves to the result. <see cref="IParserResult{TOption}"/></returns>
+        Task<IParserResult<TOption>> ParseAsync(string[] args, CancellationToken cancellationToken);
 
         #endregion
 

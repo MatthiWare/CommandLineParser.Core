@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.2.4</version>
+    <version>0.3.0</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -16,7 +16,7 @@
 		This library allows to add commands with their own set of options as well. 
 	</description>
 	<summary>A simple, light-weight and strongly typed command line parser. Configuration using Fluent API, Attributes and model classes.</summary>
-  <releaseNotes>Fix bug with alignment, add postfix and value transformers</releaseNotes>
+  <releaseNotes>Added Async API, Default resolvers and general Bug fixes</releaseNotes>
   <copyright>Copyright Matthias Beerens 2018</copyright>
   <tags>commandline parser commandline-parser</tags>
   </metadata>
