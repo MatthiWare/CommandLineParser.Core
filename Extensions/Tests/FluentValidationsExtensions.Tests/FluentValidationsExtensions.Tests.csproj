@@ -20,9 +20,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\CommandLineParser\CommandLineParser.csproj" />
-    <ProjectReference Include="..\..\FluentValidationsExtensions\FluentValidationsExtensions.csproj" />
-  </ItemGroup>
-
 </Project>

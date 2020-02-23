@@ -33,8 +33,4 @@
     <PackageReference Include="FluentValidation" Version="8.5.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\CommandLineParser\CommandLineParser.csproj" />
-  </ItemGroup>
-
 </Project>
