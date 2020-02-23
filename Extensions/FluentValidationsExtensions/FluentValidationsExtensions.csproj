@@ -30,11 +30,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="8.5.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\CommandLineParser\CommandLineParser.csproj" />
+    <PackageReference Include="FluentValidation" Version="8.6.1" />
+    <PackageReference Include="MatthiWare.CommandLineParser" Version="0.3.0" />
   </ItemGroup>
 
 </Project>
