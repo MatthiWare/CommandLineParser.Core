@@ -42,7 +42,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <returns><see cref="ICommandBuilder{TOption,TSource}"/></returns>
         ICommandBuilder<TOption, TSource> OnExecuting(Action<TOption, TSource> action);
 
-
         /// <summary>
         /// Sets the async command execute action 
         /// </summary>
