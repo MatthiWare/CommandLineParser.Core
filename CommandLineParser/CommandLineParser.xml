@@ -426,6 +426,18 @@
             <param name="cancellationToken"></param>
             <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.DiscoverCommands(System.Reflection.Assembly)">
+            <summary>
+            Discovers commands and registers them from any given assembly
+            </summary>
+            <param name="assembly">Assembly containing the command types</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.DiscoverCommands(System.Reflection.Assembly[])">
+            <summary>
+            Discovers commands and registers them from any given assembly
+            </summary>
+            <param name="assemblies">Assemblies containing the command types</param>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Configures a new or existing option
@@ -1113,6 +1125,18 @@
             <summary>
             Initializes the model class with the attributes specified.
             </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.DiscoverCommands(System.Reflection.Assembly)">
+            <summary>
+            Discovers commands and registers them from any given assembly
+            </summary>
+            <param name="assembly">Assembly containing the command types</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.DiscoverCommands(System.Reflection.Assembly[])">
+            <summary>
+            Discovers commands and registers them from any given assembly
+            </summary>
+            <param name="assemblies">Assemblies containing the command types</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Attributes.DefaultValueAttribute">
             <summary>

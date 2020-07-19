@@ -13,7 +13,9 @@ namespace MatthiWare.CommandLine.Core.Utils
         private static ICommandLineOption FindMatchingOption(ICollection<ICommandLineOption> options, CommandLineParserOptions settings, string item)
         {
             if (string.IsNullOrEmpty(settings.PostfixOption))
+            {
                 return null;
+            }
 
             return options.Where(option =>
             {
@@ -37,14 +39,21 @@ namespace MatthiWare.CommandLine.Core.Utils
             foreach (var it in interfaceTypes)
             {
                 if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+                {
                     return true;
+                }
             }
 
             if (self.IsGenericType && self.GetGenericTypeDefinition() == genericType)
+            {
                 return true;
+            }
 
-            Type baseType = self.BaseType;
-            if (baseType == null) return false;
+            var baseType = self.BaseType;
+            if (baseType == null)
+            {
+                return false;
+            }
 
             return IsAssignableToGenericType(baseType, genericType);
         }
@@ -70,17 +79,25 @@ namespace MatthiWare.CommandLine.Core.Utils
             });
 
             if (method == null)
+            {
                 throw new ArgumentException($"No method by the name '{methodName}' found that takes {amountGenericTypes} generic type arguments.");
+            }
 
-            List<Type> types = new List<Type>();
-            types.Add(cmdType);
+            var types = new List<Type>
+            {
+                cmdType
+            };
 
             if (genericTypes.Length > 1)
             {
                 if (nonNullOptionTypes.Length > 0)
+                {
                     types.Add(nonNullOptionTypes[0]);
+                }
                 else
+                {
                     types.Add(genericTypes[1]);
+                }
             }
 
             var methodInstance = method.MakeGenericMethod(types.ToArray());
@@ -126,7 +143,9 @@ namespace MatthiWare.CommandLine.Core.Utils
         public static StringBuilder AppendIf(this StringBuilder self, bool contition, string text)
         {
             if (contition)
+            {
                 self.Append(text);
+            }
 
             return self;
         }
