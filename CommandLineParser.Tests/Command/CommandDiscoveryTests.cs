@@ -12,7 +12,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
             var cmdDiscovery = new CommandDiscoverer();
 
-            var resultTypes = cmdDiscovery.DiscoverCommandTypes(typeof(object), new[] { Assembly.GetExecutingAssembly() });
+            var resultTypes = cmdDiscovery.DiscoverCommandTypes(typeof(CommandDiscoveryTests), new[] { Assembly.GetExecutingAssembly() });
 
             var invalidAbstractCommand = typeof(AbstractCommand);
             var wrongGenericTypeCommand = typeof(WrongGenericTypeCommand);
