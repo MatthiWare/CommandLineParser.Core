@@ -41,6 +41,7 @@ namespace MatthiWare.CommandLine
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
         private readonly List<IValidator> validators;
+        private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -680,6 +681,26 @@ namespace MatthiWare.CommandLine
             IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
             {
                 return method.InvokeGenericMethod(prop, this, lambda, key) as IOptionBuilder;
+            }
+        }
+
+        /// <summary>
+        /// Discovers commands and registers them from any given assembly
+        /// </summary>
+        /// <param name="assembly">Assembly containing the command types</param>
+        public void DiscoverCommands(Assembly assembly) => DiscoverCommands(new[] { assembly });
+
+        /// <summary>
+        /// Discovers commands and registers them from any given assembly
+        /// </summary>
+        /// <param name="assemblies">Assemblies containing the command types</param>
+        public void DiscoverCommands(Assembly[] assemblies)
+        {
+            var commandTypes = commandDiscoverer.DiscoverCommandTypes(typeof(TOption), assemblies);
+
+            foreach (var commandType in commandTypes)
+            {
+                this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
             }
         }
     }

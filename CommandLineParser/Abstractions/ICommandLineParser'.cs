@@ -4,6 +4,7 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -56,6 +57,18 @@ namespace MatthiWare.CommandLine.Abstractions
         #endregion
 
         #region Configuration
+
+        /// <summary>
+        /// Discovers commands and registers them from any given assembly
+        /// </summary>
+        /// <param name="assembly">Assembly containing the command types</param>
+        void DiscoverCommands(Assembly assembly);
+
+        /// <summary>
+        /// Discovers commands and registers them from any given assembly
+        /// </summary>
+        /// <param name="assemblies">Assemblies containing the command types</param>
+        void DiscoverCommands(Assembly[] assemblies);
 
         /// <summary>
         /// Configures a new or existing option
