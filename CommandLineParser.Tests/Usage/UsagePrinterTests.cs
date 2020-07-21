@@ -158,7 +158,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 ToTimes(result.HelpRequested || result.HasErrors));
 
             builderMock.Verify(
-                mock => mock.AddCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()),
+                mock => mock.AddCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommand>()),
                 ToTimes(cmdPassed));
 
             builderMock.Verify(

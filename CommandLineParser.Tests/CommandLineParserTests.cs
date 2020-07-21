@@ -178,7 +178,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Assert.True(result.HasErrors);
 
-            Assert.Equal(ex, result.Errors.First());
+            Assert.Equal(ex, result.Errors.First().GetBaseException());
         }
 
         [Fact]
@@ -202,7 +202,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Assert.True(result.HasErrors);
 
-            Assert.Equal(ex, result.Errors.First());
+            Assert.Equal(ex, result.Errors.First().GetBaseException());
         }
 
         [Fact]

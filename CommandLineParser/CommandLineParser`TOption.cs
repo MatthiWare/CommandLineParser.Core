@@ -331,7 +331,11 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void PrintErrors(IReadOnlyCollection<Exception> errors) => Printer.PrintErrors(errors);
+        private void PrintErrors(IReadOnlyCollection<Exception> errors)
+        { 
+            Printer.PrintErrors(errors);
+            Printer.PrintUsage();
+        }
 
         private void PrintHelp() => Printer.PrintUsage();
 

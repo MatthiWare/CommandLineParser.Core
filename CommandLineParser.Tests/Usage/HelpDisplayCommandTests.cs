@@ -40,7 +40,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             parser.Parse(args);
 
-            Assert.Equal<bool>(fires, calledFlag);
+            Assert.Equal(fires, calledFlag);
         }
 
         [Theory]
@@ -73,7 +73,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             await parser.ParseAsync(args);
 
-            Assert.Equal<bool>(fires, calledFlag);
+            Assert.Equal(fires, calledFlag);
         }
 
         public class Options
