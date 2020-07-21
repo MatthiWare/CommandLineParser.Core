@@ -856,6 +856,17 @@
             <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult"/>
             </summary>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService">
+            <summary>
+            Environment variables 
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService.NoColorRequested">
+            <summary>
+            Inidicates if NO_COLOR environment variable has been set
+            https://no-color.org/
+            </summary>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder">
             <summary>
             Output builder
@@ -1463,6 +1474,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Usage.EnvironmentVariableService">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Usage.EnvironmentVariableService.NoColorRequested">
+            <inheritdoc/>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Usage.UsageBuilder">
             <inheritdoc/>
         </member>
@@ -1503,7 +1520,19 @@
             <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder)">
-            <inheritdoc/>
+            <summary>
+            Creates a new CLI output usage printer
+            </summary>
+            <param name="container"></param>
+            <param name="builder"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService)">
+            <summary>
+            Creates a new CLI output usage printer
+            </summary>
+            <param name="container"></param>
+            <param name="builder"></param>
+            <param name="environmentVariablesService"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
             <inheritdoc/>
