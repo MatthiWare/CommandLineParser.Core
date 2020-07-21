@@ -856,9 +856,77 @@
             <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult"/>
             </summary>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder">
+            <summary>
+            Output builder
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.Build">
+            <summary>
+            Generates the output 
+            </summary>
+            <returns>Output string</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddUsage(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Add usage
+            </summary>
+            <param name="name">Name of the applpication</param>
+            <param name="hasOptions">Indicates if the output contains options</param>
+            <param name="hasCommands">Indicates if the output contains commands</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddOptions(System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
+            <summary>
+            Add all options
+            </summary>
+            <param name="options"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddOption(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <summary>
+            Add a specific option
+            </summary>
+            <param name="option"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddCommandDescriptions(System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand})">
+            <summary>
+            Adds all command descriptions
+            </summary>
+            <param name="commands"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddCommandDescription(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <summary>
+            Adds a specific command description
+            </summary>
+            <param name="command"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddCommand(System.String,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <summary>
+            Adds a command to the output builder
+            </summary>
+            <param name="name"></param>
+            <param name="command"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddCommand(System.String,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
+            <summary>
+            Adds a command to the output builder
+            </summary>
+            <param name="name"></param>
+            <param name="container"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
+            <summary>
+            Adds the errors to the output builder
+            </summary>
+            <param name="errors"></param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter">
             <summary>
             CLI Usage Output Printer
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.Builder">
+            <summary>
+            Gets the usage builder <see cref="T:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder"/>
             </summary>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintUsage">
@@ -878,11 +946,29 @@
             </summary>
             <param name="command">The given command</param>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintCommandUsage(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <summary>
+            Print command usage
+            </summary>
+            <param name="command">The given command</param>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
             <summary>
             Print option usage
             </summary>
             <param name="option">The given option</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintOptionUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <summary>
+            Print option usage
+            </summary>
+            <param name="option">The given option</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
+            <summary>
+            Print errors
+            </summary>
+            <param name="errors">list of errors</param>
         </member>
         <member name="T:MatthiWare.CommandLine.CommandLineParser">
             <summary>
@@ -1251,6 +1337,18 @@
             <param name="message">The exception message</param>
             <param name="innerException">Optional inner exception</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Exceptions.CommandExecutionFailedException">
+            <summary>
+            Command failed to execute exception
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.CommandExecutionFailedException.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand,System.Exception)">
+            <summary>
+            Command failed to execute exception
+            </summary>
+            <param name="command">Command that failed</param>
+            <param name="innerException">Actual exception</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.CommandNotFoundException">
             <summary>
             Indicitates that a configured required command is not found.
@@ -1364,6 +1462,69 @@
             Gets the values from the cache. This will instantiate unresolved items. 
             </summary>
             <returns></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Usage.UsageBuilder">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.#ctor(MatthiWare.CommandLine.CommandLineParserOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.Build">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddUsage(System.String,System.Boolean,System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddCommand(System.String,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddCommand(System.String,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddCommandDescription(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddCommandDescriptions(System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddOption(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddOptions(System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Usage.UsagePrinter">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Usage.UsagePrinter.Builder">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintCommandUsage(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintOptionUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintUsage">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.IArgument)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.IsAssignableToGenericType(System.Type,System.Type)">
             <summary>

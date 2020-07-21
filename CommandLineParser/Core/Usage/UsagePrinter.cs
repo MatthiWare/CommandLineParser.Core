@@ -1,38 +1,73 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
+using System;
+using System.Collections.Generic;
 
 namespace MatthiWare.CommandLine.Core.Usage
 {
-    internal class UsagePrinter : IUsagePrinter
+    /// <inheritdoc/>
+    public class UsagePrinter : IUsagePrinter
     {
-        private readonly CommandLineParserOptions m_parserOptions;
-        private readonly IUsageBuilder m_usageBuilder;
-        private readonly ICommandLineCommandContainer m_commandContainer;
+        protected ICommandLineCommandContainer Container { get; }
 
-        public UsagePrinter(CommandLineParserOptions parserOptions, ICommandLineCommandContainer container, IUsageBuilder builder)
+        /// <inheritdoc/>
+        public IUsageBuilder Builder { get; }
+
+        /// <inheritdoc/>
+        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder)
         {
-            m_parserOptions = parserOptions;
-            m_commandContainer = container;
-
-            m_usageBuilder = builder;
+            Container = container;
+            Builder = builder;
         }
 
-        public void PrintUsage()
+        /// <inheritdoc/>
+        public virtual void PrintErrors(IReadOnlyCollection<Exception> errors)
         {
-            m_usageBuilder.PrintCommand(string.Empty, m_commandContainer);
-            m_usageBuilder.Print();
+            var previousColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = ConsoleColor.Red;
+
+            Builder.AddErrors(errors);
+
+            Console.Error.WriteLine(Builder.Build());
+
+            Console.ForegroundColor = previousColor;
+
+            Console.WriteLine();
         }
 
-        public void PrintUsage(IArgument argument)
+        /// <inheritdoc/>
+        public virtual void PrintCommandUsage(ICommandLineCommand command)
+        {
+            Builder.AddCommand(command.Name, command);
+            Console.WriteLine(Builder.Build());
+        }
+
+        /// <inheritdoc/>
+        public virtual void PrintOptionUsage(ICommandLineOption option)
+        {
+            Builder.AddOption(option);
+            Console.WriteLine(Builder.Build());
+        }
+
+        /// <inheritdoc/>
+        public virtual void PrintUsage()
+        {
+            Builder.AddCommand(string.Empty, Container);
+            Console.WriteLine(Builder.Build());
+        }
+
+        /// <inheritdoc/>
+        public virtual void PrintUsage(IArgument argument)
         {
             switch (argument)
             {
                 case ICommandLineCommand cmd:
-                    PrintUsage(cmd);
+                    PrintCommandUsage(cmd);
                     break;
                 case ICommandLineOption opt:
-                    PrintUsage(opt);
+                    PrintOptionUsage(opt);
                     break;
                 default:
                     PrintUsage();
@@ -40,16 +75,12 @@ namespace MatthiWare.CommandLine.Core.Usage
             }
         }
 
-        public void PrintUsage(ICommandLineCommand command)
-        {
-            m_usageBuilder.PrintCommand(command.Name, (ICommandLineCommandContainer)command);
-            m_usageBuilder.Print();
-        }
+        /// <inheritdoc/>
+        public virtual void PrintUsage(ICommandLineCommand command)
+            => PrintCommandUsage(command);
 
-        public void PrintUsage(ICommandLineOption option)
-        {
-            m_usageBuilder.PrintOption(option);
-            m_usageBuilder.Print();
-        }
+        /// <inheritdoc/>
+        public virtual void PrintUsage(ICommandLineOption option)
+            => PrintOptionUsage(option);
     }
 }

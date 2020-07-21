@@ -150,7 +150,7 @@ namespace MatthiWare.CommandLine
             if (string.IsNullOrWhiteSpace(ParserOptions.AppName))
                 ParserOptions.AppName = Process.GetCurrentProcess().ProcessName;
 
-            Printer = new UsagePrinter(parserOptions, this, new UsageBuilder(parserOptions));
+            Printer = new UsagePrinter(this, new UsageBuilder(parserOptions));
 
             if (ParserOptions.EnableHelpOption)
             {
@@ -310,25 +310,31 @@ namespace MatthiWare.CommandLine
             if (noArgsSupplied && (Options.Any(opt => !opt.HasDefault) || Commands.Any(cmd => cmd.IsRequired)))
                 PrintHelp();
             else if (result.HelpRequested)
-                Printer.PrintUsage(result.HelpRequestedFor);
+                PrintHelpRequestedForArgument(result.HelpRequestedFor);
             else if (result.HasErrors)
                 PrintErrors(result.Errors);
         }
 
-        private void PrintErrors(IReadOnlyCollection<Exception> errors)
+        private void PrintHelpRequestedForArgument(IArgument argument)
         {
-            var previousColor = Console.ForegroundColor;
+            switch (argument)
+            {
+                case ICommandLineCommand cmd:
+                    Printer.PrintCommandUsage(cmd);
+                    break;
+                case ICommandLineOption opt:
+                    Printer.PrintOptionUsage(opt);
+                    break;
+                default:
+                    PrintHelp();
+                    break;
+            }
+        }
 
-            Console.ForegroundColor = ConsoleColor.Red;
-
-            foreach (var error in errors)
-                Console.Error.WriteLine(error.Message);
-
-            Console.ForegroundColor = previousColor;
-
-            Console.WriteLine();
-
-            PrintHelp();
+        private void PrintErrors(IReadOnlyCollection<Exception> errors)
+        { 
+            Printer.PrintErrors(errors);
+            Printer.PrintUsage();
         }
 
         private void PrintHelp() => Printer.PrintUsage();
@@ -363,6 +369,7 @@ namespace MatthiWare.CommandLine
             return false;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Commands can throw all sorts of exceptions when executing")]
         private void ExecuteCommandParserResults(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds)
         {
             var errors = new List<Exception>();
@@ -375,7 +382,7 @@ namespace MatthiWare.CommandLine
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(ex);
+                    errors.Add(new CommandExecutionFailedException(cmd.Command, ex));
                 }
             }
 
@@ -398,7 +405,7 @@ namespace MatthiWare.CommandLine
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(ex);
+                    errors.Add(new CommandExecutionFailedException(cmd.Command, ex));
                 }
             }
 
