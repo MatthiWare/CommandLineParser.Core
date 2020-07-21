@@ -378,7 +378,7 @@ namespace MatthiWare.CommandLine
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(ex);
+                    errors.Add(new CommandExecutionFailedException(cmd.Command, ex));
                 }
             }
 
@@ -401,7 +401,7 @@ namespace MatthiWare.CommandLine
                 }
                 catch (Exception ex)
                 {
-                    errors.Add(ex);
+                    errors.Add(new CommandExecutionFailedException(cmd.Command, ex));
                 }
             }
 

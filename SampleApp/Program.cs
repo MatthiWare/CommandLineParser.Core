@@ -1,21 +1,28 @@
 ﻿using System;
+using System.Reflection;
+using System.Threading.Tasks;
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Extensions.FluentValidations;
+using SampleApp.Commands;
 using SampleApp.Validations;
 
 namespace SampleApp
 {
     public class Program
     {
-        static int Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             Console.WriteLine($"args: {string.Join(", ", args)}");
 
             var parser = new CommandLineParser<Options>();
 
             // Example to add FluentValidations to the project
-            parser.UseFluentValidations((c) => c.AddValidator<Options, OptionsValidator>()
-                .AddValidator<CommandOptions, CommandOptionsValidator>());
+            parser.UseFluentValidations((config) =>
+            {
+                config
+                    .AddValidator<Options, OptionsValidator>()
+                    .AddValidator<CommandOptions, CommandOptionsValidator>();
+            });
 
             // setup
             parser.Configure(opt => opt.MyInt)
@@ -38,28 +45,31 @@ namespace SampleApp
                 .Description("Description for -d option, needs a double.")
                 .Required();
 
-            var startCmd = parser.AddCommand<CommandOptions>()
-                .Name("start")
-                .Description("Start the server command.")
-                .Required()
-                .OnExecuting((opt, parsedCmdOption) => Console.WriteLine($"Starting server using verbose option: {parsedCmdOption.Verbose}"));
+            // discover commands
+            parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
-            startCmd.Configure(cmd => cmd.Verbose) // configures the command options can also be done using attributes
-                .Description("Verbose output [true/false]")
-                .Default(false)
-                .Name("v", "verbose");
+            //parser.RegisterCommand<StartServerCommand>();
 
-            var result = parser.Parse(args);
+            var throwExceptionCommand = parser.AddCommand()
+                .Name("throw")
+                .Description("Throws an error when executed")
+                .OnExecuting(opt => throw new Exception("It's Not a Bug, It's a Feature."));
+
+            var result = await parser.ParseAsync(args);
 
             if (result.HasErrors)
             {
                 // note that errors will be automatically printed if `CommandLineParserOptions.AutoPrintUsageAndErrors` is set to true.
+                // otherwise use:
+                /*
                 foreach (var exception in result.Errors)
                     HandleException(exception);
+                */
 
+                Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
 
-                return -1;
+                return -1; // error exit code
             }
 
             var options = result.Result;
@@ -71,7 +81,7 @@ namespace SampleApp
 
             Console.ReadKey();
 
-            return 0;
+            return 0; // succes exit code
         }
 
         private static void HandleException(Exception exception)

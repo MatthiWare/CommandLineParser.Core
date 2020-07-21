@@ -26,13 +26,13 @@ namespace MatthiWare.CommandLine.Core.Usage
         {
             var previousColor = Console.ForegroundColor;
 
-            //Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.Red;
 
             Builder.AddErrors(errors);
 
             Console.Error.WriteLine(Builder.Build());
 
-            //Console.ForegroundColor = previousColor;
+            Console.ForegroundColor = previousColor;
 
             Console.WriteLine();
 

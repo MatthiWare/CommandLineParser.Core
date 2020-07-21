@@ -913,6 +913,12 @@
             <param name="name"></param>
             <param name="container"></param>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder.AddErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
+            <summary>
+            Adds the errors to the output builder
+            </summary>
+            <param name="errors"></param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter">
             <summary>
             CLI Usage Output Printer
@@ -1331,6 +1337,18 @@
             <param name="message">The exception message</param>
             <param name="innerException">Optional inner exception</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Exceptions.CommandExecutionFailedException">
+            <summary>
+            Command failed to execute exception
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Exceptions.CommandExecutionFailedException.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand,System.Exception)">
+            <summary>
+            Command failed to execute exception
+            </summary>
+            <param name="command">Command that failed</param>
+            <param name="innerException">Actual exception</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.CommandNotFoundException">
             <summary>
             Indicitates that a configured required command is not found.
@@ -1473,6 +1491,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddOptions(System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
             <inheritdoc/>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Usage.UsagePrinter">
