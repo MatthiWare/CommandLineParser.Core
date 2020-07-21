@@ -26,9 +26,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var usagePrinterMock = new Mock<IUsagePrinter>();
 
             usagePrinterMock.Setup(mock => mock.PrintUsage()).Callback(() => calledFlag = true);
-            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<IArgument>())).Callback(() => calledFlag = true);
-            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
-            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 
             var parser = new CommandLineParser<Options>
             {
@@ -60,9 +59,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var usagePrinterMock = new Mock<IUsagePrinter>();
 
             usagePrinterMock.Setup(mock => mock.PrintUsage()).Callback(() => calledFlag = true);
-            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<IArgument>())).Callback(() => calledFlag = true);
-            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
-            usagePrinterMock.Setup(mock => mock.PrintUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 
             var parser = new CommandLineParser<Options>
             {

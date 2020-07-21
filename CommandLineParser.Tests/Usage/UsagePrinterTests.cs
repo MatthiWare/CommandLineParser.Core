@@ -86,7 +86,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             parser.Parse(new[] { "-o", "--help" });
 
-            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<IArgument>()), Times.Once());
+            printerMock.Verify(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>()), Times.Once());
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             parser.Parse(new[] { "-o", "bla", "cmd", "--help" });
 
-            printerMock.Verify(mock => mock.PrintUsage(It.IsAny<IArgument>()), Times.Once());
+            printerMock.Verify(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>()), Times.Once());
         }
 
         [Theory]
@@ -123,7 +123,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions);
 
-            parser.Printer = new UsagePrinter(parserOptions, parser, builderMock.Object);
+            parser.Printer = new UsagePrinter(parser, builderMock.Object);
 
             parser.AddCommand<UsagePrinterCommandOptions>()
                 .Name("cmd")
@@ -131,33 +131,38 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             var result = parser.Parse(args);
 
-            builderMock.Verify(mock => mock.Print(), Times.Never());
-            builderMock.Verify(mock => mock.PrintCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()), Times.Never());
-            builderMock.Verify(mock => mock.PrintOption(It.IsAny<ICommandLineOption>()), Times.Never());
+            builderMock.Verify(mock => mock.Build(), Times.Never());
+            builderMock.Verify(mock => mock.AddCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()), Times.Never());
+            builderMock.Verify(mock => mock.AddOption(It.IsAny<ICommandLineOption>()), Times.Never());
 
             if (result.HelpRequested)
+            {
                 parser.Printer.PrintUsage(result.HelpRequestedFor);
+            }
 
             if (result.HasErrors)
             {
                 foreach (var err in result.Errors)
                 {
-                    if (!(err is BaseParserException baseParserException)) continue;
+                    if (!(err is BaseParserException baseParserException))
+                    {
+                        continue;
+                    }
 
                     parser.Printer.PrintUsage(baseParserException.Argument);
                 }
             }
 
             builderMock.Verify(
-                mock => mock.Print(),
+                mock => mock.Build(),
                 ToTimes(result.HelpRequested || result.HasErrors));
 
             builderMock.Verify(
-                mock => mock.PrintCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()),
+                mock => mock.AddCommand(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()),
                 ToTimes(cmdPassed));
 
             builderMock.Verify(
-                mock => mock.PrintOption(It.IsAny<ICommandLineOption>()),
+                mock => mock.AddOption(It.IsAny<ICommandLineOption>()),
                 ToTimes(optPassed));
         }
 

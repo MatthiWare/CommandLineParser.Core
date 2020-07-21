@@ -5,29 +5,34 @@ using System.Text;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
-using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Utils;
 
 namespace MatthiWare.CommandLine.Core.Usage
 {
-    internal class UsageBuilder : IUsageBuilder
+    /// <inheritdoc/>
+    public class UsageBuilder : IUsageBuilder
     {
         private readonly StringBuilder stringBuilder = new StringBuilder();
         private readonly CommandLineParserOptions parserOptions;
         private readonly string optionSeparator = "|";
 
+        /// <inheritdoc/>
         public UsageBuilder(CommandLineParserOptions parserOptions)
             => this.parserOptions = parserOptions;
 
-        public void Print()
+        /// <inheritdoc/>
+        public string Build()
         {
-            Console.WriteLine(stringBuilder.ToString());
+            var result = stringBuilder.ToString();
             stringBuilder.Clear();
+            return result;
         }
 
-        public void PrintUsage(string name, bool hasOptions, bool hasCommands)
+        /// <inheritdoc/>
+        public void AddUsage(string name, bool hasOptions, bool hasCommands)
         {
-            stringBuilder.AppendLine()
+            stringBuilder
+                .AppendLine()
                 .Append("Usage: ")
                 .Append(parserOptions.AppName)
                 .AppendIf(!string.IsNullOrWhiteSpace(parserOptions.AppName), " ")
@@ -38,29 +43,42 @@ namespace MatthiWare.CommandLine.Core.Usage
                 .AppendLine();
         }
 
-        public void PrintCommand(string name, ICommandLineCommandContainer container)
+        /// <inheritdoc/>
+        public void AddCommand(string name, ICommandLineCommand command)
+            => AddCommand(name, command as ICommandLineCommandContainer);
+
+        /// <inheritdoc/>
+        public void AddCommand(string name, ICommandLineCommandContainer container)
         {
-            PrintUsage(name, container.Options.Any(), container.Commands.Any());
+            AddUsage(name, container.Options.Any(), container.Commands.Any());
 
-            PrintOptions(container.Options);
+            AddOptions(container.Options);
 
-            PrintCommandDescriptions(container.Commands);
+            AddCommandDescriptions(container.Commands);
         }
 
-        public void PrintCommandDescription(ICommandLineCommand command)
+        /// <inheritdoc/>
+        public void AddCommandDescription(ICommandLineCommand command)
             => stringBuilder.AppendLine($"  {command.Name,-20}{command.Description,-50}");
 
-        public void PrintCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
+        /// <inheritdoc/>
+        public void AddCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
         {
-            if (!commands.Any()) return;
+            if (!commands.Any())
+            {
+                return;
+            }
 
             stringBuilder.AppendLine().AppendLine("Commands: ");
 
             foreach (var cmd in commands)
-                PrintCommandDescription(cmd);
+            {
+                AddCommandDescription(cmd);
+            }
         }
 
-        public void PrintOption(ICommandLineOption option)
+        /// <inheritdoc/>
+        public void AddOption(ICommandLineOption option)
         {
             bool hasShort = option.HasShortName;
             bool hasLong = option.HasLongName;
@@ -75,15 +93,30 @@ namespace MatthiWare.CommandLine.Core.Usage
             stringBuilder.AppendLine($"  {key,-20}{option.Description,-50}");
         }
 
-        public void PrintOptions(IEnumerable<ICommandLineOption> options)
+        /// <inheritdoc/>
+        public void AddOptions(IEnumerable<ICommandLineOption> options)
         {
-            if (!options.Any()) return;
+            if (!options.Any())
+            {
+                return;
+            }
 
-            stringBuilder.AppendLine().AppendLine("Options: ");
+            stringBuilder
+                .AppendLine()
+                .AppendLine("Options: ");
 
             foreach (var opt in options)
             { 
-                PrintOption(opt);
+                AddOption(opt);
+            }
+        }
+
+        /// <inheritdoc/>
+        public void AddErrors(IReadOnlyCollection<Exception> errors)
+        {
+            foreach (var error in errors)
+            {
+                stringBuilder.AppendLine(error.Message);
             }
         }
     }
