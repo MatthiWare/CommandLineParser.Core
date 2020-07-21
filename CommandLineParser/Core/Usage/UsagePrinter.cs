@@ -9,15 +9,15 @@ namespace MatthiWare.CommandLine.Core.Usage
     /// <inheritdoc/>
     public class UsagePrinter : IUsagePrinter
     {
-        private readonly ICommandLineCommandContainer m_commandContainer;
+        protected ICommandLineCommandContainer Container { get; }
 
         /// <inheritdoc/>
-        public virtual IUsageBuilder Builder { get; }
+        public IUsageBuilder Builder { get; }
 
         /// <inheritdoc/>
         public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder)
         {
-            m_commandContainer = container;
+            Container = container;
             Builder = builder;
         }
 
@@ -35,8 +35,6 @@ namespace MatthiWare.CommandLine.Core.Usage
             Console.ForegroundColor = previousColor;
 
             Console.WriteLine();
-
-            PrintUsage();
         }
 
         /// <inheritdoc/>
@@ -56,7 +54,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         /// <inheritdoc/>
         public virtual void PrintUsage()
         {
-            Builder.AddCommand(string.Empty, m_commandContainer);
+            Builder.AddCommand(string.Empty, Container);
             Console.WriteLine(Builder.Build());
         }
 
