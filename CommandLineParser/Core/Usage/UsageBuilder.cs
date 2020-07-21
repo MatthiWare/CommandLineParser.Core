@@ -21,7 +21,7 @@ namespace MatthiWare.CommandLine.Core.Usage
             => this.parserOptions = parserOptions;
 
         /// <inheritdoc/>
-        public string Build()
+        public virtual string Build()
         {
             var result = stringBuilder.ToString();
             stringBuilder.Clear();
@@ -29,7 +29,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void AddUsage(string name, bool hasOptions, bool hasCommands)
+        public virtual void AddUsage(string name, bool hasOptions, bool hasCommands)
         {
             stringBuilder
                 .AppendLine()
@@ -44,11 +44,11 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void AddCommand(string name, ICommandLineCommand command)
+        public virtual void AddCommand(string name, ICommandLineCommand command)
             => AddCommand(name, command as ICommandLineCommandContainer);
 
         /// <inheritdoc/>
-        public void AddCommand(string name, ICommandLineCommandContainer container)
+        public virtual void AddCommand(string name, ICommandLineCommandContainer container)
         {
             AddUsage(name, container.Options.Any(), container.Commands.Any());
 
@@ -58,11 +58,11 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void AddCommandDescription(ICommandLineCommand command)
+        public virtual void AddCommandDescription(ICommandLineCommand command)
             => stringBuilder.AppendLine($"  {command.Name,-20}{command.Description,-50}");
 
         /// <inheritdoc/>
-        public void AddCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
+        public virtual void AddCommandDescriptions(IEnumerable<ICommandLineCommand> commands)
         {
             if (!commands.Any())
             {
@@ -78,7 +78,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void AddOption(ICommandLineOption option)
+        public virtual void AddOption(ICommandLineOption option)
         {
             bool hasShort = option.HasShortName;
             bool hasLong = option.HasLongName;
@@ -94,7 +94,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void AddOptions(IEnumerable<ICommandLineOption> options)
+        public virtual void AddOptions(IEnumerable<ICommandLineOption> options)
         {
             if (!options.Any())
             {
@@ -112,7 +112,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void AddErrors(IReadOnlyCollection<Exception> errors)
+        public virtual void AddErrors(IReadOnlyCollection<Exception> errors)
         {
             foreach (var error in errors)
             {

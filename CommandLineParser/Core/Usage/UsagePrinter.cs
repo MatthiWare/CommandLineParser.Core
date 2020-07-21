@@ -12,7 +12,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         private readonly ICommandLineCommandContainer m_commandContainer;
 
         /// <inheritdoc/>
-        public IUsageBuilder Builder { get; }
+        public virtual IUsageBuilder Builder { get; }
 
         /// <inheritdoc/>
         public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder)
@@ -22,7 +22,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void PrintErrors(IReadOnlyCollection<Exception> errors)
+        public virtual void PrintErrors(IReadOnlyCollection<Exception> errors)
         {
             var previousColor = Console.ForegroundColor;
 
@@ -40,28 +40,28 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void PrintCommandUsage(ICommandLineCommand command)
+        public virtual void PrintCommandUsage(ICommandLineCommand command)
         {
             Builder.AddCommand(command.Name, command);
             Console.WriteLine(Builder.Build());
         }
 
         /// <inheritdoc/>
-        public void PrintOptionUsage(ICommandLineOption option)
+        public virtual void PrintOptionUsage(ICommandLineOption option)
         {
             Builder.AddOption(option);
             Console.WriteLine(Builder.Build());
         }
 
         /// <inheritdoc/>
-        public void PrintUsage()
+        public virtual void PrintUsage()
         {
             Builder.AddCommand(string.Empty, m_commandContainer);
             Console.WriteLine(Builder.Build());
         }
 
         /// <inheritdoc/>
-        public void PrintUsage(IArgument argument)
+        public virtual void PrintUsage(IArgument argument)
         {
             switch (argument)
             {
@@ -78,11 +78,11 @@ namespace MatthiWare.CommandLine.Core.Usage
         }
 
         /// <inheritdoc/>
-        public void PrintUsage(ICommandLineCommand command)
+        public virtual void PrintUsage(ICommandLineCommand command)
             => PrintCommandUsage(command);
 
         /// <inheritdoc/>
-        public void PrintUsage(ICommandLineOption option)
+        public virtual void PrintUsage(ICommandLineOption option)
             => PrintOptionUsage(option);
     }
 }
