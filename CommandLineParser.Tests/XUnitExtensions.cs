@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using Xunit;
 
 namespace MatthiWare.CommandLine.Tests
 {
@@ -30,5 +31,10 @@ namespace MatthiWare.CommandLine.Tests
 
             return false;
         }
+    }
+
+    [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+    public class NonParallelCollection
+    { 
     }
 }

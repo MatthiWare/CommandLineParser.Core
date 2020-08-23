@@ -16,6 +16,8 @@ namespace MatthiWare.CommandLine.Core.Usage
         /// <inheritdoc/>
         public IUsageBuilder Builder { get; }
 
+        internal ConsoleColor m_currentConsoleColor = ConsoleColor.Gray;
+
         /// <summary>
         /// Creates a new CLI output usage printer
         /// </summary>
@@ -43,10 +45,9 @@ namespace MatthiWare.CommandLine.Core.Usage
         {
             bool canOutputColor = !this.environmentVariablesService.NoColorRequested;
 
-            var previousColor = Console.ForegroundColor;
-
             if (canOutputColor)
             {
+                m_currentConsoleColor = ConsoleColor.Red;
                 Console.ForegroundColor = ConsoleColor.Red;
             }
 
@@ -55,8 +56,9 @@ namespace MatthiWare.CommandLine.Core.Usage
             Console.Error.WriteLine(Builder.Build());
 
             if (canOutputColor)
-            { 
-                Console.ForegroundColor = previousColor;
+            {
+                m_currentConsoleColor = ConsoleColor.Gray;
+                Console.ResetColor();
             }
 
             Console.WriteLine();
