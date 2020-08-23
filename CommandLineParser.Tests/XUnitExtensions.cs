@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using Xunit;
 
 namespace MatthiWare.CommandLine.Tests
 {
@@ -31,4 +32,11 @@ namespace MatthiWare.CommandLine.Tests
             return false;
         }
     }
+
+#pragma warning disable SA1402 // FileMayOnlyContainASingleType
+    [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+    public class NonParallelCollection
+    { 
+    }
+#pragma warning restore SA1402 // FileMayOnlyContainASingleType
 }

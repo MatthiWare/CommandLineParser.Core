@@ -1,38 +1,100 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
+using System;
+using System.Collections.Generic;
 
 namespace MatthiWare.CommandLine.Core.Usage
 {
-    internal class UsagePrinter : IUsagePrinter
+    /// <inheritdoc/>
+    public class UsagePrinter : IUsagePrinter
     {
-        private readonly CommandLineParserOptions m_parserOptions;
-        private readonly IUsageBuilder m_usageBuilder;
-        private readonly ICommandLineCommandContainer m_commandContainer;
+        private readonly IEnvironmentVariablesService environmentVariablesService;
 
-        public UsagePrinter(CommandLineParserOptions parserOptions, ICommandLineCommandContainer container, IUsageBuilder builder)
+        protected ICommandLineCommandContainer Container { get; }
+
+        /// <inheritdoc/>
+        public IUsageBuilder Builder { get; }
+
+        internal ConsoleColor m_currentConsoleColor = ConsoleColor.Gray;
+
+        /// <summary>
+        /// Creates a new CLI output usage printer
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="builder"></param>
+        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder)
+            : this(container, builder, new EnvironmentVariableService())
+        { }
+
+        /// <summary>
+        /// Creates a new CLI output usage printer
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="builder"></param>
+        /// <param name="environmentVariablesService"></param>
+        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService)
         {
-            m_parserOptions = parserOptions;
-            m_commandContainer = container;
-
-            m_usageBuilder = builder;
+            Container = container ?? throw new ArgumentNullException(nameof(container));
+            Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            this.environmentVariablesService = environmentVariablesService ?? throw new ArgumentNullException(nameof(environmentVariablesService));
         }
 
-        public void PrintUsage()
+        /// <inheritdoc/>
+        public virtual void PrintErrors(IReadOnlyCollection<Exception> errors)
         {
-            m_usageBuilder.PrintCommand(string.Empty, m_commandContainer);
-            m_usageBuilder.Print();
+            bool canOutputColor = !this.environmentVariablesService.NoColorRequested;
+
+            if (canOutputColor)
+            {
+                m_currentConsoleColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Red;
+            }
+
+            Builder.AddErrors(errors);
+
+            Console.Error.WriteLine(Builder.Build());
+
+            if (canOutputColor)
+            {
+                m_currentConsoleColor = ConsoleColor.Gray;
+                Console.ResetColor();
+            }
+
+            Console.WriteLine();
         }
 
-        public void PrintUsage(IArgument argument)
+        /// <inheritdoc/>
+        public virtual void PrintCommandUsage(ICommandLineCommand command)
+        {
+            Builder.AddCommand(command.Name, command);
+            Console.WriteLine(Builder.Build());
+        }
+
+        /// <inheritdoc/>
+        public virtual void PrintOptionUsage(ICommandLineOption option)
+        {
+            Builder.AddOption(option);
+            Console.WriteLine(Builder.Build());
+        }
+
+        /// <inheritdoc/>
+        public virtual void PrintUsage()
+        {
+            Builder.AddCommand(string.Empty, Container);
+            Console.WriteLine(Builder.Build());
+        }
+
+        /// <inheritdoc/>
+        public virtual void PrintUsage(IArgument argument)
         {
             switch (argument)
             {
                 case ICommandLineCommand cmd:
-                    PrintUsage(cmd);
+                    PrintCommandUsage(cmd);
                     break;
                 case ICommandLineOption opt:
-                    PrintUsage(opt);
+                    PrintOptionUsage(opt);
                     break;
                 default:
                     PrintUsage();
@@ -40,16 +102,12 @@ namespace MatthiWare.CommandLine.Core.Usage
             }
         }
 
-        public void PrintUsage(ICommandLineCommand command)
-        {
-            m_usageBuilder.PrintCommand(command.Name, (ICommandLineCommandContainer)command);
-            m_usageBuilder.Print();
-        }
+        /// <inheritdoc/>
+        public virtual void PrintUsage(ICommandLineCommand command)
+            => PrintCommandUsage(command);
 
-        public void PrintUsage(ICommandLineOption option)
-        {
-            m_usageBuilder.PrintOption(option);
-            m_usageBuilder.Print();
-        }
+        /// <inheritdoc/>
+        public virtual void PrintUsage(ICommandLineOption option)
+            => PrintOptionUsage(option);
     }
 }
