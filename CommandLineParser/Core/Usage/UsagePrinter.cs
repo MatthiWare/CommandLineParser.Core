@@ -9,30 +9,57 @@ namespace MatthiWare.CommandLine.Core.Usage
     /// <inheritdoc/>
     public class UsagePrinter : IUsagePrinter
     {
+        private readonly IEnvironmentVariablesService environmentVariablesService;
+
         protected ICommandLineCommandContainer Container { get; }
 
         /// <inheritdoc/>
         public IUsageBuilder Builder { get; }
 
-        /// <inheritdoc/>
+        internal ConsoleColor m_currentConsoleColor = ConsoleColor.Gray;
+
+        /// <summary>
+        /// Creates a new CLI output usage printer
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="builder"></param>
         public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder)
+            : this(container, builder, new EnvironmentVariableService())
+        { }
+
+        /// <summary>
+        /// Creates a new CLI output usage printer
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="builder"></param>
+        /// <param name="environmentVariablesService"></param>
+        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService)
         {
-            Container = container;
-            Builder = builder;
+            Container = container ?? throw new ArgumentNullException(nameof(container));
+            Builder = builder ?? throw new ArgumentNullException(nameof(builder));
+            this.environmentVariablesService = environmentVariablesService ?? throw new ArgumentNullException(nameof(environmentVariablesService));
         }
 
         /// <inheritdoc/>
         public virtual void PrintErrors(IReadOnlyCollection<Exception> errors)
         {
-            var previousColor = Console.ForegroundColor;
+            bool canOutputColor = !this.environmentVariablesService.NoColorRequested;
 
-            Console.ForegroundColor = ConsoleColor.Red;
+            if (canOutputColor)
+            {
+                m_currentConsoleColor = ConsoleColor.Red;
+                Console.ForegroundColor = ConsoleColor.Red;
+            }
 
             Builder.AddErrors(errors);
 
             Console.Error.WriteLine(Builder.Build());
 
-            Console.ForegroundColor = previousColor;
+            if (canOutputColor)
+            {
+                m_currentConsoleColor = ConsoleColor.Gray;
+                Console.ResetColor();
+            }
 
             Console.WriteLine();
         }
