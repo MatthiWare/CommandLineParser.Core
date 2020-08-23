@@ -33,8 +33,10 @@ namespace MatthiWare.CommandLine.Tests
         }
     }
 
+#pragma warning disable SA1402 // FileMayOnlyContainASingleType
     [CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
     public class NonParallelCollection
     { 
     }
+#pragma warning restore SA1402 // FileMayOnlyContainASingleType
 }
