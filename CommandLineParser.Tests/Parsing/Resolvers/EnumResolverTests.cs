@@ -1,11 +1,13 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
-
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class EnumResolverTests
+        : BaseResolverTests
     {
         [Theory]
         [InlineData(true, "-m", "Error")]
@@ -13,7 +15,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [InlineData(false, "-m", "")]
         public void TestCanResolve(bool expected, string key, string value)
         {
-            var resolver = new EnumResolver<TestEnum>();
+            var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<TestEnum>>();
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.CanResolve(model));
@@ -26,7 +28,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [InlineData(TestEnum.Verbose, "-m", "verbose")]
         public void TestResolve(TestEnum expected, string key, string value)
         {
-            var resolver = new EnumResolver<TestEnum>();
+            var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<TestEnum>>();
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.Resolve(model));

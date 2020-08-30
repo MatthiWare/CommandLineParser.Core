@@ -1,11 +1,13 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
-
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class BoolResolverTests
+        : BaseResolverTests
     {
         [Theory]
         [InlineData("yes")]
@@ -15,7 +17,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [InlineData(null)]
         public void TestResolveTrue(string input)
         {
-            var resolver = new BoolResolver();
+            var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<bool>>();
 
             var result = resolver.Resolve(new ArgumentModel { Value = input });
 
@@ -28,7 +30,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [InlineData("false")]
         public void TestResolveFalse(string input)
         {
-            var resolver = new BoolResolver();
+            var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<bool>>();
 
             var result = resolver.Resolve(new ArgumentModel { Value = input });
 

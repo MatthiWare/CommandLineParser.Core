@@ -10,6 +10,7 @@ using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
+using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Utils;
@@ -174,7 +175,9 @@ namespace MatthiWare.CommandLine
 
             services = new ServiceCollection();
 
-            services.Add
+            services.AddDefaultResolvers();
+
+            services.BuildServiceProvider().GetRequiredService(typeof(IArgumentResolver<long>));
 
             InitialzeModel();
         }

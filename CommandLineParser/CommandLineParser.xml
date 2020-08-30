@@ -609,27 +609,27 @@
             <param name="key">model identifier</param>
             <param name="value">model value</param>
         </member>
-        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1">
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1">
             <summary>
             Class to resolve arguments
             </summary>
             <typeparam name="TArgument">Argument type</typeparam>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Checks if the resolver can resolve the argument
             </summary>
             <param name="model">argument</param>
             <returns>True if it can resolve it correctly</returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Resolves the argument from the model
             </summary>
             <param name="model">Argument model</param>
             <returns>The resolved type</returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1.MatthiWare#CommandLine#Abstractions#Parsing#ICommandLineArgumentResolver#Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.MatthiWare#CommandLine#Abstractions#Parsing#ICommandLineArgumentResolver#Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Resolves the argument from the model
             </summary>
@@ -711,6 +711,12 @@
             <param name="model">The result arguments</param>
             <returns>True if arguments are found, false if not</returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver`1">
+            <summary>
+            Argument resolver
+            </summary>
+            <typeparam name="TArgument">Argument type</typeparam>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory">
             <summary>
             Container class to resolve <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver"/>'s. 
@@ -730,9 +736,9 @@
             <param name="argument">Type to check</param>
             <returns>True if it contains an resolver, false if not.</returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Register``1(MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver{``0},System.Boolean)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Register``1(MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver{``0},System.Boolean)">
             <summary>
-            Registers an instance of <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1"/>
+            Registers an instance of <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1"/>
             </summary>
             <typeparam name="TArgument">Argument type to resolve</typeparam>
             <param name="resolverInstance">Instance of the resolver</param>

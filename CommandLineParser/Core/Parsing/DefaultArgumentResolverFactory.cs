@@ -22,7 +22,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
             Register<bool, BoolResolver>();
             Register<int, IntResolver>();
             Register<double, DoubleResolver>();
-            Register(typeof(Enum), typeof(EnumResolver<>));
         }
 
         public bool Contains<T>()

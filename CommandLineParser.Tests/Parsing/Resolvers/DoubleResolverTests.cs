@@ -1,18 +1,20 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
-
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class DoubleResolverTests
+        : BaseResolverTests
     {
         [Theory]
         [InlineData(true, "6E-14")]
         [InlineData(false, "false")]
         public void TestCanResolve(bool expected, string value)
         {
-            var resolver = new DoubleResolver();
+            var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<double>>();
             var model = new ArgumentModel("key", value);
 
             Assert.Equal(expected, resolver.CanResolve(model));
@@ -30,7 +32,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [InlineData(double.PositiveInfinity, "Infinity")]
         public void TestResolve(double expected, string value)
         {
-            var resolver = new DoubleResolver();
+            var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<double>>();
             var model = new ArgumentModel("key", value);
 
             Assert.Equal(expected, resolver.Resolve(model));
