@@ -5,7 +5,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    public class DoubleResolver : ArgumentResolver<double>
+    public class DoubleResolver : BaseArgumentResolver<double>
     {
         public override bool CanResolve(ArgumentModel model)
         {

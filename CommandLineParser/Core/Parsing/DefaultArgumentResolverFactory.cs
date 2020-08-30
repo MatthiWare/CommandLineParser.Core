@@ -60,9 +60,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
             return (ICommandLineArgumentResolver)m_cache[type];
         }
 
-        public void Register<TArgument>(ArgumentResolver<TArgument> resolverInstance, bool overwrite = false)
+        public void Register<TArgument>(BaseArgumentResolver<TArgument> resolverInstance, bool overwrite = false)
         {
-            Register<TArgument, ArgumentResolver<TArgument>>(overwrite);
+            Register<TArgument, BaseArgumentResolver<TArgument>>(overwrite);
 
             var typeKey = typeof(TArgument);
 
@@ -72,13 +72,13 @@ namespace MatthiWare.CommandLine.Core.Parsing
             m_cache.Add(typeKey, resolverInstance);
         }
 
-        public void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : ArgumentResolver<TArgument>
+        public void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : BaseArgumentResolver<TArgument>
             => Register(typeof(TArgument), typeof(TResolver), overwrite);
 
         public void Register(Type argument, Type resolver, bool overwrite = false)
         {
-            if (!resolver.IsAssignableToGenericType(typeof(ArgumentResolver<>)))
-                throw new InvalidCastException($"The given resolver is not assignable from {typeof(ArgumentResolver<>)}");
+            if (!resolver.IsAssignableToGenericType(typeof(BaseArgumentResolver<>)))
+                throw new InvalidCastException($"The given resolver is not assignable from {typeof(BaseArgumentResolver<>)}");
 
             if (overwrite && Contains(argument))
                 m_types.Remove(argument);

@@ -208,7 +208,7 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void CommandLineParserUsesArgumentFactoryCorrectly()
         {
-            var resolverMock = new Mock<ArgumentResolver<string>>();
+            var resolverMock = new Mock<BaseArgumentResolver<string>>();
             resolverMock.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true).Verifiable();
             resolverMock.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns("return").Verifiable();
 
@@ -349,7 +349,7 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void ParseWithCustomParserInAttributeConfiguredModelTests()
         {
-            var resolver = new Mock<ArgumentResolver<object>>();
+            var resolver = new Mock<BaseArgumentResolver<object>>();
 
             var obj = new object();
 

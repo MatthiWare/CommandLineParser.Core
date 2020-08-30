@@ -5,7 +5,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    internal class EnumResolver<TEnum> : ArgumentResolver<TEnum>
+    internal class EnumResolver<TEnum> : BaseArgumentResolver<TEnum>
         where TEnum : struct, Enum
     {
         public override bool CanResolve(ArgumentModel model)

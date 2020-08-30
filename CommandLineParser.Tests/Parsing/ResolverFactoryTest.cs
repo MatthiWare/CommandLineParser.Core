@@ -53,7 +53,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         {
             var instance = new RandomType();
 
-            var mockResolver = new Mock<ArgumentResolver<RandomType>>();
+            var mockResolver = new Mock<BaseArgumentResolver<RandomType>>();
             mockResolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
             mockResolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(instance);
 
@@ -75,7 +75,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void RegisterOverrideWorks()
         {
-            var mockResolver = new Mock<ArgumentResolver<string>>();
+            var mockResolver = new Mock<BaseArgumentResolver<string>>();
 
             var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
@@ -87,7 +87,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void RegisterThrowsException()
         {
-            var mockResolver = new Mock<ArgumentResolver<string>>();
+            var mockResolver = new Mock<BaseArgumentResolver<string>>();
 
             var factory = new DefaultArgumentResolverFactory(new DefaultContainerResolver());
 
@@ -105,7 +105,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void RegisterObjectResolver()
         {
-            var resolver = new Mock<ArgumentResolver<object>>();
+            var resolver = new Mock<BaseArgumentResolver<object>>();
 
             var obj = new object();
 

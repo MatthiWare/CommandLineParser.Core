@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    internal class DefaultResolver<T> : ArgumentResolver<T>
+    internal class DefaultResolver<T> : BaseArgumentResolver<T>
     {
         private static readonly string TryParseName = "TryParse";
         private static readonly string ParseName = "Parse";

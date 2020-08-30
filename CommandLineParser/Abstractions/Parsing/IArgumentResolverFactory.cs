@@ -22,12 +22,12 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         bool Contains(Type argument);
 
         /// <summary>
-        /// Registers an instance of <see cref="ArgumentResolver{TArgument}"/>
+        /// Registers an instance of <see cref="BaseArgumentResolver{TArgument}"/>
         /// </summary>
         /// <typeparam name="TArgument">Argument type to resolve</typeparam>
         /// <param name="resolverInstance">Instance of the resolver</param>
         /// <param name="overwrite">Overwrite if the resolver already exists</param>
-        void Register<TArgument>(ArgumentResolver<TArgument> resolverInstance, bool overwrite = false);
+        void Register<TArgument>(BaseArgumentResolver<TArgument> resolverInstance, bool overwrite = false);
 
         /// <summary>
         /// Registers a <see cref="ICommandLineArgumentResolver{TArgument}"/>
@@ -35,7 +35,7 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// <typeparam name="TArgument">Argument type to resolve</typeparam>
         /// <typeparam name="TResolver">Type of the resolver</typeparam>
         /// <param name="overwrite">Overwrite if the resolver already exists</param>
-        void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : ArgumentResolver<TArgument>;
+        void Register<TArgument, TResolver>(bool overwrite = false) where TResolver : BaseArgumentResolver<TArgument>;
 
         /// <summary>
         /// Registers a <see cref="ICommandLineArgumentResolver"/>

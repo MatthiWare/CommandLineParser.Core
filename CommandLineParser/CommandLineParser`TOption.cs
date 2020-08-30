@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -42,6 +43,7 @@ namespace MatthiWare.CommandLine
         private readonly string m_helpOptionNameLong;
         private readonly List<IValidator> validators;
         private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
+        private IServiceCollection services;
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -148,7 +150,9 @@ namespace MatthiWare.CommandLine
             ContainerResolver = containerResolver;
 
             if (string.IsNullOrWhiteSpace(ParserOptions.AppName))
+            { 
                 ParserOptions.AppName = Process.GetCurrentProcess().ProcessName;
+            }
 
             Printer = new UsagePrinter(this, new UsageBuilder(parserOptions));
 
@@ -167,6 +171,10 @@ namespace MatthiWare.CommandLine
                     m_helpOptionNameLong = null;
                 }
             }
+
+            services = new ServiceCollection();
+
+            services.Add
 
             InitialzeModel();
         }

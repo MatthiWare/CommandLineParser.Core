@@ -3,7 +3,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    internal class StringResolver : ArgumentResolver<string>
+    internal class StringResolver : BaseArgumentResolver<string>
     {
         public override bool CanResolve(ArgumentModel model) => model.HasValue;
 
