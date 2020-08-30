@@ -14,14 +14,14 @@ namespace MatthiWare.CommandLine.Tests
         public void OptionBuilderConfiguresOptionCorrectly()
         {
             var resolverMock = new Mock<ICommandLineArgumentResolver<string>>();
-            var resolverFactoryMock = new Mock<IArgumentResolverFactory>();
-            resolverFactoryMock.Setup(_ => _.CreateResolver(It.IsAny<Type>())).Returns(resolverMock.Object);
+            var serviceProviderMock = new Mock<IServiceProvider>();
+            serviceProviderMock.Setup(_ => _.GetService(It.IsAny<Type>())).Returns(resolverMock.Object);
 
             var option = new CommandLineOption(
                 new CommandLineParserOptions { PrefixLongOption = string.Empty, PrefixShortOption = string.Empty },
                 new object(),
                 XUnitExtensions.CreateLambda<object, string>(o => o.ToString()),
-                resolverFactoryMock.Object);
+                serviceProviderMock.Object);
 
             var builder = option as IOptionBuilder;
 

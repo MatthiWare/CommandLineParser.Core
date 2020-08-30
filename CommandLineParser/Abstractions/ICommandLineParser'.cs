@@ -28,7 +28,7 @@ namespace MatthiWare.CommandLine.Abstractions
         /// Factory to resolve the argument type
         /// <see cref="ICommandLineArgumentResolver"/> for more info.
         /// </summary>
-        IArgumentResolverFactory ArgumentResolverFactory { get; }
+        //IArgumentResolverFactory ArgumentResolverFactory { get; }
 
         /// <summary>
         /// Resolver that is used to instantiate types by an given container

@@ -26,23 +26,6 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        public CommandLineParser(IArgumentResolverFactory argumentResolverFactory)
-            : base(argumentResolverFactory)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="parserOptions">options that the parser will use</param>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory)
-            : base(parserOptions, argumentResolverFactory)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
         /// <param name="containerResolver">container resolver to use</param>
         public CommandLineParser(IContainerResolver containerResolver)
             : base(new CommandLineParserOptions(), containerResolver)
@@ -55,15 +38,6 @@ namespace MatthiWare.CommandLine
         /// <param name="containerResolver">container resolver to use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IContainerResolver containerResolver)
             : base(parserOptions, containerResolver)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        /// <param name="containerResolver">container resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
-            : base(parserOptions, argumentResolverFactory, containerResolver)
         { }
     }
 }

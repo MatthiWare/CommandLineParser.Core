@@ -7,8 +7,8 @@ namespace MatthiWare.CommandLine.Core
 {
     internal class CommandLineOption<TOption> : CommandLineOptionBase, IOptionBuilder<TOption>
     {
-        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolverFactory resolver)
-             : base(parserOptions, source, selector, resolver)
+        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IServiceProvider serviceProvider)
+             : base(parserOptions, source, selector, serviceProvider)
         {
         }
 

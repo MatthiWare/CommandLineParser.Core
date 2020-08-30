@@ -10,7 +10,7 @@ namespace MatthiWare.CommandLine.Core
         CommandLineOptionBase,
         IOptionBuilder
     {
-        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolverFactory resolver)
+        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IServiceProvider resolver)
             : base (parserOptions, source, selector, resolver)
         {
         }

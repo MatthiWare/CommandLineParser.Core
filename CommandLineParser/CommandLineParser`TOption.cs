@@ -44,7 +44,7 @@ namespace MatthiWare.CommandLine
         private readonly string m_helpOptionNameLong;
         private readonly List<IValidator> validators;
         private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
-        private IServiceCollection services;
+        private IServiceProvider internalServiceProvider;
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -65,7 +65,7 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Factory to create resolvers for options
         /// </summary>
-        public IArgumentResolverFactory ArgumentResolverFactory { get; }
+        //public IArgumentResolverFactory ArgumentResolverFactory { get; }
 
         /// <summary>
         /// Resolver that is used to instantiate types by an given container
@@ -86,7 +86,7 @@ namespace MatthiWare.CommandLine
         /// Creates a new instance of the commandline parser
         /// </summary>
         public CommandLineParser()
-            : this(new CommandLineParserOptions(), new DefaultArgumentResolverFactory(new DefaultContainerResolver()), new DefaultContainerResolver())
+            : this(new CommandLineParserOptions(), new DefaultContainerResolver())
         { }
 
         /// <summary>
@@ -94,24 +94,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="parserOptions">The parser options</param>
         public CommandLineParser(CommandLineParserOptions parserOptions)
-            : this(parserOptions, new DefaultArgumentResolverFactory(new DefaultContainerResolver()), new DefaultContainerResolver())
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        public CommandLineParser(IArgumentResolverFactory argumentResolverFactory)
-            : this(new CommandLineParserOptions(), argumentResolverFactory, new DefaultContainerResolver())
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="parserOptions">options that the parser will use</param>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory)
-            : this(parserOptions, argumentResolverFactory, new DefaultContainerResolver())
+            : this(parserOptions, new DefaultContainerResolver())
         { }
 
         /// <summary>
@@ -119,16 +102,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="containerResolver">container resolver to use</param>
         public CommandLineParser(IContainerResolver containerResolver)
-            : this(new CommandLineParserOptions(), new DefaultArgumentResolverFactory(containerResolver), containerResolver)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="parserOptions">options that the parser will use</param>
-        /// <param name="containerResolver">container resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IContainerResolver containerResolver)
-            : this(parserOptions, new DefaultArgumentResolverFactory(containerResolver), containerResolver)
+            : this(new CommandLineParserOptions(), containerResolver)
         { }
 
         /// <summary>
@@ -137,7 +111,7 @@ namespace MatthiWare.CommandLine
         /// <param name="argumentResolverFactory">argument resolver to use</param>
         /// <param name="containerResolver">container resolver to use</param>
         /// <param name="parserOptions">The options the parser will use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
+        public CommandLineParser(CommandLineParserOptions parserOptions, IContainerResolver containerResolver)
         {
             Validators = new ValidatorsContainer(containerResolver);
 
@@ -147,7 +121,6 @@ namespace MatthiWare.CommandLine
             m_options = new Dictionary<string, CommandLineOptionBase>();
             m_commands = new List<CommandLineCommandBase>();
 
-            ArgumentResolverFactory = argumentResolverFactory;
             ContainerResolver = containerResolver;
 
             if (string.IsNullOrWhiteSpace(ParserOptions.AppName))
@@ -173,11 +146,11 @@ namespace MatthiWare.CommandLine
                 }
             }
 
-            services = new ServiceCollection();
+            var services = new ServiceCollection();
 
             services.AddDefaultResolvers();
 
-            services.BuildServiceProvider().GetRequiredService(typeof(IArgumentResolver<long>));
+            internalServiceProvider = services.BuildServiceProvider();
 
             InitialzeModel();
         }
@@ -200,7 +173,7 @@ namespace MatthiWare.CommandLine
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption<T>(ParserOptions, m_option, selector, ArgumentResolverFactory);
+                var option = new CommandLineOption<T>(ParserOptions, m_option, selector, internalServiceProvider);
 
                 m_options.Add(key, option);
             }
@@ -557,7 +530,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, internalServiceProvider, ContainerResolver, m_option, Validators);
 
             m_commands.Add(command);
 
@@ -573,7 +546,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, internalServiceProvider, ContainerResolver, m_option, Validators);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -600,7 +573,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ContainerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
+            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, internalServiceProvider, ContainerResolver, m_option, Validators);
 
             cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
@@ -631,7 +604,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, ArgumentResolverFactory, ContainerResolver, m_option, Validators);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, internalServiceProvider, ContainerResolver, m_option, Validators);
 
             m_commands.Add(command);
 

@@ -30,7 +30,7 @@ namespace MatthiWare.CommandLine.Core.Command
     {
         private readonly TCommandOption m_commandOption;
         private readonly TOption m_baseOption;
-        private readonly IArgumentResolverFactory m_resolverFactory;
+        private readonly IServiceProvider m_serviceProvider;
         private readonly IContainerResolver m_containerResolver;
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
@@ -46,14 +46,14 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option, IValidatorsContainer validators)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, IContainerResolver containerResolver, TOption option, IValidatorsContainer validators)
         {
             m_parserOptions = parserOptions;
             m_commandOption = new TCommandOption();
 
             m_validators = validators;
             m_containerResolver = containerResolver;
-            m_resolverFactory = resolverFactory;
+            m_serviceProvider = serviceProvider;
             m_baseOption = option;
 
             if (m_parserOptions.EnableHelpOption)
@@ -119,7 +119,7 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption<T>(m_parserOptions, m_commandOption, selector, m_resolverFactory);
+                var option = new CommandLineOption<T>(m_parserOptions, m_commandOption, selector, m_serviceProvider);
 
                 m_options.Add(key, option);
             }
@@ -541,7 +541,7 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TCommandOption, object>(m_parserOptions, m_resolverFactory, m_containerResolver, m_commandOption, m_validators);
+            var command = new CommandLineCommand<TCommandOption, object>(m_parserOptions, m_serviceProvider, m_containerResolver, m_commandOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -562,7 +562,7 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
 
-            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_resolverFactory, m_containerResolver, m_baseOption, m_validators);
+            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_serviceProvider, m_containerResolver, m_baseOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 
