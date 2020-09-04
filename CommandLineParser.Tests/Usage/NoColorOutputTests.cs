@@ -1,11 +1,9 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Usage;
+﻿using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Usage;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Usage

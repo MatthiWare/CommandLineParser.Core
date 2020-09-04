@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 
 using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core
 {

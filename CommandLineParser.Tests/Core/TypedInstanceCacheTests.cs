@@ -1,11 +1,8 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Core;
+﻿using MatthiWare.CommandLine.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Core

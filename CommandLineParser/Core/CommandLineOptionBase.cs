@@ -5,7 +5,6 @@ using System.Reflection;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using MatthiWare.CommandLine.Abstractions.Usage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MatthiWare.CommandLine.Core

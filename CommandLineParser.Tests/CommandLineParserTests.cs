@@ -1,7 +1,4 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Command;
-using MatthiWare.CommandLine.Abstractions.Models;
-using MatthiWare.CommandLine.Abstractions.Parsing;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

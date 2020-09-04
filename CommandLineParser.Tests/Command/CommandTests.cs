@@ -1,5 +1,4 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions.Command;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using System.Linq;
 using Xunit;
 

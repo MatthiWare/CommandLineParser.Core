@@ -1,6 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Parsing;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {

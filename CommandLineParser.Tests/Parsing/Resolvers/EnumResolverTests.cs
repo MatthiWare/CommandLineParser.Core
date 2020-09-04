@@ -1,6 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

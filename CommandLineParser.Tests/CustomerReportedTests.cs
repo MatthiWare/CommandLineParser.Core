@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using MatthiWare.CommandLine;
+﻿using System.Collections.Generic;
 using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
 

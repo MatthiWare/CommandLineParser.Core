@@ -1,10 +1,6 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Command;
-using MatthiWare.CommandLine.Core;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

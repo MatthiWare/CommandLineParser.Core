@@ -1,5 +1,4 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using Moq;

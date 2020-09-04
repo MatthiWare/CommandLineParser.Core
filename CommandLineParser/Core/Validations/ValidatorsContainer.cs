@@ -1,10 +1,8 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Validations;
+﻿using MatthiWare.CommandLine.Abstractions.Validations;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MatthiWare.CommandLine.Core.Validations
 {
