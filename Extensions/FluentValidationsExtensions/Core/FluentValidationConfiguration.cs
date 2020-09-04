@@ -9,18 +9,18 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
 {
     public sealed class FluentValidationConfiguration : ValidationConfigurationBase
     {
-        private readonly IContainerResolver resolver;
+        private readonly IServiceProvider serviceProvider;
         private readonly Dictionary<Type, FluentTypeValidatorCollection> validators = new Dictionary<Type, FluentTypeValidatorCollection>();
 
         /// <summary>
         /// Creates a new fluent validation configuration
         /// </summary>
         /// <param name="container"></param>
-        /// <param name="resolver"></param>
-        public FluentValidationConfiguration(IValidatorsContainer container, IContainerResolver resolver)
+        /// <param name="serviceProvider"></param>
+        public FluentValidationConfiguration(IValidatorsContainer container, IServiceProvider serviceProvider)
             : base(container)
         {
-            this.resolver = resolver;
+            this.serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         {
             if (!validators.TryGetValue(key, out FluentTypeValidatorCollection validator))
             {
-                validator = new FluentTypeValidatorCollection(resolver);
+                validator = new FluentTypeValidatorCollection(serviceProvider);
 
                 validators.Add(key, validator);
                 Validators.AddValidator(key, validator);

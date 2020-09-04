@@ -1,5 +1,6 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace MatthiWare.CommandLine.Tests.Core
         [InlineData(false)]
         public void AddingItemsDoesNotTriggerResolve(bool doubleAdd)
         {
-            var containerMock = new Mock<IContainerResolver>();
+            var containerMock = new Mock<IServiceProvider>();
 
             var cache = new TypedInstanceCache<MyType>(containerMock.Object);
 
@@ -40,19 +41,18 @@ namespace MatthiWare.CommandLine.Tests.Core
 
             Assert.True(result.Count == 1);
 
-            containerMock.Verify(c => c.Resolve(It.Is<Type>(t => t == typeof(MyType))), Times.Never());
+            containerMock.Verify(c => c.GetService(It.Is<Type>(t => t == typeof(MyType))), Times.Never());
         }
 
         [Fact]
         public void AddingItemTypeDoesTriggerResolve()
         {
-            var containerMock = new Mock<IContainerResolver>();
-
-            var cache = new TypedInstanceCache<MyType>(containerMock.Object);
-
             var type1 = new MyType();
 
-            containerMock.Setup(c => c.Resolve(It.Is<Type>(t => t == typeof(MyType)))).Returns(type1);
+            var services = new ServiceCollection();
+            services.AddSingleton(type1);
+
+            var cache = new TypedInstanceCache<MyType>(services.BuildServiceProvider());
 
             cache.Add(typeof(MyType));
 
@@ -61,8 +61,6 @@ namespace MatthiWare.CommandLine.Tests.Core
             Assert.Equal(type1, result.First());
 
             Assert.True(result.Count == 1);
-
-            containerMock.Verify(c => c.Resolve(It.Is<Type>(t => t == typeof(MyType))), Times.Once());
         }
 
         private class MyType { }

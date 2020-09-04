@@ -25,15 +25,9 @@ namespace MatthiWare.CommandLine.Abstractions
         IUsagePrinter Printer { get; set; }
 
         /// <summary>
-        /// Factory to resolve the argument type
-        /// <see cref="ICommandLineArgumentResolver"/> for more info.
-        /// </summary>
-        //IArgumentResolverFactory ArgumentResolverFactory { get; }
-
-        /// <summary>
         /// Resolver that is used to instantiate types by an given container
         /// </summary>
-        IContainerResolver ContainerResolver { get; }
+        IServiceProvider Services { get; }
 
         #endregion
 

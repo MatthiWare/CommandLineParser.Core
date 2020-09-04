@@ -400,7 +400,7 @@
             Tool to print usage info.
             </summary>
         </member>
-        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ContainerResolver">
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Services">
             <summary>
             Resolver that is used to instantiate types by an given container
             </summary>
@@ -940,18 +940,18 @@
             </summary>
             <param name="parserOptions">The parser options</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.Abstractions.IContainerResolver)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
-            <param name="containerResolver">container resolver to use</param>
+            <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
             <param name="parserOptions">options that the parser will use</param>
-            <param name="containerResolver">container resolver to use</param>
+            <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PrefixShortOption">
             <summary>
@@ -1014,7 +1014,7 @@
             Read-only collection of options specified
             </summary>
         </member>
-        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ContainerResolver">
+        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Services">
             <summary>
             Resolver that is used to instantiate types by an given container
             </summary>
@@ -1040,18 +1040,18 @@
             </summary>
             <param name="parserOptions">The parser options</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.Abstractions.IContainerResolver)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
-            <param name="containerResolver">container resolver to use</param>
+            <param name="servicesCollection">container resolver to use</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
             <param name="argumentResolverFactory">argument resolver to use</param>
-            <param name="containerResolver">container resolver to use</param>
+            <param name="servicesCollection">container resolver to use</param>
             <param name="parserOptions">The options the parser will use</param>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">

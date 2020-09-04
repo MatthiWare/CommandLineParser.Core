@@ -12,9 +12,9 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
     {
         private readonly TypedInstanceCache<FluentValidation.IValidator> validators;
 
-        public FluentTypeValidatorCollection(IContainerResolver resolver)
+        public FluentTypeValidatorCollection(IServiceProvider serviceProvider)
         {
-            validators = new TypedInstanceCache<FluentValidation.IValidator>(resolver);
+            validators = new TypedInstanceCache<FluentValidation.IValidator>(serviceProvider);
         }
 
         public void AddValidator(FluentValidation.IValidator validator)
