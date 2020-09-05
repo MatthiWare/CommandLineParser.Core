@@ -311,26 +311,6 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(result3, parsed.Result.Option3);
         }
 
-        //[Fact]
-        //public void ParseWithCustomParserInAttributeConfiguredModelTests()
-        //{
-        //    var resolver = new Mock<BaseArgumentResolver<object>>();
-
-        //    var obj = new object();
-
-        //    resolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
-        //    resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
-
-        //    var parser = new CommandLineParser<ObjOption>();
-        //    parser.ArgumentResolverFactory.Register(resolver.Object);
-
-        //    var result = parser.Parse(new[] { "app.exe", "-p", "sample" });
-
-        //    result.AssertNoErrors();
-
-        //    Assert.Same(obj, result.Result.Param);
-        //}
-
         [Fact]
         public void ParseWithCommandTests()
         {

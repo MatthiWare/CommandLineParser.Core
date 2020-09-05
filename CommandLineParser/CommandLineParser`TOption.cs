@@ -43,7 +43,6 @@ namespace MatthiWare.CommandLine
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
         private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
-        private IServiceProvider internalServiceProvider;
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -64,7 +63,7 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Resolver that is used to instantiate types by an given container
         /// </summary>
-        public IServiceProvider Services => internalServiceProvider;
+        public IServiceProvider Services { get; }
 
         /// <summary>
         /// Read-only list of commands specified
@@ -107,26 +106,22 @@ namespace MatthiWare.CommandLine
         /// <param name="parserOptions">The options the parser will use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IServiceCollection servicesCollection)
         {
+            ParserOptions = UpdateOptionsIfNeeded(parserOptions);
+
             var services = servicesCollection ?? new ServiceCollection();
 
-            services.AddDefaultResolvers();
+            services.AddInternalCommandLineParserServices(ParserOptions);
 
-            internalServiceProvider = services.BuildServiceProvider();
+            Services = services.BuildServiceProvider();
 
-            Validators = new ValidatorsContainer(internalServiceProvider);
+            Validators = new ValidatorsContainer(Services);
 
-            ParserOptions = parserOptions;
             m_option = new TOption();
 
             m_options = new Dictionary<string, CommandLineOptionBase>();
             m_commands = new List<CommandLineCommandBase>();
 
-            if (string.IsNullOrWhiteSpace(ParserOptions.AppName))
-            { 
-                ParserOptions.AppName = Process.GetCurrentProcess().ProcessName;
-            }
-
-            Printer = new UsagePrinter(this, new UsageBuilder(parserOptions));
+            Printer = Services.GetService<IUsagePrinter>();
 
             if (ParserOptions.EnableHelpOption)
             {
@@ -144,9 +139,19 @@ namespace MatthiWare.CommandLine
                 }
             }
 
-            
-
             InitialzeModel();
+        }
+
+        private CommandLineParserOptions UpdateOptionsIfNeeded(CommandLineParserOptions options)
+        {
+            if (!string.IsNullOrWhiteSpace(options.AppName))
+            {
+                return options;
+            }
+
+            options.AppName = Process.GetCurrentProcess().ProcessName;
+
+            return options;
         }
 
         /// <summary>
@@ -167,7 +172,7 @@ namespace MatthiWare.CommandLine
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption<T>(ParserOptions, m_option, selector, internalServiceProvider);
+                var option = new CommandLineOption<T>(ParserOptions, m_option, selector, Services);
 
                 m_options.Add(key, option);
             }
@@ -598,7 +603,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, internalServiceProvider, m_option, Validators);
+            var command = new CommandLineCommand<TOption, object>(ParserOptions, Services, m_option, Validators);
 
             m_commands.Add(command);
 
