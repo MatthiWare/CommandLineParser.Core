@@ -23,15 +23,6 @@ namespace MatthiWare.CommandLine.Core.Usage
         /// </summary>
         /// <param name="container"></param>
         /// <param name="builder"></param>
-        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder)
-            : this(container, builder, new EnvironmentVariableService())
-        { }
-
-        /// <summary>
-        /// Creates a new CLI output usage printer
-        /// </summary>
-        /// <param name="container"></param>
-        /// <param name="builder"></param>
         /// <param name="environmentVariablesService"></param>
         public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService)
         {
