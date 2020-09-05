@@ -1220,7 +1220,7 @@
             Registers a command type
             </summary>
             <typeparam name="TCommand"></typeparam>
-            <typeparam name="V"></typeparam>
+            <typeparam name="TActualCommandOption"></typeparam>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.BaseParserException">
             <summary>

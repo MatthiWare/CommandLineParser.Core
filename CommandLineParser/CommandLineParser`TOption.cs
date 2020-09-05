@@ -308,7 +308,7 @@ namespace MatthiWare.CommandLine
         }
 
         private void PrintErrors(IReadOnlyCollection<Exception> errors)
-        { 
+        {
             Printer.PrintErrors(errors);
             Printer.PrintUsage();
         }
@@ -538,7 +538,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
 
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option, Validators);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -565,7 +565,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
 
-            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TCommandOption>>(Services, m_option, Validators);
 
             cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
@@ -596,7 +596,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = new CommandLineCommand<TOption, object>(ParserOptions, Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option, Validators);
 
             m_commands.Add(command);
 

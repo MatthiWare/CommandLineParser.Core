@@ -540,7 +540,7 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider);
 
-            var command = new CommandLineCommand<TCommandOption, object>(m_parserOptions, m_serviceProvider, m_commandOption, m_validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TCommandOption, object>>(m_serviceProvider, m_commandOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -554,19 +554,19 @@ namespace MatthiWare.CommandLine.Core.Command
         /// Registers a command type
         /// </summary>
         /// <typeparam name="TCommand"></typeparam>
-        /// <typeparam name="V"></typeparam>
-        public void RegisterCommand<TCommand, V>()
-           where TCommand : Command<TOption, V>
-           where V : class, new()
+        /// <typeparam name="TActualCommandOption"></typeparam>
+        public void RegisterCommand<TCommand, TActualCommandOption>()
+           where TCommand : Command<TOption, TActualCommandOption>
+           where TActualCommandOption : class, new()
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider);
 
-            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_serviceProvider, m_baseOption, m_validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TActualCommandOption>>(m_serviceProvider, m_baseOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 
-            command.OnExecuting((Action<TOption, V>)cmdConfigurator.OnExecute);
-            command.OnExecutingAsync((Func<TOption, V, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+            command.OnExecuting((Action<TOption, TActualCommandOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, TActualCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
