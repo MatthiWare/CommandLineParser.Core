@@ -2,6 +2,7 @@
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,10 +30,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
             usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
             usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 
-            var parser = new CommandLineParser<Options>
-            {
-                Printer = usagePrinterMock.Object
-            };
+            var services = new ServiceCollection();
+
+            services.AddSingleton(usagePrinterMock.Object);
+
+            var parser = new CommandLineParser<Options>(services);
 
             var cmd = parser.AddCommand<CommandOptions>()
                 .Name("db")
@@ -62,10 +64,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
             usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
             usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 
-            var parser = new CommandLineParser<Options>
-            {
-                Printer = usagePrinterMock.Object
-            };
+            var services = new ServiceCollection();
+
+            services.AddSingleton(usagePrinterMock.Object);
+
+            var parser = new CommandLineParser<Options>(services);
 
             var cmd = parser.AddCommand<CommandOptions>()
                 .Name("db")

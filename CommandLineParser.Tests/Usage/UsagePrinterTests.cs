@@ -4,6 +4,7 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Usage;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -31,10 +32,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
             var printerMock = new Mock<IUsagePrinter>();
 
-            var parser = new CommandLineParser<Options_Issue60>
-            {
-                Printer = printerMock.Object
-            };
+            var services = new ServiceCollection();
+
+            services.AddSingleton(printerMock.Object);
+
+            var parser = new CommandLineParser<Options_Issue60>(services);
 
             parser.Parse(args);
 
@@ -63,10 +65,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
             var printerMock = new Mock<IUsagePrinter>();
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>
-            {
-                Printer = printerMock.Object
-            };
+            var services = new ServiceCollection();
+
+            services.AddSingleton(printerMock.Object);
+
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(services);
 
             parser.Parse(args);
 
@@ -78,10 +81,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
             var printerMock = new Mock<IUsagePrinter>();
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>
-            {
-                Printer = printerMock.Object
-            };
+            var services = new ServiceCollection();
+
+            services.AddSingleton(printerMock.Object);
+
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(services);
 
             parser.Parse(new[] { "-o", "--help" });
 
@@ -93,10 +97,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
             var printerMock = new Mock<IUsagePrinter>();
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>
-            {
-                Printer = printerMock.Object
-            };
+            var services = new ServiceCollection();
+
+            services.AddSingleton(printerMock.Object);
+
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(services);
 
             parser.AddCommand<UsagePrinterCommandOptions>()
                 .Name("cmd")
@@ -120,9 +125,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 AutoPrintUsageAndErrors = false
             };
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions);
+            var services = new ServiceCollection();
 
-            parser.Printer = new UsagePrinter(parser, builderMock.Object);
+            services.AddSingleton(builderMock.Object);
+
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions, services);
 
             parser.AddCommand<UsagePrinterCommandOptions>()
                 .Name("cmd")

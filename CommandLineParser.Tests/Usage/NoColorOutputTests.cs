@@ -1,6 +1,7 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Usage;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,6 @@ namespace MatthiWare.CommandLine.Tests.Usage
         private readonly IEnvironmentVariablesService variablesService;
         private Action<ConsoleColor> consoleColorGetter;
         private bool variableServiceResult;
-        private readonly UsagePrinter printer;
 
         public NoColorOutputTests()
         {
@@ -27,14 +27,15 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var usageBuilderMock = new Mock<IUsageBuilder>();
             usageBuilderMock.Setup(m => m.AddErrors(It.IsAny<IReadOnlyCollection<Exception>>())).Callback(() =>
             {
-                consoleColorGetter(printer.m_currentConsoleColor);
+                consoleColorGetter(((UsagePrinter)parser.Printer).m_currentConsoleColor);
             });
 
-            parser = new CommandLineParser<Options>();
+            var services = new ServiceCollection();
 
-            printer = new UsagePrinter(parser, usageBuilderMock.Object, variablesService);
+            services.AddSingleton(envMock.Object);
+            services.AddSingleton(usageBuilderMock.Object);
 
-            parser.Printer = printer;
+            parser = new CommandLineParser<Options>(services);
         }
 
         [Fact]
