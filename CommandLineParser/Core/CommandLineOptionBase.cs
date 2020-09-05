@@ -5,7 +5,6 @@ using System.Reflection;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace MatthiWare.CommandLine.Core
 {
@@ -14,19 +13,16 @@ namespace MatthiWare.CommandLine.Core
     {
         private readonly object m_source;
         private readonly LambdaExpression m_selector;
-        private readonly IServiceProvider serviceProvider;
         private object m_defaultValue = null;
         protected readonly CommandLineParserOptions m_parserOptions;
         private Delegate m_translator = null;
 
-        private ICommandLineArgumentResolver m_resolver;
-
-        public CommandLineOptionBase(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IServiceProvider serviceProvider)
+        public CommandLineOptionBase(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, ICommandLineArgumentResolver resolver)
         {
             m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(source));
             m_source = source ?? throw new ArgumentNullException(nameof(source));
             m_selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            Resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
         public object DefaultValue
@@ -39,16 +35,7 @@ namespace MatthiWare.CommandLine.Core
             }
         }
 
-        public ICommandLineArgumentResolver Resolver
-        {
-            get
-            {
-                if (m_resolver == null)
-                    m_resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(typeof(IArgumentResolver<>).MakeGenericType(m_selector.ReturnType));
-
-                return m_resolver;
-            }
-        }
+        public ICommandLineArgumentResolver Resolver { get; }
 
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }

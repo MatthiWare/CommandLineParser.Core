@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core
 {
     internal class CommandLineOption<TOption> : CommandLineOptionBase, IOptionBuilder<TOption>
     {
-        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IServiceProvider serviceProvider)
-             : base(parserOptions, source, selector, serviceProvider)
+        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, ICommandLineArgumentResolver<TOption> argumentResolver)
+             : base(parserOptions, source, selector, argumentResolver)
         {
+
         }
 
         public IOptionBuilder<TOption> Required(bool required = true)

@@ -534,7 +534,7 @@ namespace MatthiWare.CommandLine.Core.Command
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommandOption">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
+        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
         public void RegisterCommand<TCommand>()
             where TCommand : Command<TCommandOption>
         {
@@ -554,7 +554,7 @@ namespace MatthiWare.CommandLine.Core.Command
         /// Registers a command type
         /// </summary>
         /// <typeparam name="TCommand"></typeparam>
-        /// <typeparam name="TCommandOption"></typeparam>
+        /// <typeparam name="V"></typeparam>
         public void RegisterCommand<TCommand, V>()
            where TCommand : Command<TOption, V>
            where V : class, new()
