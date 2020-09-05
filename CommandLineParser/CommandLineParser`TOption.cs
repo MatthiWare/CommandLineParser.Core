@@ -51,11 +51,6 @@ namespace MatthiWare.CommandLine
         public CommandLineParserOptions ParserOptions { get; }
 
         /// <summary>
-        /// Tool to print usage info.
-        /// </summary>
-        public IUsagePrinter Printer { get; set; }
-
-        /// <summary>
         /// Read-only collection of options specified
         /// </summary>
         public IReadOnlyList<ICommandLineOption> Options => new ReadOnlyCollectionWrapper<string, CommandLineOptionBase>(m_options.Values);
