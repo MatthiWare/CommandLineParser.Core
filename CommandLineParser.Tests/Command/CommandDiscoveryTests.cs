@@ -2,6 +2,11 @@
 using Xunit;
 using MatthiWare.CommandLine.Abstractions.Command;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Threading;
+using MatthiWare.CommandLine.Abstractions.Usage;
+using Moq;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
@@ -35,11 +40,37 @@ namespace MatthiWare.CommandLine.Tests.Command
             Assert.Equal(2, parser.Commands.Count);
         }
 
+        [Fact]
+        public async Task CommandDiscoveryWithInjectedServices()
+        {
+            var envMock = new Mock<IEnvironmentVariablesService>();
+            envMock
+                .SetupGet(_ => _.NoColorRequested)
+                .Returns(true);
+
+            var myServiceMock = new Mock<IMyService>();
+            myServiceMock
+                .Setup(_ => _.Call())
+                .Verifiable();
+
+            var services = new ServiceCollection();
+            services.AddSingleton(envMock.Object);
+            services.AddSingleton(myServiceMock.Object);
+
+            var parser = new CommandLineParser<MyCommandWithInjectionsOptions>(services);
+
+            parser.DiscoverCommands(Assembly.GetExecutingAssembly());
+
+            var result = await parser.ParseAsync(new[] { "app.exe", "cmd" });
+
+            myServiceMock.Verify(_ => _.Call(), Times.Once());
+        }
+
         public abstract class AbstractCommand : Command<CommandDiscoveryTests>
         {
         }
 
-        public abstract class WrongGenericTypeCommand : Command<object>
+        public class WrongGenericTypeCommand : Command<object>
         {
         }
 
@@ -48,7 +79,47 @@ namespace MatthiWare.CommandLine.Tests.Command
         }
 
         public class ValidCommand2 : Command<CommandDiscoveryTests, object>
-        {  
+        {
+        }
+
+        public class MyCommandWithInjectionsOptions 
+        {
+        }
+
+        public interface IMyService
+        {
+            void Call();
+        }
+
+        public class MyCommandWithInjections : Command<MyCommandWithInjectionsOptions>
+        {
+            private readonly IMyService service;
+            private readonly IUsagePrinter usagePrinter;
+            private readonly IEnvironmentVariablesService environment;
+
+            public MyCommandWithInjections(IMyService service, IUsagePrinter usagePrinter, IEnvironmentVariablesService environment)
+            {
+                this.service = service ?? throw new System.ArgumentNullException(nameof(service));
+                this.usagePrinter = usagePrinter ?? throw new System.ArgumentNullException(nameof(usagePrinter));
+                this.environment = environment ?? throw new System.ArgumentNullException(nameof(environment));
+            }
+
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder
+                    .Name("cmd")
+                    .AutoExecute(true);
+            }
+
+            public override Task OnExecuteAsync(MyCommandWithInjectionsOptions options, CancellationToken cancellationToken)
+            {
+                service.Call();
+                usagePrinter.PrintUsage();
+
+                Assert.True(environment.NoColorRequested);
+
+                return base.OnExecuteAsync(options, cancellationToken);
+            }
         }
     }
 }
