@@ -3,6 +3,9 @@ using System;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations
 {
+    /// <summary>
+    /// FluentValidations Extensions for CommandLineParser
+    /// </summary>
     public static class FluentValidationsExtensions
     {
         /// <summary>

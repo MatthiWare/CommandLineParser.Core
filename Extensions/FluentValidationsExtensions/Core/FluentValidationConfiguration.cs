@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
 {
+    /// <summary>
+    /// Configuration for fluent validations
+    /// </summary>
     public sealed class FluentValidationConfiguration : ValidationConfigurationBase
     {
         private readonly IServiceProvider serviceProvider;

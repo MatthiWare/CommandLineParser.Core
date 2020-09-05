@@ -97,7 +97,6 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
         /// <param name="servicesCollection">container resolver to use</param>
         /// <param name="parserOptions">The options the parser will use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IServiceCollection servicesCollection)
