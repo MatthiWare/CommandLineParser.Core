@@ -50,9 +50,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         public CommandLineParserOptions ParserOptions { get; }
 
-        /// <summary>
-        /// Utility to print usage information to the output
-        /// </summary>
+        /// <inheritdoc/>
         public IUsagePrinter Printer => Services.GetRequiredService<IUsagePrinter>();
 
         /// <summary>
@@ -60,9 +58,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         public IReadOnlyList<ICommandLineOption> Options => new ReadOnlyCollectionWrapper<string, CommandLineOptionBase>(m_options.Values);
 
-        /// <summary>
-        /// Resolver that is used to instantiate types by an given container
-        /// </summary>
+        /// <inheritdoc/>
         public IServiceProvider Services { get; }
 
         /// <summary>

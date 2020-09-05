@@ -395,6 +395,11 @@
             </summary>
             <typeparam name="TOption">Argument options model</typeparam>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Printer">
+            <summary>
+            Utility to print usage information to the output
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Services">
             <summary>
             Resolver that is used to instantiate types by an given container
@@ -1000,9 +1005,7 @@
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Printer">
-            <summary>
-            Utility to print usage information to the output
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Options">
             <summary>
@@ -1010,9 +1013,7 @@
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Services">
-            <summary>
-            Resolver that is used to instantiate types by an given container
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Commands">
             <summary>

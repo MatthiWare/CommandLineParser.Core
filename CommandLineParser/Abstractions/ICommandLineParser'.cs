@@ -19,6 +19,11 @@ namespace MatthiWare.CommandLine.Abstractions
         #region Properties
 
         /// <summary>
+        /// Utility to print usage information to the output
+        /// </summary>
+        IUsagePrinter Printer { get; }
+
+        /// <summary>
         /// Resolver that is used to instantiate types by an given container
         /// </summary>
         IServiceProvider Services { get; }
