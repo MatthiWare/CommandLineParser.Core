@@ -1,4 +1,5 @@
-﻿using MatthiWare.CommandLine.Abstractions.Command;
+﻿using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Command;
@@ -10,8 +11,12 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
     public static class ResolverExtensions
     {
-        public static void AddInternalCommandLineParserServices(this IServiceCollection services, CommandLineParserOptions options)
+        public static void AddInternalCommandLineParserServices<TOption>(this IServiceCollection services, CommandLineParser<TOption> parser, CommandLineParserOptions options)
+            where TOption : class, new()
         {
+            services.AddSingleton<ICommandLineCommandContainer>(parser);
+            services.AddSingleton<ICommandLineParser<TOption>>(parser);
+
             services.AddSingleton(options);
 
             services.AddDefaultResolvers();

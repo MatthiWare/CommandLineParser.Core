@@ -110,7 +110,7 @@ namespace MatthiWare.CommandLine
 
             var services = servicesCollection ?? new ServiceCollection();
 
-            services.AddInternalCommandLineParserServices(ParserOptions);
+            services.AddInternalCommandLineParserServices(this, ParserOptions);
 
             Services = services.BuildServiceProvider();
 
