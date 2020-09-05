@@ -4,7 +4,6 @@ using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Command;
-using MatthiWare.CommandLine.Core.Models;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Usage;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +25,6 @@ namespace MatthiWare.CommandLine.Core
             services.AddCLIPrinters();
             services.AddCommandDiscoverer();
             services.AddEnvironmentVariables();
-            services.AddResultModelWrapper();
         }
 
         public static void AddDefaultResolvers(this IServiceCollection services)
@@ -53,11 +51,6 @@ namespace MatthiWare.CommandLine.Core
         public static void AddEnvironmentVariables(this IServiceCollection services)
         {
             services.TryAddScoped<IEnvironmentVariablesService, EnvironmentVariableService>();
-        }
-
-        public static void AddResultModelWrapper(this IServiceCollection services)
-        {
-            services.TryAddScoped(typeof(IResultModelWrapper<>), typeof(ResultModelWrapper<>));
         }
     }
 }
