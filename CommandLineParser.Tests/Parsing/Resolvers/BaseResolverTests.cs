@@ -1,4 +1,4 @@
-﻿using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+﻿using MatthiWare.CommandLine.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 

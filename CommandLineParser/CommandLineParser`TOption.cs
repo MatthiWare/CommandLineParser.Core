@@ -165,7 +165,7 @@ namespace MatthiWare.CommandLine
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption<T>(ParserOptions, m_option, selector, Services);
+                var option = ActivatorUtilities.CreateInstance<CommandLineOption<T>>(Services, m_option, selector);
 
                 m_options.Add(key, option);
             }

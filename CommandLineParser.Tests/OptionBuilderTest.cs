@@ -1,6 +1,7 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
+using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using Moq;
 using System;
 using Xunit;
@@ -16,13 +17,14 @@ namespace MatthiWare.CommandLine.Tests
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock.Setup(_ => _.GetService(It.IsAny<Type>())).Returns(resolverMock.Object);
 
-            var option = new CommandLineOption(
+            var cmdOption = new CommandLineOption<object>(
                 new CommandLineParserOptions { PrefixLongOption = string.Empty, PrefixShortOption = string.Empty },
                 new object(),
                 XUnitExtensions.CreateLambda<object, string>(o => o.ToString()),
-                serviceProviderMock.Object);
+                new DefaultResolver<object>());
 
-            var builder = option as IOptionBuilder;
+            var builder = cmdOption as IOptionBuilder;
+            var option = cmdOption as CommandLineOptionBase;
 
             string sDefault = "default";
             string sHelp = "help";

@@ -1213,14 +1213,14 @@
             <summary>
             Registers a command type
             </summary>
-            <typeparam name="TCommandOption">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`2"/></typeparam>
+            <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`2"/></typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Command.CommandLineCommand`2.RegisterCommand``2">
             <summary>
             Registers a command type
             </summary>
             <typeparam name="TCommand"></typeparam>
-            <typeparam name="TCommandOption"></typeparam>
+            <typeparam name="V"></typeparam>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.BaseParserException">
             <summary>
@@ -1411,13 +1411,6 @@
         </member>
         <member name="P:MatthiWare.CommandLine.Core.Usage.UsagePrinter.Builder">
             <inheritdoc/>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder)">
-            <summary>
-            Creates a new CLI output usage printer
-            </summary>
-            <param name="container"></param>
-            <param name="builder"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService)">
             <summary>
