@@ -55,21 +55,7 @@ namespace MatthiWare.CommandLine.Core.Command
             m_serviceProvider = serviceProvider;
             m_baseOption = option;
 
-            if (m_parserOptions.EnableHelpOption)
-            {
-                var tokens = m_parserOptions.HelpOptionName.Split('|');
-
-                if (tokens.Length > 1)
-                {
-                    m_helpOptionName = $"{m_parserOptions.PrefixShortOption}{tokens[0]}";
-                    m_helpOptionNameLong = $"{m_parserOptions.PrefixLongOption}{tokens[1]}";
-                }
-                else
-                {
-                    m_helpOptionName = $"{m_parserOptions.PrefixLongOption}{tokens[0]}";
-                    m_helpOptionNameLong = null;
-                }
-            }
+            (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
 
             InitialzeModel();
         }

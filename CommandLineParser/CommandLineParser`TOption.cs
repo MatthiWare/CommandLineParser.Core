@@ -10,11 +10,8 @@ using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
-using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Parsing.Command;
-using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Utils;
-using MatthiWare.CommandLine.Core.Validations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,6 +22,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 
@@ -38,11 +36,12 @@ namespace MatthiWare.CommandLine
         where TOption : class, new()
     {
         private readonly TOption m_option;
-        private readonly Dictionary<string, CommandLineOptionBase> m_options;
-        private readonly List<CommandLineCommandBase> m_commands;
+        private readonly Dictionary<string, CommandLineOptionBase> m_options = new Dictionary<string, CommandLineOptionBase>();
+        private readonly List<CommandLineCommandBase> m_commands = new List<CommandLineCommandBase>();
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
         private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
+        private readonly ILogger<CommandLineParser> logger;
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -69,7 +68,7 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Container for all validators
         /// </summary>
-        public IValidatorsContainer Validators { get; }
+        public IValidatorsContainer Validators => Services.GetRequiredService<IValidatorsContainer>();
 
         /// <summary>
         /// Creates a new instance of the commandline parser
@@ -109,28 +108,11 @@ namespace MatthiWare.CommandLine
 
             Services = services.BuildServiceProvider();
 
-            Validators = new ValidatorsContainer(Services);
+            logger = Services.GetRequiredService<ILoggerFactory>().CreateLogger<CommandLineParser>();
 
             m_option = new TOption();
 
-            m_options = new Dictionary<string, CommandLineOptionBase>();
-            m_commands = new List<CommandLineCommandBase>();
-
-            if (ParserOptions.EnableHelpOption)
-            {
-                var tokens = ParserOptions.HelpOptionName.Split('|');
-
-                if (tokens.Length > 1)
-                {
-                    m_helpOptionName = $"{ParserOptions.PrefixShortOption}{tokens[0]}";
-                    m_helpOptionNameLong = $"{ParserOptions.PrefixLongOption}{tokens[1]}";
-                }
-                else
-                {
-                    m_helpOptionName = $"{ParserOptions.PrefixLongOption}{tokens[0]}";
-                    m_helpOptionNameLong = null;
-                }
-            }
+            (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
 
             InitialzeModel();
         }
@@ -522,7 +504,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption,TCommandOption}"/></returns>
         public ICommandBuilder<TOption, TCommandOption> AddCommand<TCommandOption>() where TCommandOption : class, new()
         {
-            var command = new CommandLineCommand<TOption, TCommandOption>(ParserOptions, Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TCommandOption>>(Services, m_option);
 
             m_commands.Add(command);
 
@@ -538,7 +520,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
 
-            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
 
             cmdConfigurator.OnConfigure(command);
 
@@ -565,7 +547,7 @@ namespace MatthiWare.CommandLine
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
 
-            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TCommandOption>>(Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TCommandOption>>(Services, m_option);
 
             cmdConfigurator.OnConfigure((ICommandConfigurationBuilder<TCommandOption>)command);
 
@@ -596,7 +578,7 @@ namespace MatthiWare.CommandLine
         /// <returns>Builder for the command, <see cref="ICommandBuilder{TOption}"/></returns>
         public ICommandBuilder<TOption> AddCommand()
         {
-            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option, Validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
 
             m_commands.Add(command);
 

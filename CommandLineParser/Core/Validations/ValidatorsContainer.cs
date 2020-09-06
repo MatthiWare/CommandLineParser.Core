@@ -8,8 +8,8 @@ namespace MatthiWare.CommandLine.Core.Validations
 {
     internal class ValidatorsContainer : IValidatorsContainer
     {
-        private Dictionary<Type, List<Type>> m_types = new Dictionary<Type, List<Type>>();
-        private Dictionary<Type, List<(Type key, IValidator validator)>> m_cache = new Dictionary<Type, List<(Type, IValidator)>>();
+        private readonly Dictionary<Type, List<Type>> m_types = new Dictionary<Type, List<Type>>();
+        private readonly Dictionary<Type, List<(Type key, IValidator validator)>> m_cache = new Dictionary<Type, List<(Type, IValidator)>>();
 
         private readonly IServiceProvider serviceProvider;
 
@@ -24,15 +24,9 @@ namespace MatthiWare.CommandLine.Core.Validations
             GetOrCreateCacheListFor(key).Add((key, validator));
         }
 
-        public void AddValidator<TKey>(IValidator<TKey> validator)
-        {
-            var key = typeof(TKey);
+        public void AddValidator<TKey>(IValidator<TKey> validator) => AddValidator(typeof(TKey), validator);
 
-            GetOrCreateTypeListFor(key).Add(validator.GetType());
-            GetOrCreateCacheListFor(key).Add((key, validator));
-        }
-
-        public void AddValidator<TKey, V>() where V : IValidator<TKey> => GetOrCreateTypeListFor(typeof(TKey)).Add(typeof(V));
+        public void AddValidator<TKey, V>() where V : IValidator<TKey> => AddValidator(typeof(TKey), typeof(V));
 
         public void AddValidator(Type key, Type validator) => GetOrCreateTypeListFor(key).Add(validator);
 
