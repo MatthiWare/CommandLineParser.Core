@@ -1,15 +1,23 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
+using Divergic.Logging.Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class SubCommandTests
+    public class SubCommandTests 
     {
+        public SubCommandTests(ITestOutputHelper testOutputHelper)
+        {
+            testOutputHelper.BuildLoggerFor<CommandLineParser>(LogLevel.Debug);
+        }
+
         [Theory]
         [InlineData(true, "something", 15, -1)]
         [InlineData(false, "something", 15, -1)]
@@ -20,7 +28,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             var lock2 = new ManualResetEventSlim();
 
             var services = new ServiceCollection();
-
+            services.AddLogging()
             services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
             services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
 

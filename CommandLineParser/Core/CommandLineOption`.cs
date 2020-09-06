@@ -2,13 +2,14 @@
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using Microsoft.Extensions.Logging;
 
 namespace MatthiWare.CommandLine.Core
 {
     internal class CommandLineOption<TOption> : CommandLineOptionBase, IOptionBuilder<TOption>
     {
-        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolver<TOption> argumentResolver)
-             : base(parserOptions, source, selector, argumentResolver)
+        public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolver<TOption> argumentResolver, ILogger logger)
+             : base(parserOptions, source, selector, argumentResolver, logger)
         {
 
         }
