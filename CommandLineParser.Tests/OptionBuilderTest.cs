@@ -2,6 +2,7 @@
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
 using Xunit;
@@ -21,7 +22,7 @@ namespace MatthiWare.CommandLine.Tests
                 new CommandLineParserOptions { PrefixLongOption = string.Empty, PrefixShortOption = string.Empty },
                 new object(),
                 XUnitExtensions.CreateLambda<object, string>(o => o.ToString()),
-                new DefaultResolver<object>());
+                new DefaultResolver<object>(), NullLogger.Instance);
 
             var builder = cmdOption as IOptionBuilder;
             var option = cmdOption as CommandLineOptionBase;

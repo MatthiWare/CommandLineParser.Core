@@ -1222,6 +1222,22 @@
             <typeparam name="TCommand"></typeparam>
             <typeparam name="TActualCommandOption"></typeparam>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.DependencyInjectionExtensions">
+            <summary>
+            Extension methods to allow DI services to be registered.
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.DependencyInjectionExtensions.AddInternalCommandLineParserServices``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,MatthiWare.CommandLine.CommandLineParser{``0},MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds internal services used by <see cref="T:MatthiWare.CommandLine.CommandLineParser"/>. 
+            This won't overwrite existing services.
+            </summary>
+            <typeparam name="TOption">Base option type</typeparam>
+            <param name="services">Current service collection</param>
+            <param name="parser">Current instance reference</param>
+            <param name="options">Current options reference</param>
+            <returns>Input service collection to allow method chaining</returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.BaseParserException">
             <summary>
             Base exception class that exposes the <see cref="P:MatthiWare.CommandLine.Core.Exceptions.BaseParserException.Argument"/> this exception is about. 

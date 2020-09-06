@@ -9,6 +9,7 @@ using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly IServiceProvider m_serviceProvider;
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
-
+        private readonly ILogger logger;
         private Action m_executor1;
         private Action<TOption> m_executor2;
         private Action<TOption, TCommandOption> m_executor3;
@@ -46,14 +47,15 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger)
         {
-            m_parserOptions = parserOptions;
+            m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(parserOptions));
             m_commandOption = new TCommandOption();
 
-            m_validators = validators;
-            m_serviceProvider = serviceProvider;
-            m_baseOption = option;
+            m_validators = validators ?? throw new ArgumentNullException(nameof(validators));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            m_baseOption = option ?? throw new ArgumentNullException(nameof(option));
 
             (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
 
@@ -62,6 +64,8 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override void Execute()
         {
+            logger.LogDebug("Executing Command '{Name}'", this.Name);
+
             ExecuteInternal();
 
             // Also executes the async stuff.
@@ -77,6 +81,8 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            logger.LogDebug("Executing async Command '{Name}'", this.Name);
+
             await ExecuteInternalAsync(cancellationToken);
 
             // Also executes the sync stuff.
@@ -105,6 +111,8 @@ namespace MatthiWare.CommandLine.Core.Command
             if (!m_options.ContainsKey(key))
             {
                 var option = ActivatorUtilities.CreateInstance<CommandLineOption<T>>(m_serviceProvider, m_commandOption, selector);
+
+                logger.LogDebug("Add command option builder for {Expression}", key);
 
                 m_options.Add(key, option);
             }
@@ -148,13 +156,16 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             foreach (var o in m_options)
             {
+                var option = o.Value;
+
                 try
                 {
-                    var option = o.Value;
                     bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
                     if (found && HelpRequested(result, option, model))
                     {
+                        logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+
                         break;
                     }
                     else if (!found && option.IsRequired && !option.HasDefault)
@@ -164,6 +175,8 @@ namespace MatthiWare.CommandLine.Core.Command
                     else if ((!found && !model.HasValue && option.HasDefault) ||
                         (found && !option.CanParse(model) && option.HasDefault))
                     {
+                        logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
+
                         option.UseDefault();
 
                         continue;
@@ -175,8 +188,22 @@ namespace MatthiWare.CommandLine.Core.Command
 
                     option.Parse(model);
                 }
+                catch (OptionParseException e)
+                {
+                    logger.LogDebug("Command Option '{Name}' unable to parse the option value specified may be wrong '{value}'", option.ShortName, model.Value ?? "<NULL>");
+
+                    errors.Add(e);
+                }
+                catch (OptionNotFoundException e)
+                {
+                    logger.LogDebug("Command Option '{Name}' not found! Option is marked as required, with no default values configured.", option.ShortName);
+
+                    errors.Add(e);
+                }
                 catch (Exception e)
                 {
+                    logger.LogError(e, "Command Option '{Name}' unknown error occured during parsing.", option.ShortName);
+
                     errors.Add(e);
                 }
             }

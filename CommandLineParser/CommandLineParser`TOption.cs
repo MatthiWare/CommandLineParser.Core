@@ -108,7 +108,7 @@ namespace MatthiWare.CommandLine
 
             Services = services.BuildServiceProvider();
 
-            logger = Services.GetRequiredService<ILoggerFactory>().CreateLogger<CommandLineParser>();
+            logger = Services.GetRequiredService<ILogger<CommandLineParser>>();
 
             m_option = new TOption();
 
@@ -148,6 +148,8 @@ namespace MatthiWare.CommandLine
             if (!m_options.ContainsKey(key))
             {
                 var option = ActivatorUtilities.CreateInstance<CommandLineOption<T>>(Services, m_option, selector);
+
+                logger.LogDebug("Add option builder for {Expression}", key);
 
                 m_options.Add(key, option);
             }

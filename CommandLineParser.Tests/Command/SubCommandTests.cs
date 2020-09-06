@@ -13,9 +13,11 @@ namespace MatthiWare.CommandLine.Tests.Command
 {
     public class SubCommandTests 
     {
+        private ILogger<CommandLineParser> logger;
+
         public SubCommandTests(ITestOutputHelper testOutputHelper)
         {
-            testOutputHelper.BuildLoggerFor<CommandLineParser>(LogLevel.Debug);
+            logger = testOutputHelper.BuildLoggerFor<CommandLineParser>(LogLevel.Debug);
         }
 
         [Theory]
@@ -28,9 +30,9 @@ namespace MatthiWare.CommandLine.Tests.Command
             var lock2 = new ManualResetEventSlim();
 
             var services = new ServiceCollection();
-            services.AddLogging()
             services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
             services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
+            services.AddSingleton(logger);
 
             var parser = new CommandLineParser<MainModel>(services);
 

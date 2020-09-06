@@ -65,7 +65,7 @@ namespace MatthiWare.CommandLine.Core
             return services;
         }
 
-        private static IServiceCollection AddDefaultResolvers(this IServiceCollection services)
+        internal static IServiceCollection AddDefaultResolvers(this IServiceCollection services)
         {
             services.TryAddScoped<IArgumentResolver<bool>, BoolResolver>();
             services.TryAddScoped<IArgumentResolver<double>, DoubleResolver>();
@@ -101,7 +101,8 @@ namespace MatthiWare.CommandLine.Core
 
         private static IServiceCollection AddDefaultLogger(this IServiceCollection services)
         {
-            services.TryAddSingleton<ILoggerFactory, NullLoggerFactory>();
+            services.TryAddSingleton(typeof(ILogger), (_) => NullLogger.Instance);
+            services.TryAddSingleton(typeof(ILogger<CommandLineParser>), (_) => NullLogger<CommandLineParser>.Instance);
 
             return services;
         }
