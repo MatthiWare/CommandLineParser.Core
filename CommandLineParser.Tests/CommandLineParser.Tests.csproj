@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="StrykerMutator.DotNetCoreCli" Version="*" />
-    <PackageReference Include="StrykerMutator.DotNetCoreCli" Version="0.9.0" />
   </ItemGroup>
 
   <ItemGroup>
