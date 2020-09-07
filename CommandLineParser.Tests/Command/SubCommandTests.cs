@@ -11,13 +11,10 @@ using Divergic.Logging.Xunit;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class SubCommandTests 
+    public class SubCommandTests  : TestBase
     {
-        private ILogger<CommandLineParser> logger;
-
-        public SubCommandTests(ITestOutputHelper testOutputHelper)
+        public SubCommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            logger = testOutputHelper.BuildLoggerFor<CommandLineParser>(LogLevel.Debug);
         }
 
         [Theory]
@@ -32,7 +29,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             var services = new ServiceCollection();
             services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
             services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
-            services.AddSingleton(logger);
+            services.AddSingleton(Logger);
 
             var parser = new CommandLineParser<MainModel>(services);
 
