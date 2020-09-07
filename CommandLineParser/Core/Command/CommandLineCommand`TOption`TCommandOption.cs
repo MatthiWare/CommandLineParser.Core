@@ -157,11 +157,10 @@ namespace MatthiWare.CommandLine.Core.Command
             foreach (var o in m_options)
             {
                 var option = o.Value;
+                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
                 try
                 {
-                    bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
-
                     if (found && HelpRequested(result, option, model))
                     {
                         logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
@@ -190,7 +189,7 @@ namespace MatthiWare.CommandLine.Core.Command
                 }
                 catch (OptionParseException e)
                 {
-                    logger.LogDebug("Command Option '{Name}' unable to parse the option value specified may be wrong '{value}'", option.ShortName, model.Value ?? "<NULL>");
+                    logger.LogDebug("Unable to parse option value '{Value}'", model.Value);
 
                     errors.Add(e);
                 }
@@ -235,8 +234,22 @@ namespace MatthiWare.CommandLine.Core.Command
                     if (cmdParseResult.HasErrors)
                         throw new CommandParseException(cmd, cmdParseResult.Errors);
                 }
+                catch (CommandNotFoundException e)
+                {
+                    logger.LogDebug("Command '{Name}' not found", cmd.Name);
+
+                    errors.Add(e);
+                }
+                catch (CommandParseException e)
+                {
+                    logger.LogDebug("Unable to parse command '{Name}'", cmd.Name);
+
+                    errors.Add(e);
+                }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "Unknown error occured while parsing the commands");
+
                     errors.Add(ex);
                 }
             }
@@ -268,8 +281,22 @@ namespace MatthiWare.CommandLine.Core.Command
                     if (cmdParseResult.HasErrors)
                         throw new CommandParseException(cmd, cmdParseResult.Errors);
                 }
+                catch (CommandNotFoundException e)
+                {
+                    logger.LogDebug("Command '{Name}' not found", cmd.Name);
+
+                    errors.Add(e);
+                }
+                catch (CommandParseException e)
+                {
+                    logger.LogDebug("Unable to parse command '{Name}'", cmd.Name);
+
+                    errors.Add(e);
+                }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "Unknown error occured while parsing the commands");
+
                     errors.Add(ex);
                 }
             }
@@ -301,14 +328,22 @@ namespace MatthiWare.CommandLine.Core.Command
         private void Validate<T>(T @object, List<Exception> errors)
         {
             if (!m_validators.HasValidatorFor<T>())
-                return;
+            {
+                logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);
 
-            var results = m_validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
+                return;
+            }
+
+            var results = m_validators.GetValidators<T>()
+                .Select(validator => validator.Validate(@object))
+                .ToArray();
 
             foreach (var result in results)
             {
                 if (result.IsValid)
                     continue;
+
+                logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
                 errors.Add(result.Error);
             }
@@ -317,15 +352,22 @@ namespace MatthiWare.CommandLine.Core.Command
         private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
         {
             if (!m_validators.HasValidatorFor<T>())
+            {
+                logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);
+
                 return;
+            }
 
             var results = (await Task.WhenAll(m_validators.GetValidators<T>()
-                .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
+                .Select(async validator => await validator.ValidateAsync(@object, token))))
+                .ToArray();
 
             foreach (var result in results)
             {
                 if (result.IsValid)
                     continue;
+
+                logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
                 errors.Add(result.Error);
             }
@@ -557,6 +599,8 @@ namespace MatthiWare.CommandLine.Core.Command
 
             cmdConfigurator.OnConfigure(command);
 
+            logger.LogDebug("Command registered '{name}' required: {req}, auto exec: {autoExec}", command.Name, command.IsRequired, command.AutoExecute);
+
             command.OnExecuting((Action<TCommandOption>)cmdConfigurator.OnExecute);
             command.OnExecutingAsync((Func<TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
@@ -577,6 +621,8 @@ namespace MatthiWare.CommandLine.Core.Command
             var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TActualCommandOption>>(m_serviceProvider, m_baseOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
+
+            logger.LogDebug("Command registered '{name}' required: {req}, auto exec: {autoExec}", command.Name, command.IsRequired, command.AutoExecute);
 
             command.OnExecuting((Action<TOption, TActualCommandOption>)cmdConfigurator.OnExecute);
             command.OnExecutingAsync((Func<TOption, TActualCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
