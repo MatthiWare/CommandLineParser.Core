@@ -7,17 +7,22 @@ using System.Threading;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using Moq;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class CommandDiscoveryTests
+    public class CommandDiscoveryTests : TestBase
     {
+        public CommandDiscoveryTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Fact]
         public void DiscoverCommandFromAssemblyContainsCorrectTypes()
         {
             var cmdDiscovery = new CommandDiscoverer();
 
-            var resultTypes = cmdDiscovery.DiscoverCommandTypes(typeof(CommandDiscoveryTests), new[] { Assembly.GetExecutingAssembly() });
+            var resultTypes = cmdDiscovery.DiscoverCommandTypes(typeof(SomeBaseType), new[] { Assembly.GetExecutingAssembly() });
 
             var invalidAbstractCommand = typeof(AbstractCommand);
             var wrongGenericTypeCommand = typeof(WrongGenericTypeCommand);
@@ -33,7 +38,10 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void DiscoveredCommandsAreRegisteredCorrectly()
         {
-            var parser = new CommandLineParser<CommandDiscoveryTests>();
+            var services = new ServiceCollection();
+            services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<SomeBaseType>(services);
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -56,6 +64,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             var services = new ServiceCollection();
             services.AddSingleton(envMock.Object);
             services.AddSingleton(myServiceMock.Object);
+            services.AddSingleton(Logger);
 
             var parser = new CommandLineParser<MyCommandWithInjectionsOptions>(services);
 
@@ -66,7 +75,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             myServiceMock.Verify(_ => _.Call(), Times.Once());
         }
 
-        public abstract class AbstractCommand : Command<CommandDiscoveryTests>
+        public abstract class AbstractCommand : Command<SomeBaseType>
         {
         }
 
@@ -74,15 +83,19 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
         }
 
-        public class ValidCommand : Command<CommandDiscoveryTests>
+        public class ValidCommand : Command<SomeBaseType>
         {
         }
 
-        public class ValidCommand2 : Command<CommandDiscoveryTests, object>
+        public class ValidCommand2 : Command<SomeBaseType, object>
         {
         }
 
         public class MyCommandWithInjectionsOptions 
+        {
+        }
+
+        public class SomeBaseType
         {
         }
 
