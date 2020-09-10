@@ -104,6 +104,44 @@ namespace MatthiWare.CommandLine.Tests.Usage
             usagePrinterMock.Verify(p => p.PrintOptionUsage(It.IsAny<ICommandLineOption>()), Times.Never());
         }
 
+        [Theory]
+        [InlineData("custom", new string[] { "-x", "--custom" }, true)]
+        [InlineData("custom", new string[] { "db", "--custom" }, true)]
+        [InlineData("custom", new string[] { "db", "-o", "--custom" }, true)]
+        [InlineData("ccc|custom", new string[] { "-x", "--custom" }, true)]
+        [InlineData("ccc|custom", new string[] { "-x", "-ccc" }, true)]
+        [InlineData("ccc|custom", new string[] { "db", "--custom" }, true)]
+        [InlineData("ccc|custom", new string[] { "db", "-ccc" }, true)]
+        [InlineData("ccc|custom", new string[] { "db", "-o", "--custom" }, true)]
+        [InlineData("ccc|custom", new string[] { "db", "-o", "-ccc" }, true)]
+        public async Task TestHelpOptionGetsParsedCorrectly(string helpOption, string[] args, bool fires)
+        {
+            bool calledFlag = false;
+
+            var usagePrinterMock = new Mock<IUsagePrinter>();
+
+            usagePrinterMock.Setup(mock => mock.PrintUsage()).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
+
+            Services.AddSingleton(usagePrinterMock.Object);
+
+            var options = new CommandLineParserOptions 
+            { 
+                HelpOptionName = helpOption 
+            };
+
+            var parser = new CommandLineParser<Options>(options, Services);
+
+            var cmd = parser.AddCommand<CommandOptions>()
+                .Name("db")
+                .Description("Database commands");
+
+            await parser.ParseAsync(args);
+
+            Assert.Equal(fires, calledFlag);
+        }
+
         public class Options
         {
             [Name("x"), Description("Some description")]
