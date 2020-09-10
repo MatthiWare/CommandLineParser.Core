@@ -27,7 +27,7 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         public CommandLineParser(IServiceCollection serviceCollection)
-            : base(new CommandLineParserOptions(), serviceCollection)
+            : this(new CommandLineParserOptions(), serviceCollection)
         { }
 
         /// <summary>
