@@ -80,6 +80,30 @@ namespace MatthiWare.CommandLine.Tests.Usage
             Assert.Equal(fires, calledFlag);
         }
 
+        [Fact]
+        public void DisabledHelpOptionShouldNotPrintHelp()
+        {
+            var usagePrinterMock = new Mock<IUsagePrinter>();
+            var options = new CommandLineParserOptions
+            {
+                EnableHelpOption = false
+            };
+
+            usagePrinterMock
+                .Setup(p => p.PrintOptionUsage(It.IsAny<ICommandLineOption>()))
+                .Verifiable();
+
+            Services.AddSingleton(usagePrinterMock.Object);
+
+            var parser = new CommandLineParser<Options>(options, Services);
+
+            var result = parser.Parse(new[] { "-x", "--help" });
+
+            result.AssertNoErrors();
+
+            usagePrinterMock.Verify(p => p.PrintOptionUsage(It.IsAny<ICommandLineOption>()), Times.Never());
+        }
+
         public class Options
         {
             [Name("x"), Description("Some description")]
