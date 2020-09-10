@@ -6,11 +6,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Usage
 {
-    public class HelpDisplayCommandTests
+    public class HelpDisplayCommandTests : TestBase
     {
+        public HelpDisplayCommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Theory]
         [InlineData(new string[] { "db", "--help" }, true)]
         [InlineData(new string[] { "db" }, true)]
@@ -30,11 +35,9 @@ namespace MatthiWare.CommandLine.Tests.Usage
             usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
             usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 
-            var services = new ServiceCollection();
+            Services.AddSingleton(usagePrinterMock.Object);
 
-            services.AddSingleton(usagePrinterMock.Object);
-
-            var parser = new CommandLineParser<Options>(services);
+            var parser = new CommandLineParser<Options>(Services);
 
             var cmd = parser.AddCommand<CommandOptions>()
                 .Name("db")
@@ -64,11 +67,9 @@ namespace MatthiWare.CommandLine.Tests.Usage
             usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
             usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
 
-            var services = new ServiceCollection();
+            Services.AddSingleton(usagePrinterMock.Object);
 
-            services.AddSingleton(usagePrinterMock.Object);
-
-            var parser = new CommandLineParser<Options>(services);
+            var parser = new CommandLineParser<Options>(Services);
 
             var cmd = parser.AddCommand<CommandOptions>()
                 .Name("db")

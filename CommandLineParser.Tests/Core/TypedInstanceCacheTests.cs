@@ -4,11 +4,16 @@ using Moq;
 using System;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Core
 {
-    public class TypedInstanceCacheTests
+    public class TypedInstanceCacheTests : TestBase
     {
+        public TypedInstanceCacheTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -46,10 +51,9 @@ namespace MatthiWare.CommandLine.Tests.Core
         {
             var type1 = new MyType();
 
-            var services = new ServiceCollection();
-            services.AddSingleton(type1);
+            Services.AddSingleton(type1);
 
-            var cache = new TypedInstanceCache<MyType>(services.BuildServiceProvider());
+            var cache = new TypedInstanceCache<MyType>(Services.BuildServiceProvider());
 
             cache.Add(typeof(MyType));
 

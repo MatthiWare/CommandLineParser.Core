@@ -7,11 +7,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests
 {
-    public class CommandLineParserTests
+    public class CommandLineParserTests : TestBase
     {
+        public CommandLineParserTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         public class MyCommand : Command<object, object>
         {
             public override void OnConfigure(ICommandConfigurationBuilder builder)
@@ -58,8 +63,6 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(false)]
         public void CommandLineParserUsesContainerCorrectly(bool generic)
         {
-            var services = new ServiceCollection();
-
             var commandMock = new Mock<MyCommand>();
             commandMock
                 .Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
@@ -70,9 +73,9 @@ namespace MatthiWare.CommandLine.Tests
                 .Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>()))
                 .Verifiable("OnExecute not called");
 
-            services.AddSingleton(commandMock.Object);
+            Services.AddSingleton(commandMock.Object);
 
-            var parser = new CommandLineParser<object>(services);
+            var parser = new CommandLineParser<object>(Services);
 
             if (generic)
             {
@@ -95,8 +98,6 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(false)]
         public async Task CommandLineParserUsesContainerCorrectlyAsync(bool generic)
         {
-            var services = new ServiceCollection();
-
             var commandMock = new Mock<MyCommand>();
             commandMock
                 .Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
@@ -107,9 +108,9 @@ namespace MatthiWare.CommandLine.Tests
                 .Setup(c => c.OnExecuteAsync(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
                 .Verifiable("OnExecute not called");
 
-            services.AddSingleton(commandMock.Object);
+            Services.AddSingleton(commandMock.Object);
 
-            var parser = new CommandLineParser<object>(services);
+            var parser = new CommandLineParser<object>(Services);
 
             if (generic)
             {

@@ -5,11 +5,16 @@ using Moq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Validation
 {
-    public class ValidationAbstractionTests
+    public class ValidationAbstractionTests : TestBase
     {
+        public ValidationAbstractionTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Fact]
         public void ParsingCallsValidation()
         {

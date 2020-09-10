@@ -2,24 +2,28 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests
 {
-    public class BasicDITests
+    public class BasicDITests : TestBase
     {
+        public BasicDITests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Fact]
         public void CommandLineParserUsesInjectedServiceCorrectly()
         {
-            var services = new ServiceCollection();
             var mockedService = new Mock<MySerice>();
 
             mockedService
                 .Setup(_ => _.Call())
                 .Verifiable();
 
-            services.AddSingleton(mockedService.Object);
+            Services.AddSingleton(mockedService.Object);
 
-            var parser = new CommandLineParser(services);
+            var parser = new CommandLineParser(Services);
 
             parser.RegisterCommand<MyCommandThatUsesService>();
 
@@ -33,12 +37,11 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void CommandLineParserServiceResolvesCorrectly()
         {
-            var services = new ServiceCollection();
             var mockedService = Mock.Of<MySerice>();
 
-            services.AddSingleton(mockedService);
+            Services.AddSingleton(mockedService);
 
-            var parser = new CommandLineParser(services);
+            var parser = new CommandLineParser(Services);
 
             var resolved = parser.Services.GetRequiredService<MySerice>();
 

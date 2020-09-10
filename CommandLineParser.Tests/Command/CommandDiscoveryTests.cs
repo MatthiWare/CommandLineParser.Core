@@ -38,10 +38,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void DiscoveredCommandsAreRegisteredCorrectly()
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(Logger);
-
-            var parser = new CommandLineParser<SomeBaseType>(services);
+            var parser = new CommandLineParser<SomeBaseType>(Services);
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -61,12 +58,10 @@ namespace MatthiWare.CommandLine.Tests.Command
                 .Setup(_ => _.Call())
                 .Verifiable();
 
-            var services = new ServiceCollection();
-            services.AddSingleton(envMock.Object);
-            services.AddSingleton(myServiceMock.Object);
-            services.AddSingleton(Logger);
+            Services.AddSingleton(envMock.Object);
+            Services.AddSingleton(myServiceMock.Object);
 
-            var parser = new CommandLineParser<MyCommandWithInjectionsOptions>(services);
+            var parser = new CommandLineParser<MyCommandWithInjectionsOptions>(Services);
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 

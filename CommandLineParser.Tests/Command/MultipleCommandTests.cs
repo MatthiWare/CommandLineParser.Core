@@ -17,10 +17,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(new string[] { }, false)]
         public void NonRequiredCommandShouldNotSetResultInErrorStateWhenRequiredOptionsAreMissing(string[] args, bool _)
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(Logger);
-
-            var parser = new CommandLineParser(services);
+            var parser = new CommandLineParser(Services);
 
             parser.AddCommand<MultipleCommandTestsOptions>()
                 .Name("cmd1")

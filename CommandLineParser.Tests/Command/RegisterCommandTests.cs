@@ -12,10 +12,7 @@ namespace MatthiWare.CommandLine.Tests.Command
 
         public RegisterCommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(Logger);
-
-            parser = new CommandLineParser(services);
+            parser = new CommandLineParser(Services);
         }
 
         [Fact]

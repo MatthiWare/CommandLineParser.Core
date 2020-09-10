@@ -6,18 +6,19 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Usage
 {
     [Collection("Non-Parallel Collection")]
-    public class NoColorOutputTests
+    public class NoColorOutputTests : TestBase
     {
         private readonly CommandLineParser<Options> parser;
         private readonly IEnvironmentVariablesService variablesService;
         private Action<ConsoleColor> consoleColorGetter;
         private bool variableServiceResult;
 
-        public NoColorOutputTests()
+        public NoColorOutputTests(ITestOutputHelper output) : base(output)
         {
             var envMock = new Mock<IEnvironmentVariablesService>();
             envMock.SetupGet(env => env.NoColorRequested).Returns(() => variableServiceResult);
@@ -30,12 +31,10 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 consoleColorGetter(((UsagePrinter)parser.Printer).m_currentConsoleColor);
             });
 
-            var services = new ServiceCollection();
+            Services.AddSingleton(envMock.Object);
+            Services.AddSingleton(usageBuilderMock.Object);
 
-            services.AddSingleton(envMock.Object);
-            services.AddSingleton(usageBuilderMock.Object);
-
-            parser = new CommandLineParser<Options>(services);
+            parser = new CommandLineParser<Options>(Services);
         }
 
         [Fact]
