@@ -1,19 +1,22 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Command;
-using MatthiWare.CommandLine.Abstractions.Models;
-using MatthiWare.CommandLine.Abstractions.Parsing;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests
 {
-    public class CommandLineParserTests
+    public class CommandLineParserTests : TestBase
     {
+        public CommandLineParserTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         public class MyCommand : Command<object, object>
         {
             public override void OnConfigure(ICommandConfigurationBuilder builder)
@@ -61,28 +64,33 @@ namespace MatthiWare.CommandLine.Tests
         public void CommandLineParserUsesContainerCorrectly(bool generic)
         {
             var commandMock = new Mock<MyCommand>();
-            commandMock.Setup(
-                c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
-                .CallBase().Verifiable("OnConfigure not called");
+            commandMock
+                .Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
+                .CallBase()
+                .Verifiable("OnConfigure not called");
 
-            commandMock.Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>())).Verifiable("OnExecute not called");
+            commandMock
+                .Setup(c => c.OnExecute(It.IsAny<object>(), It.IsAny<object>()))
+                .Verifiable("OnExecute not called");
 
-            var containerMock = new Mock<IContainerResolver>();
-            containerMock.Setup(c => c.Resolve<MyCommand>()).Returns(commandMock.Object).Verifiable();
+            Services.AddSingleton(commandMock.Object);
 
-            var parser = new CommandLineParser<object>(containerMock.Object);
+            var parser = new CommandLineParser<object>(Services);
 
             if (generic)
+            {
                 parser.RegisterCommand<MyCommand, object>();
+            }
             else
+            {
                 parser.RegisterCommand(typeof(MyCommand), typeof(object));
+            }
 
             var result = parser.Parse(new[] { "app.exe", "my" });
 
             result.AssertNoErrors();
 
             commandMock.VerifyAll();
-            containerMock.VerifyAll();
         }
 
         [Theory]
@@ -91,74 +99,33 @@ namespace MatthiWare.CommandLine.Tests
         public async Task CommandLineParserUsesContainerCorrectlyAsync(bool generic)
         {
             var commandMock = new Mock<MyCommand>();
-            commandMock.Setup(
-                c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
-                .CallBase().Verifiable("OnConfigure not called");
+            commandMock
+                .Setup(c => c.OnConfigure(It.IsAny<ICommandConfigurationBuilder<object>>()))
+                .CallBase()
+                .Verifiable("OnConfigure not called");
 
-            commandMock.Setup(c => c.OnExecuteAsync(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Verifiable("OnExecute not called");
+            commandMock
+                .Setup(c => c.OnExecuteAsync(It.IsAny<object>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .Verifiable("OnExecute not called");
 
-            var containerMock = new Mock<IContainerResolver>();
-            containerMock.Setup(c => c.Resolve<MyCommand>()).Returns(commandMock.Object).Verifiable();
+            Services.AddSingleton(commandMock.Object);
 
-            var parser = new CommandLineParser<object>(containerMock.Object);
+            var parser = new CommandLineParser<object>(Services);
 
             if (generic)
+            {
                 parser.RegisterCommand<MyCommand, object>();
+            }
             else
+            {
                 parser.RegisterCommand(typeof(MyCommand), typeof(object));
+            }
 
             var result = await parser.ParseAsync(new[] { "app.exe", "my" });
 
             result.AssertNoErrors();
 
             commandMock.VerifyAll();
-            containerMock.VerifyAll();
-        }
-
-        [Fact]
-        public void CommandLinerParserPassesContainerCorreclty()
-        {
-            var containerResolver = new Mock<IContainerResolver>();
-            var options = new CommandLineParserOptions();
-            var parser = new CommandLineParser(containerResolver.Object);
-
-            Assert.Equal(containerResolver.Object, parser.ContainerResolver);
-
-            parser = new CommandLineParser(options, containerResolver.Object);
-
-            Assert.Equal(containerResolver.Object, parser.ContainerResolver);
-            Assert.Equal(options, parser.ParserOptions);
-        }
-
-        [Fact]
-        public void CommandLinerParserPassesResolverCorreclty()
-        {
-            var resolverMock = new Mock<IArgumentResolverFactory>();
-            var options = new CommandLineParserOptions();
-            var parser = new CommandLineParser(resolverMock.Object);
-
-            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
-
-            parser = new CommandLineParser(options, resolverMock.Object);
-
-            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
-            Assert.Equal(options, parser.ParserOptions);
-        }
-
-        [Fact]
-        public void CommandLinerParserPassesResolverAndContainerCorreclty()
-        {
-            var resolverMock = new Mock<IArgumentResolverFactory>();
-
-            var containerMock = new Mock<IContainerResolver>();
-
-            var options = new CommandLineParserOptions();
-
-            var parser = new CommandLineParser(options, resolverMock.Object, containerMock.Object);
-
-            Assert.Equal(resolverMock.Object, parser.ArgumentResolverFactory);
-            Assert.Equal(containerMock.Object, parser.ContainerResolver);
-            Assert.Equal(options, parser.ParserOptions);
         }
 
         [Fact]
@@ -205,28 +172,27 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(ex, result.Errors.First().GetBaseException());
         }
 
-        [Fact]
-        public void CommandLineParserUsesArgumentFactoryCorrectly()
-        {
-            var resolverMock = new Mock<ArgumentResolver<string>>();
-            resolverMock.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true).Verifiable();
-            resolverMock.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns("return").Verifiable();
+        //[Fact]
+        //public void CommandLineParserUsesArgumentFactoryCorrectly()
+        //{
+        //    var resolverMock = new Mock<IArgumentResolver<string>>();
+        //    resolverMock.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true).Verifiable();
+        //    resolverMock.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns("return").Verifiable();
 
-            var argResolverFactory = new Mock<IArgumentResolverFactory>();
-            argResolverFactory.Setup(c => c.Contains(typeof(string))).Returns(true);
-            argResolverFactory.Setup(c => c.CreateResolver(typeof(string))).Returns(resolverMock.Object).Verifiable();
+        //    var argResolverFactory = new Mock<IServiceProvider>();
+        //    argResolverFactory.Setup(c => c.GetService(typeof(string))).Returns(resolverMock.Object).Verifiable();
 
-            var parser = new CommandLineParser<AddOption>(argResolverFactory.Object);
+        //    var parser = new CommandLineParser<AddOption>(.Object);
 
-            parser.Configure(p => p.Message).Name("m");
+        //    parser.Configure(p => p.Message).Name("m");
 
-            var result = parser.Parse(new[] { "app.exe", "-m" });
+        //    var result = parser.Parse(new[] { "app.exe", "-m" });
 
-            result.AssertNoErrors();
+        //    result.AssertNoErrors();
 
-            resolverMock.VerifyAll();
-            argResolverFactory.Verify();
-        }
+        //    resolverMock.VerifyAll();
+        //    argResolverFactory.Verify();
+        //}
 
         [Fact]
         public void ParseTests()
@@ -344,26 +310,6 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(result1, parsed.Result.Option1);
             Assert.Equal(result2, parsed.Result.Option2);
             Assert.Equal(result3, parsed.Result.Option3);
-        }
-
-        [Fact]
-        public void ParseWithCustomParserInAttributeConfiguredModelTests()
-        {
-            var resolver = new Mock<ArgumentResolver<object>>();
-
-            var obj = new object();
-
-            resolver.Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>())).Returns(true);
-            resolver.Setup(_ => _.Resolve(It.IsAny<ArgumentModel>())).Returns(obj);
-
-            var parser = new CommandLineParser<ObjOption>();
-            parser.ArgumentResolverFactory.Register(resolver.Object);
-
-            var result = parser.Parse(new[] { "app.exe", "-p", "sample" });
-
-            result.AssertNoErrors();
-
-            Assert.Same(obj, result.Result.Param);
         }
 
         [Fact]

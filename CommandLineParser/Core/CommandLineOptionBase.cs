@@ -5,7 +5,7 @@ using System.Reflection;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using MatthiWare.CommandLine.Abstractions.Usage;
+using Microsoft.Extensions.Logging;
 
 namespace MatthiWare.CommandLine.Core
 {
@@ -14,19 +14,18 @@ namespace MatthiWare.CommandLine.Core
     {
         private readonly object m_source;
         private readonly LambdaExpression m_selector;
+        private readonly ILogger logger;
         private object m_defaultValue = null;
-        private readonly IArgumentResolverFactory m_resolverFactory;
         protected readonly CommandLineParserOptions m_parserOptions;
         private Delegate m_translator = null;
 
-        private ICommandLineArgumentResolver m_resolver;
-
-        public CommandLineOptionBase(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolverFactory resolver)
+        public CommandLineOptionBase(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, ICommandLineArgumentResolver resolver, ILogger logger)
         {
             m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(source));
             m_source = source ?? throw new ArgumentNullException(nameof(source));
             m_selector = selector ?? throw new ArgumentNullException(nameof(selector));
-            m_resolverFactory = resolver ?? throw new ArgumentNullException(nameof(resolver));
+            Resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public object DefaultValue
@@ -39,16 +38,7 @@ namespace MatthiWare.CommandLine.Core
             }
         }
 
-        public ICommandLineArgumentResolver Resolver
-        {
-            get
-            {
-                if (m_resolver == null)
-                    m_resolver = m_resolverFactory.CreateResolver(m_selector.ReturnType);
-
-                return m_resolver;
-            }
-        }
+        public ICommandLineArgumentResolver Resolver { get; }
 
         public string ShortName { get; protected set; }
         public string LongName { get; protected set; }
@@ -69,7 +59,12 @@ namespace MatthiWare.CommandLine.Core
         private void AssignValue(object value)
         {
             var property = (PropertyInfo)((MemberExpression)m_selector.Body).Member;
-            property.SetValue(m_source, m_translator?.DynamicInvoke(value) ?? value, null);
+            var actualValue = m_translator?.DynamicInvoke(value) ?? value;
+
+            var key = $"{property.DeclaringType.FullName}.{property.Name}";
+            logger.LogDebug("Option '{OptionName}' ({key}) value assigned '{value}'", ShortName, key, actualValue);
+
+            property.SetValue(m_source, actualValue, null);
         }
 
         protected void SetTranslator(Delegate @delegate) => m_translator = @delegate;

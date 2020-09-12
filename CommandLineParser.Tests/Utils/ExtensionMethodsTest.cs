@@ -11,14 +11,17 @@ namespace MatthiWare.CommandLine.Tests.Utils
         [Fact]
         public void TestSplitOnPostFixWorksCorrectly()
         {
-            var settings = new CommandLineParserOptions();
+            var settings = new CommandLineParserOptions()
+            { 
+                PostfixOption = ":"
+            };
 
             var mockTestOption1 = CreateMock(settings, "test").Object;
             var mockTestOption2 = CreateMock(settings, "test2", "test2").Object;
             var mockTestOption3 = CreateMock(settings, "test3").Object;
             var mockTestOption4 = CreateMock(settings, "blabla", "blabla").Object;
 
-            var options = new[] 
+            var options = new[]
             {
                 mockTestOption1,
                 mockTestOption2,
@@ -26,7 +29,7 @@ namespace MatthiWare.CommandLine.Tests.Utils
                 mockTestOption4
             };
 
-            var input = new[] { "--test=1", "-test2=\"some value\"", "--test3=some value", "-blabla", "third" };
+            var input = new[] { "--test:1", "-test2:\"some value\"", "--test3:some value", "-blabla", "third" };
             var output = input.SplitOnPostfix(settings, options).ToArray();
 
             Assert.Equal("--test", output[0]);
@@ -42,7 +45,10 @@ namespace MatthiWare.CommandLine.Tests.Utils
         [Fact]
         public void TestSplitOnPostFixWorksCorrectly_2()
         {
-            var settings = new CommandLineParserOptions();
+            var settings = new CommandLineParserOptions()
+            {
+                PostfixOption = ":"
+            };
 
             var testOption = CreateMock(settings, "test").Object;
 
@@ -51,12 +57,12 @@ namespace MatthiWare.CommandLine.Tests.Utils
                 testOption,
             };
 
-            var input = new[] { "--test", "some=value" };
+            var input = new[] { "--test", "some:value" };
 
             var output = input.SplitOnPostfix(settings, options).ToArray();
 
             Assert.Equal("--test", output[0]);
-            Assert.Equal("some=value", output[1]);
+            Assert.Equal("some:value", output[1]);
         }
 
         private Mock<ICommandLineOption> CreateMock(CommandLineParserOptions settings, string longName, string shortName = "")

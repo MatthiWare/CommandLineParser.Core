@@ -1,5 +1,4 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Parsing;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace MatthiWare.CommandLine
 {
@@ -26,44 +25,18 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        public CommandLineParser(IArgumentResolverFactory argumentResolverFactory)
-            : base(argumentResolverFactory)
+        /// <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
+        public CommandLineParser(IServiceCollection serviceCollection)
+            : this(new CommandLineParserOptions(), serviceCollection)
         { }
 
         /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
         /// <param name="parserOptions">options that the parser will use</param>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory)
-            : base(parserOptions, argumentResolverFactory)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="containerResolver">container resolver to use</param>
-        public CommandLineParser(IContainerResolver containerResolver)
-            : base(new CommandLineParserOptions(), containerResolver)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="parserOptions">options that the parser will use</param>
-        /// <param name="containerResolver">container resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IContainerResolver containerResolver)
-            : base(parserOptions, containerResolver)
-        { }
-
-        /// <summary>
-        /// Creates a new instance of the commandline parser
-        /// </summary>
-        /// <param name="argumentResolverFactory">argument resolver to use</param>
-        /// <param name="containerResolver">container resolver to use</param>
-        public CommandLineParser(CommandLineParserOptions parserOptions, IArgumentResolverFactory argumentResolverFactory, IContainerResolver containerResolver)
-            : base(parserOptions, argumentResolverFactory, containerResolver)
+        /// <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
+        public CommandLineParser(CommandLineParserOptions parserOptions, IServiceCollection serviceCollection)
+            : base(parserOptions, serviceCollection)
         { }
     }
 }

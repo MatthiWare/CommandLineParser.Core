@@ -3,6 +3,9 @@ using System;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations
 {
+    /// <summary>
+    /// FluentValidations Extensions for CommandLineParser
+    /// </summary>
     public static class FluentValidationsExtensions
     {
         /// <summary>
@@ -14,7 +17,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations
         public static void UseFluentValidations<T>(this CommandLineParser<T> parser, Action<FluentValidationConfiguration> configAction)
             where T : class, new()
         {
-            var config = new FluentValidationConfiguration(parser.Validators, parser.ContainerResolver);
+            var config = new FluentValidationConfiguration(parser.Validators, parser.Services);
 
             configAction(config);
         }

@@ -10,25 +10,5 @@ namespace MatthiWare.CommandLine.Tests
         {
             return expression;
         }
-
-        public static bool AssertNoErrors<T>(this IParserResult<T> result, bool shouldThrow = true)
-        {
-            if (result == null)
-                throw new NullReferenceException("Parsing result was null");
-
-            foreach (var err in result.Errors)
-            {
-                if (shouldThrow)
-                {
-                    throw err;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
     }
 }

@@ -1,25 +1,24 @@
-﻿using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Usage;
+﻿using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Usage;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Usage
 {
     [Collection("Non-Parallel Collection")]
-    public class NoColorOutputTests
+    public class NoColorOutputTests : TestBase
     {
         private readonly CommandLineParser<Options> parser;
         private readonly IEnvironmentVariablesService variablesService;
         private Action<ConsoleColor> consoleColorGetter;
         private bool variableServiceResult;
-        private readonly UsagePrinter printer;
 
-        public NoColorOutputTests()
+        public NoColorOutputTests(ITestOutputHelper output) : base(output)
         {
             var envMock = new Mock<IEnvironmentVariablesService>();
             envMock.SetupGet(env => env.NoColorRequested).Returns(() => variableServiceResult);
@@ -29,14 +28,13 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var usageBuilderMock = new Mock<IUsageBuilder>();
             usageBuilderMock.Setup(m => m.AddErrors(It.IsAny<IReadOnlyCollection<Exception>>())).Callback(() =>
             {
-                consoleColorGetter(printer.m_currentConsoleColor);
+                consoleColorGetter(((UsagePrinter)parser.Printer).m_currentConsoleColor);
             });
 
-            parser = new CommandLineParser<Options>();
+            Services.AddSingleton(envMock.Object);
+            Services.AddSingleton(usageBuilderMock.Object);
 
-            printer = new UsagePrinter(parser, usageBuilderMock.Object, variablesService);
-
-            parser.Printer = printer;
+            parser = new CommandLineParser<Options>(Services);
         }
 
         [Fact]
