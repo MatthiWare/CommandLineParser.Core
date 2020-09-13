@@ -8,6 +8,9 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 using Moq;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit.Abstractions;
+using TestAssembly;
+using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Models;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
@@ -68,6 +71,27 @@ namespace MatthiWare.CommandLine.Tests.Command
             var result = await parser.ParseAsync(new[] { "app.exe", "cmd" });
 
             myServiceMock.Verify(_ => _.Call(), Times.Once());
+        }
+
+        [Fact]
+        public async Task NonGenericCommandCanBeDiscovered()
+        {
+            var argResolverMock = new Mock<IArgumentResolver<NonGenericDiscoverableCommand>>();
+            argResolverMock
+                .Setup(_ => _.CanResolve(It.IsAny<ArgumentModel>()))
+                .Verifiable();
+
+            Services.AddSingleton(argResolverMock.Object);
+
+            var parser = new CommandLineParser(Services);
+
+            parser.DiscoverCommands(typeof(NonGenericDiscoverableCommand).Assembly);
+
+            var result = await parser.ParseAsync(new[] { "app.exe", "cmd" });
+
+            Assert.True(parser.Commands.Count == 1);
+
+            argResolverMock.Verify(_ => _.CanResolve(It.IsAny<ArgumentModel>()), Times.Once());
         }
 
         public abstract class AbstractCommand : Command<SomeBaseType>

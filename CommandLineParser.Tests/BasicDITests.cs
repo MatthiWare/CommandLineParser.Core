@@ -47,35 +47,35 @@ namespace MatthiWare.CommandLine.Tests
 
             Assert.Equal(mockedService, resolved);
         }
-    }
 
-    public interface MySerice
-    {
-        void Call();
-    }
-
-    public class MyCommandThatUsesService : Command<object>
-    {
-        private readonly MySerice serice;
-
-        public MyCommandThatUsesService(MySerice serice)
+        public class MyCommandThatUsesService : Command<object>
         {
-            this.serice = serice ?? throw new System.ArgumentNullException(nameof(serice));
+            private readonly MySerice serice;
+
+            public MyCommandThatUsesService(MySerice serice)
+            {
+                this.serice = serice ?? throw new System.ArgumentNullException(nameof(serice));
+            }
+
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder
+                    .Name("cmd")
+                    .AutoExecute(true)
+                    .Required(true);
+            }
+
+            public override void OnExecute()
+            {
+                base.OnExecute();
+
+                serice.Call();
+            }
         }
 
-        public override void OnConfigure(ICommandConfigurationBuilder builder)
+        public interface MySerice
         {
-            builder
-                .Name("cmd")
-                .AutoExecute(true)
-                .Required(true);
-        }
-
-        public override void OnExecute()
-        {
-            base.OnExecute();
-
-            serice.Call();
+            void Call();
         }
     }
 }

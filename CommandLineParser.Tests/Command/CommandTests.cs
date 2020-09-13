@@ -96,6 +96,25 @@ namespace MatthiWare.CommandLine.Tests.Command
             Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddCommandTypeWithoutGenericOption(bool generic)
+        {
+            if (generic)
+            {
+                parser.RegisterCommand<NonGenericCmd>();
+            }
+            else
+            {
+                parser.RegisterCommand(typeof(NonGenericCmd));
+            }
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
+        }
+
         private class MyComand : Command<object, object>
         {
             public override void OnConfigure(ICommandConfigurationBuilder<object> builder)
@@ -119,6 +138,19 @@ namespace MatthiWare.CommandLine.Tests.Command
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
                 builder.Name("other");
+            }
+        }
+
+        private class NonGenericCmd : Abstractions.Command.Command
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name("bla");
+            }
+
+            public override void OnExecute()
+            {
+                base.OnExecute();
             }
         }
     }

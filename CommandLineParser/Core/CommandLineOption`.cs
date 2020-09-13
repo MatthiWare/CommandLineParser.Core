@@ -11,7 +11,6 @@ namespace MatthiWare.CommandLine.Core
         public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolver<TOption> argumentResolver, ILogger logger)
              : base(parserOptions, source, selector, argumentResolver, logger)
         {
-
         }
 
         public IOptionBuilder<TOption> Required(bool required = true)

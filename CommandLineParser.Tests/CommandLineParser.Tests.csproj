@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj" />
+    <ProjectReference Include="..\Tests\TestAssembly\TestAssembly.csproj" />
   </ItemGroup>
 
 </Project>

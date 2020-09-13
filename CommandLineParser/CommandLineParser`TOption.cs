@@ -40,7 +40,6 @@ namespace MatthiWare.CommandLine
         private readonly List<CommandLineCommandBase> m_commands = new List<CommandLineCommandBase>();
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
-        private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
         private readonly ILogger<CommandLineParser> logger;
 
         /// <summary>
@@ -516,20 +515,43 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions}"/></typeparam>
         public void RegisterCommand<TCommand>()
-            where TCommand : Command<TOption>
+            where TCommand : Command
         {
-            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
-
             var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
+
+            if (typeof(TCommand).IsAssignableToGenericType(typeof(Command<>)))
+            {
+                RegisterGenericCommandInternal<TCommand>(command);
+            }
+            else
+            {
+                RegisterNonGenericCommandInternal<TCommand>(command);
+            }
+
+            m_commands.Add(command);
+        }
+
+        private void RegisterGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command) 
+            where TCommand : Command
+        {
+            var cmdConfigurator = (Command<TOption>)(Command)(ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services));
 
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
             command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+        }
 
-            m_commands.Add(command);
+        private void RegisterNonGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command)
+            where TCommand : Command
+        {
+            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting(cmdConfigurator.OnExecute);
+            command.OnExecutingAsync(cmdConfigurator.OnExecuteAsync);
         }
 
         /// <summary>
@@ -566,9 +588,16 @@ namespace MatthiWare.CommandLine
         /// <param name="optionsType">Command options model</param>
         public void RegisterCommand(Type commandType, Type optionsType)
         {
-            if (!commandType.IsAssignableToGenericType(typeof(Command<>)))
+            bool isAssignableToGenericCommand = commandType.IsAssignableToGenericType(typeof(Command<>));
+            bool isAssignableToCommand = typeof(Command).IsAssignableFrom(commandType);
+
+            if (!isAssignableToCommand && !isAssignableToGenericCommand)
             {
                 throw new ArgumentException($"Provided command {commandType} is not assignable to {typeof(Command<>)}");
+            }
+            else if (!isAssignableToCommand)
+            {
+                throw new ArgumentException($"Provided command {commandType} is not assignable to {typeof(Command)}");
             }
 
             this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType, optionsType);
@@ -663,6 +692,8 @@ namespace MatthiWare.CommandLine
         /// <param name="assemblies">Assemblies containing the command types</param>
         public void DiscoverCommands(Assembly[] assemblies)
         {
+            var commandDiscoverer = Services.GetRequiredService<ICommandDiscoverer>();
+
             var commandTypes = commandDiscoverer.DiscoverCommandTypes(typeof(TOption), assemblies);
 
             foreach (var commandType in commandTypes)
