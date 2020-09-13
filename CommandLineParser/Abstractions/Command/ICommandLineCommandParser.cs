@@ -1,5 +1,4 @@
-﻿
-using MatthiWare.CommandLine.Abstractions.Parsing;
+﻿using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 
 namespace MatthiWare.CommandLine.Abstractions.Command

@@ -54,6 +54,7 @@ namespace MatthiWare.CommandLine.Tests
         void Call();
     }
 
+#pragma warning disable SA1402 // FileMayOnlyContainASingleType
     public class MyCommandThatUsesService : Command<object>
     {
         private readonly MySerice serice;
@@ -78,4 +79,5 @@ namespace MatthiWare.CommandLine.Tests
             serice.Call();
         }
     }
+#pragma warning restore SA1402 // FileMayOnlyContainASingleType
 }
