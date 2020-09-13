@@ -232,6 +232,19 @@
             <param name="autoExecute">True for automated execution, false for manual</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1"/></returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandDiscoverer">
+            <summary>
+            Allows to discover <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command"/>'s from assemblies
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandDiscoverer.DiscoverCommandTypes(System.Type,System.Reflection.Assembly[])">
+            <summary>
+            Discover commands
+            </summary>
+            <param name="optionType">Only commands with this option type are valid, or non generic commands</param>
+            <param name="assemblies">List of assemblies to scan</param>
+            <returns>A list of valid commands that need to be registered</returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2">
             <summary>
             API for configurion command executions
@@ -1202,6 +1215,12 @@
             Specifies if the command/option is required
             </summary>
             <param name="required">True if required, false if not</param>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Command.CommandDiscoverer">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Command.CommandDiscoverer.DiscoverCommandTypes(System.Type,System.Reflection.Assembly[])">
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Command.CommandLineCommand`2.InitialzeModel">
             <summary>
