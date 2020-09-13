@@ -519,44 +519,40 @@ namespace MatthiWare.CommandLine
         public void RegisterCommand<TCommand>()
             where TCommand : Command
         {
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
+
             if (typeof(TCommand).IsAssignableToGenericType(typeof(Command<>)))
             {
-                RegisterGenericCommandInternal<TCommand>();
+                RegisterGenericCommandInternal<TCommand>(command);
             }
             else
             {
-                RegisterNonGenericCommandInternal<TCommand>();
+                RegisterNonGenericCommandInternal<TCommand>(command);
             }
+
+            m_commands.Add(command);
         }
 
-        private void RegisterGenericCommandInternal<TCommand>() 
+        private void RegisterGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command) 
             where TCommand : Command
         {
             var cmdConfigurator = (Command<TOption>)(Command)(ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services));
-
-            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
 
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
             command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
-            
-            m_commands.Add(command);
         }
 
-        private void RegisterNonGenericCommandInternal<TCommand>()
+        private void RegisterNonGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command)
             where TCommand : Command
         {
             var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
-
-            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
 
             cmdConfigurator.OnConfigure(command);
 
             command.OnExecuting(cmdConfigurator.OnExecute);
             command.OnExecutingAsync(cmdConfigurator.OnExecuteAsync);
-
-            m_commands.Add(command);
         }
 
         /// <summary>
