@@ -40,7 +40,6 @@ namespace MatthiWare.CommandLine
         private readonly List<CommandLineCommandBase> m_commands = new List<CommandLineCommandBase>();
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
-        private readonly ICommandDiscoverer commandDiscoverer = new CommandDiscoverer();
         private readonly ILogger<CommandLineParser> logger;
 
         /// <summary>
@@ -693,6 +692,8 @@ namespace MatthiWare.CommandLine
         /// <param name="assemblies">Assemblies containing the command types</param>
         public void DiscoverCommands(Assembly[] assemblies)
         {
+            var commandDiscoverer = Services.GetRequiredService<ICommandDiscoverer>();
+
             var commandTypes = commandDiscoverer.DiscoverCommandTypes(typeof(TOption), assemblies);
 
             foreach (var commandType in commandTypes)
