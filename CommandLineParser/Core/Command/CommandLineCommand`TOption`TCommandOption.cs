@@ -400,6 +400,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return this;
         }
+
         public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<CancellationToken, Task> action)
         {
             m_executorAsync1 = action;

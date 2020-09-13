@@ -75,7 +75,7 @@ namespace MatthiWare.CommandLine.Core.Utils
 
             var method = baseType.GetMethods().FirstOrDefault(m =>
             {
-                return (m.Name == methodName && m.IsGenericMethod && m.GetGenericArguments().Length == amountGenericTypes);
+                return FindBestFittingGenericMethod(m, methodName, amountGenericTypes);
             });
 
             if (method == null)
@@ -103,6 +103,28 @@ namespace MatthiWare.CommandLine.Core.Utils
             var methodInstance = method.MakeGenericMethod(types.ToArray());
 
             return methodInstance.Invoke(obj, null);
+        }
+
+        private static bool FindBestFittingGenericMethod(MethodInfo methodInfo, string methodName, int amountOfGenericArgs)
+        {
+            if (!methodInfo.IsGenericMethod)
+            {
+                return false;
+            }
+
+            if (methodInfo.Name != methodName)
+            {
+                return false;
+            }
+
+            if (amountOfGenericArgs == 0)
+            {
+                return methodInfo.GetGenericArguments().Length == 1;
+            }
+            else
+            {
+                return methodInfo.GetGenericArguments().Length == amountOfGenericArgs;
+            }
         }
 
         public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, ICollection<ICommandLineOption> options)

@@ -516,11 +516,23 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions}"/></typeparam>
         public void RegisterCommand<TCommand>()
-            where TCommand : Command<TOption>
+            where TCommand : Command
         {
-            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
+            if (typeof(TCommand).IsAssignableToGenericType(typeof(Command<>)))
+            {
+                RegisterGenericCommandInternal<TCommand>();
+            }
+            else
+            {
+                RegisterNonGenericCommandInternal<TCommand>();
+            }
+        }
+
+        private void RegisterGenericCommandInternal<TCommand>() 
+            where TCommand : Command
+        {
+            var cmdConfigurator = (Command<TOption>)(Command)(ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services));
 
             var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
 
@@ -528,6 +540,21 @@ namespace MatthiWare.CommandLine
 
             command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
             command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+            
+            m_commands.Add(command);
+        }
+
+        private void RegisterNonGenericCommandInternal<TCommand>()
+            where TCommand : Command
+        {
+            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(Services);
+
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(Services, m_option);
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting(cmdConfigurator.OnExecute);
+            command.OnExecutingAsync(cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -566,9 +593,16 @@ namespace MatthiWare.CommandLine
         /// <param name="optionsType">Command options model</param>
         public void RegisterCommand(Type commandType, Type optionsType)
         {
-            if (!commandType.IsAssignableToGenericType(typeof(Command<>)))
+            bool isAssignableToGenericCommand = commandType.IsAssignableToGenericType(typeof(Command<>));
+            bool isAssignableToCommand = typeof(Command).IsAssignableFrom(commandType);
+
+            if (!isAssignableToCommand && !isAssignableToGenericCommand)
             {
                 throw new ArgumentException($"Provided command {commandType} is not assignable to {typeof(Command<>)}");
+            }
+            else if (!isAssignableToCommand)
+            {
+                throw new ArgumentException($"Provided command {commandType} is not assignable to {typeof(Command)}");
             }
 
             this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType, optionsType);
