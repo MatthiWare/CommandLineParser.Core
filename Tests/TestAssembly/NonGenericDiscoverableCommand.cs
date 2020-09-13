@@ -11,7 +11,7 @@ namespace TestAssembly
 
         public NonGenericDiscoverableCommand(IArgumentResolver<NonGenericDiscoverableCommand> argResolver)
         {
-            this.argResolver = argResolver ?? throw new ArgumentNullException(nameof(argResolver));
+            this.argResolver = argResolver;
         }
 
         public override void OnConfigure(ICommandConfigurationBuilder builder)
