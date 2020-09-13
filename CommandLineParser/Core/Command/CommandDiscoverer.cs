@@ -7,8 +7,10 @@ using System.Reflection;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
+    /// <inheritdoc/>
     public class CommandDiscoverer : ICommandDiscoverer
     {
+        /// <inheritdoc/>
         public IReadOnlyList<Type> DiscoverCommandTypes(Type optionType, Assembly[] assemblies)
         {
             var foundCommands = new List<Type>();
