@@ -45,7 +45,7 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
-            Assert.Equal(2, parser.Commands.Count);
+            Assert.Equal(3, parser.Commands.Count);
         }
 
         [Fact]
