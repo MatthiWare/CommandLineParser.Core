@@ -15,9 +15,10 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
         }
 
+        #region FindCommandsInModel
 
         [Fact]
-        public async Task FindCommandsInModels()
+        public async Task FindCommandsInModel()
         {
             var parser = new CommandLineParser<ModelWithCommands>(Services);
 
@@ -60,5 +61,43 @@ namespace MatthiWare.CommandLine.Tests.Command
                 builder.Name(nameof(GenericCommandWithOwnOptions));
             }
         }
+
+        #endregion
+
+        #region SubCommandFindCommandsInModel
+
+        [Fact]
+        public async Task FindCommandsInCommandModel()
+        {
+            var parser = new CommandLineParser(Services);
+
+            parser.RegisterCommand<GenericSubCommandWithOwnOptions, SubCommandModelWithCommands>();
+
+            Assert.Equal(2, ((ICommandLineCommandContainer)parser.Commands[0]).Commands.Count);
+        }
+
+        public class SubCommandModelWithCommands
+        {
+            public NonGenericCommand NonGenericCommand { get; set; }
+            public SubCommandWithModelOptions SubCommandWithModelOptions { get; set; }
+        }
+
+        public class GenericSubCommandWithOwnOptions : Command<object, SubCommandModelWithCommands>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name(nameof(GenericSubCommandWithOwnOptions));
+            }
+        }
+
+        public class SubCommandWithModelOptions : Command<object, ModelWithOptions>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name(nameof(SubCommandWithModelOptions));
+            }
+        }
+
+        #endregion
     }
 }

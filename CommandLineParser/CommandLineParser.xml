@@ -1231,7 +1231,7 @@
             <summary>
             Registers a command type
             </summary>
-            <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`2"/></typeparam>
+            <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command"/></typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Command.CommandLineCommand`2.RegisterCommand``2">
             <summary>
