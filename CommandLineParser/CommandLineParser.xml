@@ -1156,22 +1156,6 @@
             </summary>
             <param name="defaultValue">default value</param>
         </member>
-        <member name="T:MatthiWare.CommandLine.Core.Attributes.IgnoreAttribute">
-            <summary>
-            Specifies if the option should be ignored.
-            </summary>
-        </member>
-        <member name="P:MatthiWare.CommandLine.Core.Attributes.IgnoreAttribute.IgnoreOption">
-            <summary>
-            Indicates if the option should be ignored
-            </summary>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Core.Attributes.IgnoreAttribute.#ctor(System.Boolean)">
-            <summary>
-            Specifies if the option should be ignored.
-            </summary>
-            <param name="ignore">Ignore the option, true or false</param>
-        </member>
         <member name="T:MatthiWare.CommandLine.Core.Attributes.NameAttribute">
             <summary>
             Specifies the name of the option/command

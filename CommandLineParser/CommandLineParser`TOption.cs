@@ -629,39 +629,25 @@ namespace MatthiWare.CommandLine
 
                 var lambda = propInfo.GetLambdaExpression(out string key);
 
-                var actions = new List<Action>(4);
-                bool ignoreSet = false;
-
                 var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
 
                 foreach (var attribute in attributes)
                 {
-                    if (ignoreSet) break;
-
                     switch (attribute)
                     {
-                        // Ignore has been set, skip all the other attributes and DO NOT execute the action list.
-                        case IgnoreAttribute ignore:
-                            ignoreSet = true;
-                            continue;
                         case RequiredAttribute required:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Required(required.Required));
+                            GetOption(cfg, propInfo, lambda, key).Required(required.Required);
                             break;
                         case DefaultValueAttribute defaultValue:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue));
+                            GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue);
                             break;
                         case DescriptionAttribute helpText:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Description(helpText.Description));
+                            GetOption(cfg, propInfo, lambda, key).Description(helpText.Description);
                             break;
                         case NameAttribute name:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName));
+                            GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName);
                             break;
                     }
-                }
-
-                if (ignoreSet)
-                {
-                    continue; // Ignore the configured actions for this option.
                 }
                 
                 var commandType = propInfo.PropertyType;
@@ -671,11 +657,6 @@ namespace MatthiWare.CommandLine
                 if (isAssignableToCommand)
                 {
                     this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
-                }
-
-                foreach (var action in actions)
-                { 
-                    action();
                 }
             }
 
