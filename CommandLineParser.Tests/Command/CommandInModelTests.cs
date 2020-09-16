@@ -73,13 +73,14 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             parser.RegisterCommand<GenericSubCommandWithOwnOptions, SubCommandModelWithCommands>();
 
-            Assert.Equal(2, ((ICommandLineCommandContainer)parser.Commands[0]).Commands.Count);
+            Assert.Equal(3, ((ICommandLineCommandContainer)parser.Commands[0]).Commands.Count);
         }
 
         public class SubCommandModelWithCommands
         {
             public NonGenericCommand NonGenericCommand { get; set; }
             public SubCommandWithModelOptions SubCommandWithModelOptions { get; set; }
+            public SimpleGenericCommand SimpleGenericCommand { get; set; }
         }
 
         public class GenericSubCommandWithOwnOptions : Command<object, SubCommandModelWithCommands>
@@ -95,6 +96,14 @@ namespace MatthiWare.CommandLine.Tests.Command
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
                 builder.Name(nameof(SubCommandWithModelOptions));
+            }
+        }
+
+        public class SimpleGenericCommand : Command<object>
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name(nameof(SimpleGenericCommand));
             }
         }
 
