@@ -563,22 +563,24 @@ namespace MatthiWare.CommandLine.Core.Command
                     }
                 }
 
-                if (ignoreSet) continue; // Ignore the configured actions for this option.
+                if (ignoreSet)
+                { 
+                    continue; // Ignore the configured actions for this option.
+                }
 
-                if (propInfo.PropertyType.IsAssignableToGenericType(typeof(Command<>)))
+                var commandType = propInfo.PropertyType;
+
+                bool isAssignableToCommand = typeof(Abstractions.Command.Command).IsAssignableFrom(commandType);
+
+                if (isAssignableToCommand)
                 {
-                    var genericTypes = propInfo.PropertyType.BaseType.GenericTypeArguments;
-                    var method = GetType().GetMethods().First(m =>
-                    {
-                        return (m.Name == nameof(RegisterCommand) && m.IsGenericMethod && m.GetGenericArguments().Length == genericTypes.Length);
-                    });
-                    var registerCommand = genericTypes.Length > 1 ? method.MakeGenericMethod(propInfo.PropertyType, genericTypes[1]) : method.MakeGenericMethod(propInfo.PropertyType);
-
-                    registerCommand.Invoke(this, null);
+                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
                 }
 
                 foreach (var action in actions)
+                { 
                     action();
+                }
             }
 
             IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
@@ -590,20 +592,22 @@ namespace MatthiWare.CommandLine.Core.Command
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
+        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Abstractions.Command.Command"/></typeparam>
         public void RegisterCommand<TCommand>()
-            where TCommand : Command<TCommandOption>
+            where TCommand : Abstractions.Command.Command
         {
-            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(m_serviceProvider, m_commandOption, m_validators);
 
-            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TCommandOption, object>>(m_serviceProvider, m_commandOption, m_validators);
-
-            cmdConfigurator.OnConfigure(command);
+            if (typeof(TCommand).IsAssignableToGenericType(typeof(Command<>)))
+            {
+                RegisterGenericCommandInternal<TCommand>(command);
+            }
+            else
+            {
+                RegisterNonGenericCommandInternal<TCommand>(command);
+            }
 
             logger.LogDebug("Command registered '{name}' required: {req}, auto exec: {autoExec}", command.Name, command.IsRequired, command.AutoExecute);
-
-            command.OnExecuting((Action<TCommandOption>)cmdConfigurator.OnExecute);
-            command.OnExecutingAsync((Func<TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
         }
@@ -629,6 +633,28 @@ namespace MatthiWare.CommandLine.Core.Command
             command.OnExecutingAsync((Func<TOption, TActualCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
+        }
+
+        private void RegisterGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command)
+           where TCommand : Abstractions.Command.Command
+        {
+            var cmdConfigurator = (Command<TOption>)(Abstractions.Command.Command)(ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider));
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+        }
+
+        private void RegisterNonGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command)
+            where TCommand : Abstractions.Command.Command
+        {
+            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider);
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting(cmdConfigurator.OnExecute);
+            command.OnExecutingAsync(cmdConfigurator.OnExecuteAsync);
         }
 
         ICommandConfigurationBuilder<TCommandOption> ICommandConfigurationBuilder<TCommandOption>.AutoExecute(bool autoExecute)

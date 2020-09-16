@@ -90,7 +90,7 @@ namespace MatthiWare.CommandLine.Core.Utils
 
             if (genericTypes.Length > 1)
             {
-                if (nonNullOptionTypes.Length > 0)
+                if (nonNullOptionTypes.Length > 0 && cmdType != nonNullOptionTypes[0])
                 {
                     types.Add(nonNullOptionTypes[0]);
                 }

@@ -659,19 +659,24 @@ namespace MatthiWare.CommandLine
                     }
                 }
 
-                if (ignoreSet) continue; // Ignore the configured actions for this option.
-
-                var cmdType = propInfo.PropertyType;
-
-                if (cmdType.IsAssignableToGenericType(typeof(Command<>)))
+                if (ignoreSet)
                 {
-                    var genericTypes = cmdType.BaseType.GenericTypeArguments;
+                    continue; // Ignore the configured actions for this option.
+                }
+                
+                var commandType = propInfo.PropertyType;
 
-                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), cmdType);
+                bool isAssignableToCommand = typeof(Command).IsAssignableFrom(commandType);
+
+                if (isAssignableToCommand)
+                {
+                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
                 }
 
                 foreach (var action in actions)
+                { 
                     action();
+                }
             }
 
             IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
