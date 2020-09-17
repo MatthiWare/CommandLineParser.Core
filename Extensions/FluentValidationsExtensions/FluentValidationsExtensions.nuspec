@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser.Extensions.FluentValidations</id>
-    <version>0.3.1</version>
+    <version>0.4.0</version>
     <title>CommandLineParser.Core.Extensions.FluentValidations</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -17,7 +17,8 @@
   <copyright>Copyright Matthias Beerens 2019</copyright>
   <tags>commandline parser commandline-parser extension fluent-validation validations</tags>
   <dependencies>
-    <dependency id="MatthiWare.CommandLineParser" version="0.3.1" />
+    <dependency id="MatthiWare.CommandLineParser" version="0.4.0" />
+    <dependency id="FluentValidation" version="8.5.1" />
   </dependencies>
   </metadata>
   <files>
