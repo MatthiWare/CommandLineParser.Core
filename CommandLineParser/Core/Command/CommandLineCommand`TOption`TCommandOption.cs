@@ -36,6 +36,7 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
         private readonly ILogger logger;
+        private readonly IModelInitializer modelInitializer;
         private Action m_executor1;
         private Action<TOption> m_executor2;
         private Action<TOption, TCommandOption> m_executor3;
@@ -47,13 +48,14 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger, IModelInitializer modelInitializer)
         {
             m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(parserOptions));
             m_commandOption = new TCommandOption();
 
             m_validators = validators ?? throw new ArgumentNullException(nameof(validators));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.modelInitializer = modelInitializer ?? throw new ArgumentNullException(nameof(modelInitializer));
             m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             m_baseOption = option ?? throw new ArgumentNullException(nameof(option));
 
@@ -525,49 +527,7 @@ namespace MatthiWare.CommandLine.Core.Command
         /// </summary>
         private void InitialzeModel()
         {
-            var properties = typeof(TCommandOption).GetProperties();
-
-            foreach (var propInfo in properties)
-            {
-                var attributes = propInfo.GetCustomAttributes(true);
-
-                var lambda = propInfo.GetLambdaExpression(out string key);
-
-                var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
-
-                foreach (var attribute in attributes)
-                {
-                    switch (attribute)
-                    {
-                        case RequiredAttribute required:
-                            GetOption(cfg, propInfo, lambda, key).Required(required.Required);
-                            break;
-                        case DefaultValueAttribute defaultValue:
-                            GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue);
-                            break;
-                        case DescriptionAttribute helpText:
-                            GetOption(cfg, propInfo, lambda, key).Description(helpText.Description);
-                            break;
-                        case NameAttribute name:
-                            GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName);
-                            break;
-                    }
-                }
-
-                var commandType = propInfo.PropertyType;
-
-                bool isAssignableToCommand = typeof(Abstractions.Command.Command).IsAssignableFrom(commandType);
-
-                if (isAssignableToCommand)
-                {
-                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
-                }
-            }
-
-            IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
-            {
-                return method.InvokeGenericMethod(prop, this, lambda, key) as IOptionBuilder;
-            }
+            modelInitializer.InitializeModel(typeof(TCommandOption), this, nameof(ConfigureInternal), nameof(RegisterCommand));
         }
 
         /// <summary>

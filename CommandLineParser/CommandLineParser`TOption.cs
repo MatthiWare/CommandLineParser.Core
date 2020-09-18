@@ -621,49 +621,9 @@ namespace MatthiWare.CommandLine
         /// </summary>
         private void InitialzeModel()
         {
-            var properties = typeof(TOption).GetProperties();
+            var modelInitializer = Services.GetRequiredService<IModelInitializer>();
 
-            foreach (var propInfo in properties)
-            {
-                var attributes = propInfo.GetCustomAttributes(true);
-
-                var lambda = propInfo.GetLambdaExpression(out string key);
-
-                var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
-
-                foreach (var attribute in attributes)
-                {
-                    switch (attribute)
-                    {
-                        case RequiredAttribute required:
-                            GetOption(cfg, propInfo, lambda, key).Required(required.Required);
-                            break;
-                        case DefaultValueAttribute defaultValue:
-                            GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue);
-                            break;
-                        case DescriptionAttribute helpText:
-                            GetOption(cfg, propInfo, lambda, key).Description(helpText.Description);
-                            break;
-                        case NameAttribute name:
-                            GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName);
-                            break;
-                    }
-                }
-                
-                var commandType = propInfo.PropertyType;
-
-                bool isAssignableToCommand = typeof(Command).IsAssignableFrom(commandType);
-
-                if (isAssignableToCommand)
-                {
-                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
-                }
-            }
-
-            IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
-            {
-                return method.InvokeGenericMethod(prop, this, lambda, key) as IOptionBuilder;
-            }
+            modelInitializer.InitializeModel(typeof(TOption), this, nameof(ConfigureInternal), nameof(RegisterCommand));
         }
 
         /// <summary>

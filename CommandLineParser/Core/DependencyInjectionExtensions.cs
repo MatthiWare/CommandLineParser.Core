@@ -1,9 +1,11 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core.Command;
+using MatthiWare.CommandLine.Core.Models;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Validations;
@@ -39,7 +41,8 @@ namespace MatthiWare.CommandLine.Core
                 .AddCLIPrinters()
                 .AddCommandDiscoverer()
                 .AddEnvironmentVariables()
-                .AddDefaultLogger();
+                .AddDefaultLogger()
+                .AddModelInitializer();
         }
 
         private static IServiceCollection AddParserOptions(this IServiceCollection services, CommandLineParserOptions options)
@@ -103,6 +106,13 @@ namespace MatthiWare.CommandLine.Core
         {
             services.TryAddSingleton(typeof(ILogger), (_) => NullLogger.Instance);
             services.TryAddSingleton(typeof(ILogger<CommandLineParser>), (_) => NullLogger<CommandLineParser>.Instance);
+
+            return services;
+        }
+
+        private static IServiceCollection AddModelInitializer(this IServiceCollection services)
+        {
+            services.TryAddScoped<IModelInitializer, ModelInitializer>();
 
             return services;
         }
