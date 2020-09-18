@@ -250,30 +250,11 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 try
                 {
-                    if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
-                    {
-                        result.MergeResult(new CommandNotFoundParserResult(cmd));
+                    var helpRequested = ParseCommand(cmd, result, argumentManager);
 
-                        if (cmd.IsRequired)
-                        {
-                            throw new CommandNotFoundException(cmd);
-                        }
-
-                        continue;
-                    }
-
-                    var cmdParseResult = cmd.Parse(argumentManager);
-
-                    if (cmdParseResult.HelpRequested)
+                    if (helpRequested)
                     {
                         break;
-                    }
-
-                    result.MergeResult(cmdParseResult);
-
-                    if (cmdParseResult.HasErrors)
-                    {
-                        throw new CommandParseException(cmd, cmdParseResult.Errors);
                     }
                 }
                 catch (CommandNotFoundException e)
@@ -297,36 +278,48 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
+        private bool ParseCommand(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager)
+        {
+            if (!argumentManager.TryGetValue(cmd, out _))
+            {
+                result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                if (cmd.IsRequired)
+                {
+                    throw new CommandNotFoundException(cmd);
+                }
+
+                return false;
+            }
+
+            var cmdParseResult = cmd.Parse(argumentManager);
+
+            if (cmdParseResult.HelpRequested)
+            {
+                return true;
+            }
+
+            result.MergeResult(cmdParseResult);
+
+            if (cmdParseResult.HasErrors)
+            {
+                throw new CommandParseException(cmd, cmdParseResult.Errors);
+            }
+
+            return false;
+        }
+
         private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
         {
             foreach (var cmd in m_commands)
             {
                 try
                 {
-                    if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
-                    {
-                        result.MergeResult(new CommandNotFoundParserResult(cmd));
+                    var helpRequested = await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
 
-                        if (cmd.IsRequired)
-                        {
-                            throw new CommandNotFoundException(cmd);
-                        }
-
-                        continue;
-                    }
-
-                    var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
-
-                    if (cmdParseResult.HelpRequested)
+                    if (helpRequested)
                     {
                         break;
-                    }
-
-                    result.MergeResult(cmdParseResult);
-
-                    if (cmdParseResult.HasErrors)
-                    {
-                        throw new CommandParseException(cmd, cmdParseResult.Errors);
                     }
                 }
                 catch (CommandNotFoundException e)
@@ -348,6 +341,37 @@ namespace MatthiWare.CommandLine.Core.Command
                     errors.Add(ex);
                 }
             }
+        }
+
+        private async Task<bool> ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            if (!argumentManager.TryGetValue(cmd, out _))
+            {
+                result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                if (cmd.IsRequired)
+                {
+                    throw new CommandNotFoundException(cmd);
+                }
+
+                return false;
+            }
+
+            var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
+
+            if (cmdParseResult.HelpRequested)
+            {
+                return true;
+            }
+
+            result.MergeResult(cmdParseResult);
+
+            if (cmdParseResult.HasErrors)
+            {
+                throw new CommandParseException(cmd, cmdParseResult.Errors);
+            }
+
+            return false;
         }
 
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
