@@ -156,42 +156,22 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private void ParseOptions(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
         {
-            foreach (var o in m_options)
+            foreach (var optionKeyValue in m_options)
             {
-                var option = o.Value;
-                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
-
+                var option = optionKeyValue.Value;
+                
                 try
                 {
-                    if (found && HelpRequested(result, option, model))
-                    {
-                        logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+                    var helpRequested = ParseOption(option, result, argumentManager);
 
+                    if (helpRequested)
+                    {
                         break;
                     }
-                    else if (!found && option.IsRequired && !option.HasDefault)
-                    {
-                        throw new OptionNotFoundException(option);
-                    }
-                    else if ((!found && !model.HasValue && option.HasDefault) ||
-                        (found && !option.CanParse(model) && option.HasDefault))
-                    {
-                        logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
-
-                        option.UseDefault();
-
-                        continue;
-                    }
-                    else if (found && !option.CanParse(model))
-                    {
-                        throw new OptionParseException(option, model);
-                    }
-
-                    option.Parse(model);
                 }
                 catch (OptionParseException e)
                 {
-                    logger.LogDebug("Unable to parse option value '{Value}'", model.Value);
+                    logger.LogDebug("Unable to parse option value '{Value}'", e.ArgumentModel.Value);
 
                     errors.Add(e);
                 }
@@ -209,6 +189,49 @@ namespace MatthiWare.CommandLine.Core.Command
                 }
             }
         }
+
+        private bool ParseOption(CommandLineOptionBase option, CommandParserResult result, IArgumentManager argumentManager)
+        {
+            bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
+
+            if (found && HelpRequested(result, option, model))
+            {
+                logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+
+                return true;
+            }
+            else if (!found && CheckOptionNotFound(option))
+            {
+                throw new OptionNotFoundException(option);
+            }
+            else if (ShouldUseDefault(found, option, model))
+            {
+                logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
+
+                option.UseDefault();
+
+                return false;
+            }
+            else if (found && !option.CanParse(model))
+            {
+                throw new OptionParseException(option, model);
+            }
+
+            option.Parse(model);
+
+            return false;
+        }
+
+        private bool CheckOptionNotFound(CommandLineOptionBase option) => option.IsRequired && !option.HasDefault;
+
+        private bool ShouldUseDefault(bool found, CommandLineOptionBase option, ArgumentModel model)
+            => (found && ShouldUseDefaultWhenParsingFails(option, model)) || (!found && ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(option, model));
+
+        private bool ShouldUseDefaultWhenParsingFails(CommandLineOptionBase option, ArgumentModel model)
+            => !option.CanParse(model) && option.HasDefault;
+
+        private bool ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(CommandLineOptionBase option, ArgumentModel model)
+            => !model.HasValue && option.HasDefault;
 
         private void ParseCommands(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
         {

@@ -1331,6 +1331,11 @@
             The option that failed
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Core.Exceptions.OptionParseException.ArgumentModel">
+            <summary>
+            Provided argument model
+            </summary>
+        </member>
         <member name="M:MatthiWare.CommandLine.Core.Exceptions.OptionParseException.#ctor(MatthiWare.CommandLine.Abstractions.ICommandLineOption,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Creates a new <see cref="T:MatthiWare.CommandLine.Core.Exceptions.OptionParseException"/>
