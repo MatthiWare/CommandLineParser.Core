@@ -1372,6 +1372,12 @@
             </summary>
             <typeparam name="TValue"></typeparam>
         </member>
+        <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.#ctor(System.IServiceProvider)">
+            <summary>
+            Creates an instance of the strongly-typed instance cache
+            </summary>
+            <param name="serviceProvider"></param>
+        </member>
         <member name="M:MatthiWare.CommandLine.Core.TypedInstanceCache`1.Add(`0)">
             <summary>
             Adds a new instance to the cache
@@ -1464,6 +1470,11 @@
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
             <inheritdoc/>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Utils.ExtensionMethods">
+            <summary>
+            Utility extension methods used the command line parser or other internal classes
+            </summary>
+        </member>
         <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.IsAssignableToGenericType(System.Type,System.Type)">
             <summary>
             Checks if an open generic type is assignable to the generic type
@@ -1471,6 +1482,60 @@
             For more info see:
             https://stackoverflow.com/a/5461399/6058174
             </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.InvokeGenericMethod(System.Reflection.MethodInfo,System.Reflection.PropertyInfo,System.Object,System.Object[])">
+            <summary>
+            Invokes a generic method
+            </summary>
+            <param name="method">Method to invoke</param>
+            <param name="propertyInfo">Generic argument to use</param>
+            <param name="source">Instance object</param>
+            <param name="args">Method arguments</param>
+            <returns>Method invocation result</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.ExecuteGenericRegisterCommand(System.Object,System.String,System.Type,System.Type[])">
+            <summary>
+            Execute generic register command
+            </summary>
+            <param name="obj">Instance object</param>
+            <param name="methodName">Register method name</param>
+            <param name="cmdType">Type of the command</param>
+            <param name="optionTypes">Option types</param>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.SplitOnPostfix(System.Collections.Generic.IEnumerable{System.String},MatthiWare.CommandLine.CommandLineParserOptions,System.Collections.Generic.ICollection{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
+            <summary>
+            Splits on postfix
+            </summary>
+            <param name="self"></param>
+            <param name="settings"></param>
+            <param name="options"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.GetLambdaExpression(System.Reflection.PropertyInfo,System.String@)">
+            <summary>
+            Creates lambda expression from property info
+            </summary>
+            <param name="propInfo"></param>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.AppendIf(System.Text.StringBuilder,System.Boolean,System.String)">
+            <summary>
+            Append text if condition evaluates to true
+            </summary>
+            <param name="self"></param>
+            <param name="contition"></param>
+            <param name="text"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.EqualsIgnoreCase(System.String,System.String)">
+            <summary>
+            Compares strings using <see cref="M:System.String.Equals(System.String,System.String,System.StringComparison)"/> with <see cref="F:System.StringComparison.InvariantCultureIgnoreCase"/>.
+            </summary>
+            <param name="input"></param>
+            <param name="equals"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

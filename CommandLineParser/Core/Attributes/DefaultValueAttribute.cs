@@ -3,7 +3,7 @@
     /// <summary>
     /// Specifies the default value of the property
     /// </summary>
-    public class DefaultValueAttribute : BaseAttribute
+    public sealed class DefaultValueAttribute : BaseAttribute
     {
         /// <summary>
         /// Default value

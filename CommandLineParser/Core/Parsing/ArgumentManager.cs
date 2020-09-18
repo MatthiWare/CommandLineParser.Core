@@ -19,8 +19,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly bool helpOptionsEnabled;
         private readonly string shortHelpOption;
         private readonly string longHelpOption;
-        private readonly CommandLineParserOptions parserOptions;
-        private readonly bool hasPostfixDefined;
 
         public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
 
@@ -28,11 +26,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
         {
             resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
 
-            this.parserOptions = parserOptions;
             this.helpOptionsEnabled = parserOptions.EnableHelpOption;
             this.shortHelpOption = shortHelpOption;
             this.longHelpOption = longHelpOption;
-            this.hasPostfixDefined = !string.IsNullOrWhiteSpace(parserOptions.PostfixOption);
 
             this.args = new List<ArgumentValueHolder>(
                 args.SplitOnPostfix(parserOptions, GetCommandLineOptions(options, commands))
@@ -186,12 +182,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     switch (model)
                     {
                         case string key:
-                            return string.Equals(key, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
+                            return key.EqualsIgnoreCase(arg.Argument);
                         case ICommandLineOption opt:
-                            return (opt.HasShortName && string.Equals(opt.ShortName, arg.Argument, StringComparison.InvariantCultureIgnoreCase)) ||
-                                (opt.HasLongName && string.Equals(opt.LongName, arg.Argument, StringComparison.InvariantCultureIgnoreCase));
+                            return (opt.HasShortName && opt.ShortName.EqualsIgnoreCase(arg.Argument)) ||
+                                (opt.HasLongName && opt.LongName.EqualsIgnoreCase(arg.Argument));
                         case ICommandLineCommand cmd:
-                            return string.Equals(cmd.Name, arg.Argument, StringComparison.InvariantCultureIgnoreCase);
+                            return cmd.Name.EqualsIgnoreCase(arg.Argument);
                         default:
                             return false;
                     }

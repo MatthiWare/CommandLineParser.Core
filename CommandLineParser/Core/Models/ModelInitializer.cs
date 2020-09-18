@@ -8,8 +8,10 @@ using System.Reflection;
 
 namespace MatthiWare.CommandLine.Core.Models
 {
+    /// <inheritdoc/>
     public class ModelInitializer : IModelInitializer
     {
+        /// <inheritdoc/>
         public void InitializeModel(Type optionType, object caller, string configureMethodName, string registerMethodName)
         {
             var properties = optionType.GetProperties();
