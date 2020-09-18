@@ -1,7 +1,6 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using System;
 
 namespace TestAssembly
 {

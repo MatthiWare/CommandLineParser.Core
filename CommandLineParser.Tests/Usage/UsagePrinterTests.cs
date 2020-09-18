@@ -3,7 +3,6 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
-using MatthiWare.CommandLine.Core.Usage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;

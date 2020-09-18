@@ -6,7 +6,6 @@ using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core;
-using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing;
