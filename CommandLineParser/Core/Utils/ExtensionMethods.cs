@@ -8,6 +8,9 @@ using System.Text;
 
 namespace MatthiWare.CommandLine.Core.Utils
 {
+    /// <summary>
+    /// Utility extension methods used the command line parser or other internal classes
+    /// </summary>
     public static class ExtensionMethods
     {
         private static ICommandLineOption FindMatchingOption(ICollection<ICommandLineOption> options, CommandLineParserOptions settings, string item)
@@ -58,6 +61,14 @@ namespace MatthiWare.CommandLine.Core.Utils
             return IsAssignableToGenericType(baseType, genericType);
         }
 
+        /// <summary>
+        /// Invokes a generic method
+        /// </summary>
+        /// <param name="method">Method to invoke</param>
+        /// <param name="propertyInfo">Generic argument to use</param>
+        /// <param name="source">Instance object</param>
+        /// <param name="args">Method arguments</param>
+        /// <returns>Method invocation result</returns>
         public static object InvokeGenericMethod(this MethodInfo method, PropertyInfo propertyInfo, object source, params object[] args)
         {
             var generic = method.MakeGenericMethod(propertyInfo.PropertyType);
@@ -65,6 +76,14 @@ namespace MatthiWare.CommandLine.Core.Utils
             return generic.Invoke(source, args);
         }
 
+        /// <summary>
+        /// Execute generic register command
+        /// </summary>
+        /// <param name="obj">Instance object</param>
+        /// <param name="methodName">Register method name</param>
+        /// <param name="cmdType">Type of the command</param>
+        /// <param name="optionTypes">Option types</param>
+        /// <returns></returns>
         public static object ExecuteGenericRegisterCommand(this object obj, string methodName, Type cmdType, params Type[] optionTypes)
         {
             var baseType = obj.GetType();
@@ -127,6 +146,13 @@ namespace MatthiWare.CommandLine.Core.Utils
             }
         }
 
+        /// <summary>
+        /// Splits on postfix
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="settings"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
         public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, ICollection<ICommandLineOption> options)
         {
             bool hasPostfix = !string.IsNullOrEmpty(settings.PostfixOption);
@@ -148,6 +174,12 @@ namespace MatthiWare.CommandLine.Core.Utils
             }
         }
 
+        /// <summary>
+        /// Creates lambda expression from property info
+        /// </summary>
+        /// <param name="propInfo"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public static LambdaExpression GetLambdaExpression(this PropertyInfo propInfo, out string key)
         {
             var entityType = propInfo.DeclaringType;
@@ -161,6 +193,13 @@ namespace MatthiWare.CommandLine.Core.Utils
             return Expression.Lambda(funcType, property, parameter);
         }
 
+        /// <summary>
+        /// Append text if condition evaluates to true
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="contition"></param>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public static StringBuilder AppendIf(this StringBuilder self, bool contition, string text)
         {
             if (contition)
@@ -171,6 +210,12 @@ namespace MatthiWare.CommandLine.Core.Utils
             return self;
         }
 
+        /// <summary>
+        /// Compares strings using <see cref="string.Equals(string, string, StringComparison)"/> with <see cref="StringComparison.InvariantCultureIgnoreCase"/>.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="equals"></param>
+        /// <returns></returns>
         public static bool EqualsIgnoreCase(this string input, string equals)
             => input.Equals(equals, StringComparison.InvariantCultureIgnoreCase);
     }

@@ -14,6 +14,10 @@ namespace MatthiWare.CommandLine.Core
         private readonly IServiceProvider serviceProvider;
         private readonly Dictionary<Type, InstanceMetadata<TValue>> instances = new Dictionary<Type, InstanceMetadata<TValue>>();
 
+        /// <summary>
+        /// Creates an instance of the strongly-typed instance cache
+        /// </summary>
+        /// <param name="serviceProvider"></param>
         public TypedInstanceCache(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
