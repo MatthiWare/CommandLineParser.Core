@@ -381,16 +381,13 @@ namespace MatthiWare.CommandLine.Core.Command
                 return false;
             }
 
-            if (model.Key.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
-                model.Key.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
+            if (IsHelpOption(model.Key))
             {
                 result.HelpRequestedFor = this;
 
                 return true;
             }
-            else if (model.HasValue &&
-              (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
-              model.Value.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase)))
+            else if (model.HasValue && IsHelpOption(model.Value))
             {
                 result.HelpRequestedFor = option;
 
@@ -399,6 +396,9 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return false;
         }
+
+        private bool IsHelpOption(string input)
+            => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
 
         private void Validate<T>(T @object, List<Exception> errors)
         {

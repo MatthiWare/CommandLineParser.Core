@@ -171,5 +171,8 @@ namespace MatthiWare.CommandLine.Core.Utils
 
             return self;
         }
+
+        public static bool EqualsIgnoreCase(this string input, string equals)
+            => input.Equals(equals, StringComparison.InvariantCultureIgnoreCase);
     }
 }
