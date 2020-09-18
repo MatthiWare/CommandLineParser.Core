@@ -343,9 +343,13 @@ namespace MatthiWare.CommandLine
                 return false;
             }
 
-            if (model.HasValue &&
-              (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
-              model.Value.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase)))
+            if (IsHelpOption(model.Key))
+            {
+                result.HelpRequestedFor = this;
+
+                return true;
+            }
+            else if (model.HasValue && IsHelpOption(model.Value))
             {
                 result.HelpRequestedFor = option;
 
@@ -354,6 +358,9 @@ namespace MatthiWare.CommandLine
 
             return false;
         }
+
+        private bool IsHelpOption(string input)
+            => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Commands can throw all sorts of exceptions when executing")]
         private void ExecuteCommandParserResults(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds)
@@ -505,9 +512,11 @@ namespace MatthiWare.CommandLine
             {
                 try
                 {
-                    if (ParseOption(o.Value, result, argumentManager))
+                    ParseOption(o.Value, result, argumentManager);
+
+                    if (result.HelpRequested)
                     {
-                        break; // break here because help is requested!
+                        break; // break when help is requested, no need to parse the other options.
                     }
                 }
                 catch (Exception ex)
@@ -519,24 +528,23 @@ namespace MatthiWare.CommandLine
             result.MergeResult(m_option);
         }
 
-        private bool ParseOption(CommandLineOptionBase option, ParseResult<TOption> result, IArgumentManager argumentManager)
+        private void ParseOption(CommandLineOptionBase option, ParseResult<TOption> result, IArgumentManager argumentManager)
         {
             bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
             if (found && HelpRequested(result, option, model))
             {
-                return true;
+                return;
             }
-            else if (!found && option.IsRequired && !option.HasDefault)
+            else if (!found && option.CheckOptionNotFound())
             {
                 throw new OptionNotFoundException(option);
             }
-            else if ((!found && !model.HasValue && option.HasDefault) ||
-                (found && !option.CanParse(model) && option.HasDefault))
+            else if (option.ShouldUseDefault(found, model))
             {
                 option.UseDefault();
 
-                return false;
+                return;
             }
             else if (found && !option.CanParse(model))
             {
@@ -544,8 +552,6 @@ namespace MatthiWare.CommandLine
             }
 
             option.Parse(model);
-
-            return false;
         }
 
         /// <summary>

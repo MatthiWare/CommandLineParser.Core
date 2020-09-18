@@ -209,11 +209,11 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 return;
             }
-            else if (!found && CheckOptionNotFound(option))
+            else if (!found && option.CheckOptionNotFound())
             {
                 throw new OptionNotFoundException(option);
             }
-            else if (ShouldUseDefault(found, option, model))
+            else if (option.ShouldUseDefault(found, model))
             {
                 logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
 
@@ -228,17 +228,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
             option.Parse(model);
         }
-
-        private bool CheckOptionNotFound(CommandLineOptionBase option) => option.IsRequired && !option.HasDefault;
-
-        private bool ShouldUseDefault(bool found, CommandLineOptionBase option, ArgumentModel model)
-            => (found && ShouldUseDefaultWhenParsingFails(option, model)) || (!found && ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(option, model));
-
-        private bool ShouldUseDefaultWhenParsingFails(CommandLineOptionBase option, ArgumentModel model)
-            => !option.CanParse(model) && option.HasDefault;
-
-        private bool ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(CommandLineOptionBase option, ArgumentModel model)
-            => !model.HasValue && option.HasDefault;
 
         private void ParseCommands(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
         {

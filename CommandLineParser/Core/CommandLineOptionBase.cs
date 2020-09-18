@@ -68,5 +68,16 @@ namespace MatthiWare.CommandLine.Core
         }
 
         protected void SetTranslator(Delegate @delegate) => m_translator = @delegate;
+
+        public bool CheckOptionNotFound() => IsRequired && !HasDefault;
+
+        public bool ShouldUseDefault(bool found, ArgumentModel model)
+            => (found && ShouldUseDefaultWhenParsingFails(model)) || (!found && ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(model));
+
+        private bool ShouldUseDefaultWhenParsingFails(ArgumentModel model)
+            => !CanParse(model) && HasDefault;
+
+        private bool ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(ArgumentModel model)
+            => !model.HasValue && HasDefault;
     }
 }
