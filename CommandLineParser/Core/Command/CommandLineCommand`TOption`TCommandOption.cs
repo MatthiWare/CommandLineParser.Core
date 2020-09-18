@@ -95,9 +95,20 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             // await null-conditional doesn't work see https://github.com/dotnet/csharplang/issues/35
 
-            if (m_executorAsync3 != null) await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
-            if (m_executorAsync2 != null) await m_executorAsync2(m_baseOption, cancellationToken);
-            if (m_executorAsync1 != null) await m_executorAsync1(cancellationToken);
+            if (m_executorAsync3 != null)
+            {
+                await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
+            }
+
+            if (m_executorAsync2 != null)
+            {
+                await m_executorAsync2(m_baseOption, cancellationToken);
+            }
+
+            if (m_executorAsync1 != null)
+            {
+                await m_executorAsync1(cancellationToken);
+            }
         }
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
@@ -244,7 +255,9 @@ namespace MatthiWare.CommandLine.Core.Command
                         result.MergeResult(new CommandNotFoundParserResult(cmd));
 
                         if (cmd.IsRequired)
+                        {
                             throw new CommandNotFoundException(cmd);
+                        }
 
                         continue;
                     }
@@ -252,12 +265,16 @@ namespace MatthiWare.CommandLine.Core.Command
                     var cmdParseResult = cmd.Parse(argumentManager);
 
                     if (cmdParseResult.HelpRequested)
+                    {
                         break;
+                    }
 
                     result.MergeResult(cmdParseResult);
 
                     if (cmdParseResult.HasErrors)
+                    {
                         throw new CommandParseException(cmd, cmdParseResult.Errors);
+                    }
                 }
                 catch (CommandNotFoundException e)
                 {
@@ -291,7 +308,9 @@ namespace MatthiWare.CommandLine.Core.Command
                         result.MergeResult(new CommandNotFoundParserResult(cmd));
 
                         if (cmd.IsRequired)
+                        {
                             throw new CommandNotFoundException(cmd);
+                        }
 
                         continue;
                     }
@@ -299,12 +318,16 @@ namespace MatthiWare.CommandLine.Core.Command
                     var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
 
                     if (cmdParseResult.HelpRequested)
+                    {
                         break;
+                    }
 
                     result.MergeResult(cmdParseResult);
 
                     if (cmdParseResult.HasErrors)
+                    {
                         throw new CommandParseException(cmd, cmdParseResult.Errors);
+                    }
                 }
                 catch (CommandNotFoundException e)
                 {
@@ -329,7 +352,10 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
         {
-            if (!m_parserOptions.EnableHelpOption) return false;
+            if (!m_parserOptions.EnableHelpOption)
+            {
+                return false;
+            }
 
             if (model.Key.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
                 model.Key.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
@@ -366,7 +392,9 @@ namespace MatthiWare.CommandLine.Core.Command
             foreach (var result in results)
             {
                 if (result.IsValid)
+                {
                     continue;
+                }
 
                 logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
@@ -390,7 +418,9 @@ namespace MatthiWare.CommandLine.Core.Command
             foreach (var result in results)
             {
                 if (result.IsValid)
+                {
                     continue;
+                }
 
                 logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 

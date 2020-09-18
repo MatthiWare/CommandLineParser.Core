@@ -50,7 +50,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
             // pre cache results
             foreach (var item in this.args)
             {
-                if (item.ArgModel == null) continue;
+                if (item.ArgModel == null)
+                {
+                    continue;
+                }
 
                 int nextIndex = item.Index + 1;
 
@@ -63,7 +66,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     Value = (argValue?.Used ?? true) ? null : argValue.Argument
                 };
 
-                if (resultCache.ContainsKey(item.ArgModel)) continue;
+                if (resultCache.ContainsKey(item.ArgModel))
+                {
+                    continue;
+                }
 
                 resultCache.Add(item.ArgModel, argModel);
             }
@@ -90,7 +96,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private void CheckHelpCommands()
         {
-            if (!helpOptionsEnabled) return;
+            if (!helpOptionsEnabled)
+            {
+                return;
+            }
 
             SetHelpCommand(FindIndex(shortHelpOption));
             SetHelpCommand(FindIndex(longHelpOption));
@@ -98,7 +107,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private void SetHelpCommand(int index)
         {
-            if (index == -1 || (index - 1) < 0 || args[index].ArgModel != null) return;
+            if (index == -1 || (index - 1) < 0 || args[index].ArgModel != null)
+            {
+                return;
+            }
 
             args[index].ArgModel = args[index - 1].ArgModel;
         }
@@ -109,7 +121,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 int idx = FindIndex(option);
 
-                if (idx == -1) continue; // not found issue #12
+                if (idx == -1)
+                {
+                    continue; // not found issue #12
+                }
 
                 SetArgumentUsed(idx, option);
             }
@@ -121,7 +136,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 int idx = FindIndex(cmd);
 
-                if (idx == -1) continue;
+                if (idx == -1)
+                {
+                    continue;
+                }
 
                 SetArgumentUsed(idx, cmd);
 
@@ -130,7 +148,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     // find the option index starting at the command index
                     int optionIdx = FindIndex(option, idx);
 
-                    if (optionIdx == -1) continue;
+                    if (optionIdx == -1)
+                    {
+                        continue;
+                    }
 
                     SetArgumentUsed(optionIdx, option);
                 }
@@ -157,7 +178,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
         {
             return args.FindIndex(startOffset, arg =>
                 {
-                    if (arg.Used) return false;
+                    if (arg.Used)
+                    {
+                        return false;
+                    }
 
                     switch (model)
                     {

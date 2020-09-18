@@ -220,14 +220,18 @@ namespace MatthiWare.CommandLine
         private void Validate<T>(T @object, List<Exception> errors)
         {
             if (!Validators.HasValidatorFor<T>())
+            {
                 return;
+            }
 
             var results = Validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
 
             foreach (var result in results)
             {
                 if (result.IsValid)
+                {
                     continue;
+                }
 
                 errors.Add(result.Error);
             }
@@ -236,7 +240,9 @@ namespace MatthiWare.CommandLine
         private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
         {
             if (!Validators.HasValidatorFor<T>())
+            {
                 return;
+            }
 
             var results = (await Task.WhenAll(Validators.GetValidators<T>()
                 .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
@@ -244,7 +250,9 @@ namespace MatthiWare.CommandLine
             foreach (var result in results)
             {
                 if (result.IsValid)
+                {
                     continue;
+                }
 
                 errors.Add(result.Error);
             }
@@ -257,21 +265,33 @@ namespace MatthiWare.CommandLine
                 string.Equals(a.Argument, m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
                 .FirstOrDefault();
 
-            if (unusedArg == null) return;
+            if (unusedArg == null)
+            {
+                return;
+            }
 
             result.HelpRequestedFor = unusedArg.ArgModel ?? this;
         }
 
         private void AutoPrintUsageAndErrors(ParseResult<TOption> result, bool noArgsSupplied)
         {
-            if (!ParserOptions.AutoPrintUsageAndErrors) return;
+            if (!ParserOptions.AutoPrintUsageAndErrors)
+            {
+                return;
+            }
 
             if (noArgsSupplied && (Options.Any(opt => !opt.HasDefault) || Commands.Any(cmd => cmd.IsRequired)))
+            {
                 PrintHelp();
+            }
             else if (result.HelpRequested)
+            {
                 PrintHelpRequestedForArgument(result.HelpRequestedFor);
+            }
             else if (result.HasErrors)
+            {
                 PrintErrors(result.Errors);
+            }
         }
 
         private void PrintHelpRequestedForArgument(IArgument argument)
@@ -300,21 +320,30 @@ namespace MatthiWare.CommandLine
 
         private void AutoExecuteCommands(ParseResult<TOption> result)
         {
-            if (result.HasErrors) return;
+            if (result.HasErrors)
+            {
+                return;
+            }
 
             ExecuteCommandParserResults(result, result.CommandResults.Where(sub => sub.Command.AutoExecute));
         }
 
         private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
         {
-            if (result.HasErrors) return;
+            if (result.HasErrors)
+            {
+                return;
+            }
 
             await ExecuteCommandParserResultsAsync(result, result.CommandResults.Where(sub => sub.Command.AutoExecute), cancellationToken);
         }
 
         private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
         {
-            if (!ParserOptions.EnableHelpOption) return false;
+            if (!ParserOptions.EnableHelpOption)
+            {
+                return false;
+            }
 
             if (model.HasValue &&
               (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
@@ -346,10 +375,14 @@ namespace MatthiWare.CommandLine
             }
 
             if (errors.Any())
+            {
                 results.MergeResult(errors);
+            }
 
             foreach (var cmd in cmds)
+            {
                 ExecuteCommandParserResults(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
+            }
         }
 
         private async Task ExecuteCommandParserResultsAsync(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds, CancellationToken cancellationToken)
@@ -369,10 +402,14 @@ namespace MatthiWare.CommandLine
             }
 
             if (errors.Any())
+            {
                 results.MergeResult(errors);
+            }
 
             foreach (var cmd in cmds)
+            {
                 await ExecuteCommandParserResultsAsync(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute), cancellationToken);
+            }
         }
 
         private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
@@ -384,7 +421,9 @@ namespace MatthiWare.CommandLine
                     ParseCommand(cmd, result, argumentManager);
 
                     if (result.HelpRequested)
+                    {
                         break;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -400,7 +439,9 @@ namespace MatthiWare.CommandLine
                 result.MergeResult(new CommandNotFoundParserResult(cmd));
 
                 if (cmd.IsRequired)
+                {
                     throw new CommandNotFoundException(cmd);
+                }
 
                 return;
             }
@@ -410,7 +451,9 @@ namespace MatthiWare.CommandLine
             result.MergeResult(cmdParseResult);
 
             if (cmdParseResult.HasErrors)
+            {
                 throw new CommandParseException(cmd, cmdParseResult.Errors);
+            }
         }
 
         private async Task ParseCommandsAsync(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager, CancellationToken cancellationToken)
@@ -422,7 +465,9 @@ namespace MatthiWare.CommandLine
                     await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
 
                     if (result.HelpRequested)
+                    {
                         break;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -438,7 +483,9 @@ namespace MatthiWare.CommandLine
                 result.MergeResult(new CommandNotFoundParserResult(cmd));
 
                 if (cmd.IsRequired)
+                {
                     throw new CommandNotFoundException(cmd);
+                }
 
                 return;
             }
@@ -448,7 +495,9 @@ namespace MatthiWare.CommandLine
             result.MergeResult(cmdParseResult);
 
             if (cmdParseResult.HasErrors)
+            {
                 throw new CommandParseException(cmd, cmdParseResult.Errors);
+            }
         }
 
         private void ParseOptions(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
@@ -458,7 +507,9 @@ namespace MatthiWare.CommandLine
                 try
                 {
                     if (ParseOption(o.Value, result, argumentManager))
+                    {
                         break; // break here because help is requested!
+                    }
                 }
                 catch (Exception ex)
                 {

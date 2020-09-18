@@ -132,27 +132,39 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private bool FindTryParse(MethodInfo method)
         {
             if (method.Name != TryParseName)
+            {
                 return false;
+            }
 
             if (method.ReturnType != typeof(bool))
+            {
                 return false;
+            }
 
             var args = method.GetParameters();
 
             if (args.Length < 2 || args.Length > 3)
+            {
                 return false;
+            }
 
             // Starts with string
             if (args[0].ParameterType != typeof(string))
+            {
                 return false;
+            }
 
             // Last one should be out param
             if (!args[args.Length - 1].IsOut || args[args.Length - 1].ParameterType != genericType.MakeByRefType())
+            {
                 return false;
+            }
 
             // If provided the 2nd param should be an IFormatProvider
             if (args.Length == 3 && args[1].ParameterType != typeof(IFormatProvider))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -165,23 +177,33 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private bool FindParse(MethodInfo method)
         {
             if (method.Name != ParseName)
+            {
                 return false;
+            }
 
             if (method.ReturnType != genericType)
+            {
                 return false;
+            }
 
             var args = method.GetParameters();
 
             if (args.Length < 1 || args.Length > 2)
+            {
                 return false;
+            }
 
             // Starts with string
             if (args[0].ParameterType != typeof(string))
+            {
                 return false;
+            }
 
             // If provided the 2nd param should be an IFormatProvider
             if (args.Length == 2 && args[1].ParameterType != typeof(IFormatProvider))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -192,11 +214,15 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
             // more than 1 ctor argument
             if (args.Length != 1)
+            {
                 return false;
+            }
 
             // Check if it is a string
             if (args[0].ParameterType != typeof(string))
+            {
                 return false;
+            }
 
             return true;
         }
