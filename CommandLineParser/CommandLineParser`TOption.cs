@@ -260,8 +260,7 @@ namespace MatthiWare.CommandLine
         private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager argumentManager)
         {
             var unusedArg = argumentManager.UnusedArguments
-                .Where(a => string.Equals(a.Argument, m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
-                string.Equals(a.Argument, m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
+                .Where(a => a.Argument.EqualsIgnoreCase(m_helpOptionName) || a.Argument.EqualsIgnoreCase(m_helpOptionNameLong))
                 .FirstOrDefault();
 
             if (unusedArg == null)
@@ -384,6 +383,7 @@ namespace MatthiWare.CommandLine
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Commands can throw all sorts of exceptions when executing")]
         private async Task ExecuteCommandParserResultsAsync(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds, CancellationToken cancellationToken)
         {
             var errors = new List<Exception>();

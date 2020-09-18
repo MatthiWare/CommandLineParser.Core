@@ -171,9 +171,9 @@ namespace MatthiWare.CommandLine.Core.Command
                 
                 try
                 {
-                    var helpRequested = ParseOption(option, result, argumentManager);
+                    ParseOption(option, result, argumentManager);
 
-                    if (helpRequested)
+                    if (result.HelpRequested)
                     {
                         break;
                     }
@@ -199,7 +199,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
-        private bool ParseOption(CommandLineOptionBase option, CommandParserResult result, IArgumentManager argumentManager)
+        private void ParseOption(CommandLineOptionBase option, CommandParserResult result, IArgumentManager argumentManager)
         {
             bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
@@ -207,7 +207,7 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
 
-                return true;
+                return;
             }
             else if (!found && CheckOptionNotFound(option))
             {
@@ -219,7 +219,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 option.UseDefault();
 
-                return false;
+                return;
             }
             else if (found && !option.CanParse(model))
             {
@@ -227,8 +227,6 @@ namespace MatthiWare.CommandLine.Core.Command
             }
 
             option.Parse(model);
-
-            return false;
         }
 
         private bool CheckOptionNotFound(CommandLineOptionBase option) => option.IsRequired && !option.HasDefault;
@@ -248,9 +246,9 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 try
                 {
-                    var helpRequested = ParseCommand(cmd, result, argumentManager);
+                    ParseCommand(cmd, result, argumentManager);
 
-                    if (helpRequested)
+                    if (result.HelpRequested)
                     {
                         break;
                     }
@@ -276,7 +274,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
-        private bool ParseCommand(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager)
+        private void ParseCommand(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager)
         {
             if (!argumentManager.TryGetValue(cmd, out _))
             {
@@ -287,14 +285,14 @@ namespace MatthiWare.CommandLine.Core.Command
                     throw new CommandNotFoundException(cmd);
                 }
 
-                return false;
+                return;
             }
 
             var cmdParseResult = cmd.Parse(argumentManager);
 
             if (cmdParseResult.HelpRequested)
             {
-                return true;
+                return;
             }
 
             result.MergeResult(cmdParseResult);
@@ -303,8 +301,6 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 throw new CommandParseException(cmd, cmdParseResult.Errors);
             }
-
-            return false;
         }
 
         private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
@@ -313,9 +309,9 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 try
                 {
-                    var helpRequested = await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
+                    await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
 
-                    if (helpRequested)
+                    if (result.HelpRequested)
                     {
                         break;
                     }
@@ -341,7 +337,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
-        private async Task<bool> ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        private async Task ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
         {
             if (!argumentManager.TryGetValue(cmd, out _))
             {
@@ -352,14 +348,14 @@ namespace MatthiWare.CommandLine.Core.Command
                     throw new CommandNotFoundException(cmd);
                 }
 
-                return false;
+                return;
             }
 
             var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
 
             if (cmdParseResult.HelpRequested)
             {
-                return true;
+                return;
             }
 
             result.MergeResult(cmdParseResult);
@@ -368,8 +364,6 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 throw new CommandParseException(cmd, cmdParseResult.Errors);
             }
-
-            return false;
         }
 
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
