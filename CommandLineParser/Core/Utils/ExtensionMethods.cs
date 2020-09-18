@@ -133,8 +133,7 @@ namespace MatthiWare.CommandLine.Core.Utils
 
             foreach (var item in self)
             {
-                int idx = -1;
-
+                int idx;
                 if (hasPostfix && (idx = item.IndexOf(settings.PostfixOption)) != -1 && FindMatchingOption(options, settings, item) != null)
                 {
                     var tokens = new[] { item.Substring(0, idx), item.Substring(idx + 1, item.Length - idx - 1) };
