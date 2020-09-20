@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-
-namespace MatthiWare.CommandLine.Abstractions
+﻿namespace MatthiWare.CommandLine.Abstractions
 {
     /// <summary>
     /// API for configuring options

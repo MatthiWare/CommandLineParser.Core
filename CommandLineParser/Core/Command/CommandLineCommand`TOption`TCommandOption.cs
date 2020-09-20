@@ -8,6 +8,8 @@ using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Utils;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,11 +32,10 @@ namespace MatthiWare.CommandLine.Core.Command
     {
         private readonly TCommandOption m_commandOption;
         private readonly TOption m_baseOption;
-        private readonly IArgumentResolverFactory m_resolverFactory;
-        private readonly IContainerResolver m_containerResolver;
+        private readonly IServiceProvider m_serviceProvider;
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
-
+        private readonly ILogger logger;
         private Action m_executor1;
         private Action<TOption> m_executor2;
         private Action<TOption, TCommandOption> m_executor3;
@@ -46,37 +47,25 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IArgumentResolverFactory resolverFactory, IContainerResolver containerResolver, TOption option, IValidatorsContainer validators)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger)
         {
-            m_parserOptions = parserOptions;
+            m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(parserOptions));
             m_commandOption = new TCommandOption();
 
-            m_validators = validators;
-            m_containerResolver = containerResolver;
-            m_resolverFactory = resolverFactory;
-            m_baseOption = option;
+            m_validators = validators ?? throw new ArgumentNullException(nameof(validators));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            m_baseOption = option ?? throw new ArgumentNullException(nameof(option));
 
-            if (m_parserOptions.EnableHelpOption)
-            {
-                var tokens = m_parserOptions.HelpOptionName.Split('|');
-
-                if (tokens.Length > 1)
-                {
-                    m_helpOptionName = $"{m_parserOptions.PrefixShortOption}{tokens[0]}";
-                    m_helpOptionNameLong = $"{m_parserOptions.PrefixLongOption}{tokens[1]}";
-                }
-                else
-                {
-                    m_helpOptionName = $"{m_parserOptions.PrefixLongOption}{tokens[0]}";
-                    m_helpOptionNameLong = null;
-                }
-            }
+            (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
 
             InitialzeModel();
         }
 
         public override void Execute()
         {
+            logger.LogDebug("Executing Command '{Name}'", this.Name);
+
             ExecuteInternal();
 
             // Also executes the async stuff.
@@ -92,6 +81,8 @@ namespace MatthiWare.CommandLine.Core.Command
 
         public override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            logger.LogDebug("Executing async Command '{Name}'", this.Name);
+
             await ExecuteInternalAsync(cancellationToken);
 
             // Also executes the sync stuff.
@@ -119,7 +110,9 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             if (!m_options.ContainsKey(key))
             {
-                var option = new CommandLineOption<T>(m_parserOptions, m_commandOption, selector, m_resolverFactory);
+                var option = ActivatorUtilities.CreateInstance<CommandLineOption<T>>(m_serviceProvider, m_commandOption, selector);
+
+                logger.LogDebug("Add command option builder for {Expression}", key);
 
                 m_options.Add(key, option);
             }
@@ -163,13 +156,15 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             foreach (var o in m_options)
             {
+                var option = o.Value;
+                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
+
                 try
                 {
-                    var option = o.Value;
-                    bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
-
                     if (found && HelpRequested(result, option, model))
                     {
+                        logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+
                         break;
                     }
                     else if (!found && option.IsRequired && !option.HasDefault)
@@ -179,6 +174,8 @@ namespace MatthiWare.CommandLine.Core.Command
                     else if ((!found && !model.HasValue && option.HasDefault) ||
                         (found && !option.CanParse(model) && option.HasDefault))
                     {
+                        logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
+
                         option.UseDefault();
 
                         continue;
@@ -190,8 +187,22 @@ namespace MatthiWare.CommandLine.Core.Command
 
                     option.Parse(model);
                 }
+                catch (OptionParseException e)
+                {
+                    logger.LogDebug("Unable to parse option value '{Value}'", model.Value);
+
+                    errors.Add(e);
+                }
+                catch (OptionNotFoundException e)
+                {
+                    logger.LogDebug("Command Option '{Name}' not found! Option is marked as required, with no default values configured.", option.ShortName);
+
+                    errors.Add(e);
+                }
                 catch (Exception e)
                 {
+                    logger.LogError(e, "Command Option '{Name}' unknown error occured during parsing.", option.ShortName);
+
                     errors.Add(e);
                 }
             }
@@ -223,8 +234,22 @@ namespace MatthiWare.CommandLine.Core.Command
                     if (cmdParseResult.HasErrors)
                         throw new CommandParseException(cmd, cmdParseResult.Errors);
                 }
+                catch (CommandNotFoundException e)
+                {
+                    logger.LogDebug("Command '{Name}' not found", cmd.Name);
+
+                    errors.Add(e);
+                }
+                catch (CommandParseException e)
+                {
+                    logger.LogDebug("Unable to parse command '{Name}'", cmd.Name);
+
+                    errors.Add(e);
+                }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "Unknown error occured while parsing the commands");
+
                     errors.Add(ex);
                 }
             }
@@ -256,8 +281,22 @@ namespace MatthiWare.CommandLine.Core.Command
                     if (cmdParseResult.HasErrors)
                         throw new CommandParseException(cmd, cmdParseResult.Errors);
                 }
+                catch (CommandNotFoundException e)
+                {
+                    logger.LogDebug("Command '{Name}' not found", cmd.Name);
+
+                    errors.Add(e);
+                }
+                catch (CommandParseException e)
+                {
+                    logger.LogDebug("Unable to parse command '{Name}'", cmd.Name);
+
+                    errors.Add(e);
+                }
                 catch (Exception ex)
                 {
+                    logger.LogError(ex, "Unknown error occured while parsing the commands");
+
                     errors.Add(ex);
                 }
             }
@@ -289,14 +328,22 @@ namespace MatthiWare.CommandLine.Core.Command
         private void Validate<T>(T @object, List<Exception> errors)
         {
             if (!m_validators.HasValidatorFor<T>())
-                return;
+            {
+                logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);
 
-            var results = m_validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
+                return;
+            }
+
+            var results = m_validators.GetValidators<T>()
+                .Select(validator => validator.Validate(@object))
+                .ToArray();
 
             foreach (var result in results)
             {
                 if (result.IsValid)
                     continue;
+
+                logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
                 errors.Add(result.Error);
             }
@@ -305,15 +352,22 @@ namespace MatthiWare.CommandLine.Core.Command
         private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
         {
             if (!m_validators.HasValidatorFor<T>())
+            {
+                logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);
+
                 return;
+            }
 
             var results = (await Task.WhenAll(m_validators.GetValidators<T>()
-                .Select(async validator => await validator.ValidateAsync(@object, token)))).ToArray();
+                .Select(async validator => await validator.ValidateAsync(@object, token))))
+                .ToArray();
 
             foreach (var result in results)
             {
                 if (result.IsValid)
                     continue;
+
+                logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
                 errors.Add(result.Error);
             }
@@ -346,6 +400,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return this;
         }
+
         public ICommandBuilder<TOption, TCommandOption> OnExecutingAsync(Func<CancellationToken, Task> action)
         {
             m_executorAsync1 = action;
@@ -478,52 +533,35 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 var lambda = propInfo.GetLambdaExpression(out string key);
 
-                var actions = new List<Action>(4);
-                bool ignoreSet = false;
-
                 var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
 
                 foreach (var attribute in attributes)
                 {
-                    if (ignoreSet) break;
-
                     switch (attribute)
                     {
-                        // Ignore has been set, skip all the other attributes and DO NOT execute the action list.
-                        case IgnoreAttribute ignore:
-                            ignoreSet = true;
-                            continue;
                         case RequiredAttribute required:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Required(required.Required));
+                            GetOption(cfg, propInfo, lambda, key).Required(required.Required);
                             break;
                         case DefaultValueAttribute defaultValue:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue));
+                            GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue);
                             break;
                         case DescriptionAttribute helpText:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Description(helpText.Description));
+                            GetOption(cfg, propInfo, lambda, key).Description(helpText.Description);
                             break;
                         case NameAttribute name:
-                            actions.Add(() => GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName));
+                            GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName);
                             break;
                     }
                 }
 
-                if (ignoreSet) continue; // Ignore the configured actions for this option.
+                var commandType = propInfo.PropertyType;
 
-                if (propInfo.PropertyType.IsAssignableToGenericType(typeof(Command<>)))
+                bool isAssignableToCommand = typeof(Abstractions.Command.Command).IsAssignableFrom(commandType);
+
+                if (isAssignableToCommand)
                 {
-                    var genericTypes = propInfo.PropertyType.BaseType.GenericTypeArguments;
-                    var method = GetType().GetMethods().First(m =>
-                    {
-                        return (m.Name == nameof(RegisterCommand) && m.IsGenericMethod && m.GetGenericArguments().Length == genericTypes.Length);
-                    });
-                    var registerCommand = genericTypes.Length > 1 ? method.MakeGenericMethod(propInfo.PropertyType, genericTypes[1]) : method.MakeGenericMethod(propInfo.PropertyType);
-
-                    registerCommand.Invoke(this, null);
+                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
                 }
-
-                foreach (var action in actions)
-                    action();
             }
 
             IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
@@ -535,18 +573,22 @@ namespace MatthiWare.CommandLine.Core.Command
         /// <summary>
         /// Registers a command type
         /// </summary>
-        /// <typeparam name="TCommandOption">Command type, must be inherit <see cref="Command{TOptions, TCommandOptions}"/></typeparam>
+        /// <typeparam name="TCommand">Command type, must be inherit <see cref="Abstractions.Command.Command"/></typeparam>
         public void RegisterCommand<TCommand>()
-            where TCommand : Command<TCommandOption>
+            where TCommand : Abstractions.Command.Command
         {
-            var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, object>>(m_serviceProvider, m_commandOption, m_validators);
 
-            var command = new CommandLineCommand<TCommandOption, object>(m_parserOptions, m_resolverFactory, m_containerResolver, m_commandOption, m_validators);
+            if (typeof(TCommand).IsAssignableToGenericType(typeof(Command<>)))
+            {
+                RegisterGenericCommandInternal<TCommand>(command);
+            }
+            else
+            {
+                RegisterNonGenericCommandInternal<TCommand>(command);
+            }
 
-            cmdConfigurator.OnConfigure(command);
-
-            command.OnExecuting((Action<TCommandOption>)cmdConfigurator.OnExecute);
-            command.OnExecutingAsync((Func<TCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+            logger.LogDebug("Command registered '{name}' required: {req}, auto exec: {autoExec}", command.Name, command.IsRequired, command.AutoExecute);
 
             m_commands.Add(command);
         }
@@ -555,21 +597,45 @@ namespace MatthiWare.CommandLine.Core.Command
         /// Registers a command type
         /// </summary>
         /// <typeparam name="TCommand"></typeparam>
-        /// <typeparam name="TCommandOption"></typeparam>
-        public void RegisterCommand<TCommand, V>()
-           where TCommand : Command<TOption, V>
-           where V : class, new()
+        /// <typeparam name="TActualCommandOption"></typeparam>
+        public void RegisterCommand<TCommand, TActualCommandOption>()
+           where TCommand : Command<TOption, TActualCommandOption>
+           where TActualCommandOption : class, new()
         {
-            var cmdConfigurator = m_containerResolver.Resolve<TCommand>();
+            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider);
 
-            var command = new CommandLineCommand<TOption, V>(m_parserOptions, m_resolverFactory, m_containerResolver, m_baseOption, m_validators);
+            var command = ActivatorUtilities.CreateInstance<CommandLineCommand<TOption, TActualCommandOption>>(m_serviceProvider, m_baseOption, m_validators);
 
             cmdConfigurator.OnConfigure(command);
 
-            command.OnExecuting((Action<TOption, V>)cmdConfigurator.OnExecute);
-            command.OnExecutingAsync((Func<TOption, V, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+            logger.LogDebug("Command registered '{name}' required: {req}, auto exec: {autoExec}", command.Name, command.IsRequired, command.AutoExecute);
+
+            command.OnExecuting((Action<TOption, TActualCommandOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, TActualCommandOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
 
             m_commands.Add(command);
+        }
+
+        private void RegisterGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command)
+           where TCommand : Abstractions.Command.Command
+        {
+            var cmdConfigurator = (Command<TOption>)(Abstractions.Command.Command)(ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider));
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting((Action<TOption>)cmdConfigurator.OnExecute);
+            command.OnExecutingAsync((Func<TOption, CancellationToken, Task>)cmdConfigurator.OnExecuteAsync);
+        }
+
+        private void RegisterNonGenericCommandInternal<TCommand>(CommandLineCommand<TOption, object> command)
+            where TCommand : Abstractions.Command.Command
+        {
+            var cmdConfigurator = ActivatorUtilities.GetServiceOrCreateInstance<TCommand>(m_serviceProvider);
+
+            cmdConfigurator.OnConfigure(command);
+
+            command.OnExecuting(cmdConfigurator.OnExecute);
+            command.OnExecutingAsync(cmdConfigurator.OnExecuteAsync);
         }
 
         ICommandConfigurationBuilder<TCommandOption> ICommandConfigurationBuilder<TCommandOption>.AutoExecute(bool autoExecute)

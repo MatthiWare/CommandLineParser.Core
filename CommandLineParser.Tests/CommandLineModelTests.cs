@@ -1,5 +1,4 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Core.Attributes;
+﻿using MatthiWare.CommandLine.Core.Attributes;
 
 using Xunit;
 

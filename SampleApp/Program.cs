@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Extensions.FluentValidations;
-using SampleApp.Commands;
 using SampleApp.Validations;
 
 namespace SampleApp

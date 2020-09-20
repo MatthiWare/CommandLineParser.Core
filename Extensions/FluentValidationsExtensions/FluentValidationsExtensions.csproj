@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>MatthiWare.CommandLine.Extensions.FluentValidations</RootNamespace>
     <AssemblyName>CommandLineParser.FluentValidations</AssemblyName>
-    <Version>0.3.1</Version>
+    <Version>0.4.0</Version>
     <Authors>Matthias Beerens</Authors>
     <Company>MatthiWare</Company>
     <Product>FluentValidations Extension For CommandLineParser.Core</Product>
@@ -14,8 +14,8 @@
     <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
     <PackageTags>Commandline parser commandline-parser cli fluent-validations extension</PackageTags>
     <LangVersion>7.3</LangVersion>
-    <AssemblyVersion>0.3.1.0</AssemblyVersion>
-    <FileVersion>0.3.1.0</FileVersion>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <FileVersion>0.4.0.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReleaseNotes>Bump package version</PackageReleaseNotes>
     <Copyright>Copyright Matthias Beerens 2019</Copyright>

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>MatthiWare.CommandLineParser</id>
-    <version>0.3.1</version>
+    <version>0.4.0</version>
     <title>CommandLineParser.Core</title>
     <authors>Matthias Beerens</authors>
     <owners>Matthiee</owners>
@@ -16,9 +16,13 @@
 		This library allows to add commands with their own set of options as well. 
 	</description>
 	<summary>A simple, light-weight and strongly typed command line parser. Configuration using Fluent API, Attributes and model classes.</summary>
-  <releaseNotes>NO_COLOR support, improving usage printer API</releaseNotes>
+  <releaseNotes>Improve dependency injection, improve command registration</releaseNotes>
   <copyright>Copyright Matthias Beerens 2018</copyright>
   <tags>commandline parser commandline-parser</tags>
+  <dependencies>
+    <dependency id="Microsoft.Extensions.DependencyInjection" version="3.1.7" />
+    <dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.1.7" />
+  </dependencies>
   </metadata>
   <files>
     <file src="CommandLineParser.dll" target="lib\netstandard2.0" />

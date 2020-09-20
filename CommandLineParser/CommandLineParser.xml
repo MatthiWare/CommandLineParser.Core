@@ -232,6 +232,19 @@
             <param name="autoExecute">True for automated execution, false for manual</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandConfigurationBuilder`1"/></returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandDiscoverer">
+            <summary>
+            Allows to discover <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command"/>'s from assemblies
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandDiscoverer.DiscoverCommandTypes(System.Type,System.Reflection.Assembly[])">
+            <summary>
+            Discover commands
+            </summary>
+            <param name="optionType">Only commands with this option type are valid, or non generic commands</param>
+            <param name="assemblies">List of assemblies to scan</param>
+            <returns>A list of valid commands that need to be registered</returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandExecutor`2">
             <summary>
             API for configurion command executions
@@ -397,16 +410,10 @@
         </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Printer">
             <summary>
-            Tool to print usage info.
+            Utility to print usage information to the output
             </summary>
         </member>
-        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ArgumentResolverFactory">
-            <summary>
-            Factory to resolve the argument type
-            <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver"/> for more info.
-            </summary>
-        </member>
-        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ContainerResolver">
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Services">
             <summary>
             Resolver that is used to instantiate types by an given container
             </summary>
@@ -609,27 +616,27 @@
             <param name="key">model identifier</param>
             <param name="value">model value</param>
         </member>
-        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1">
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1">
             <summary>
             Class to resolve arguments
             </summary>
             <typeparam name="TArgument">Argument type</typeparam>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Checks if the resolver can resolve the argument
             </summary>
             <param name="model">argument</param>
             <returns>True if it can resolve it correctly</returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Resolves the argument from the model
             </summary>
             <param name="model">Argument model</param>
             <returns>The resolved type</returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1.MatthiWare#CommandLine#Abstractions#Parsing#ICommandLineArgumentResolver#Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.MatthiWare#CommandLine#Abstractions#Parsing#ICommandLineArgumentResolver#Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Resolves the argument from the model
             </summary>
@@ -711,62 +718,11 @@
             <param name="model">The result arguments</param>
             <returns>True if arguments are found, false if not</returns>
         </member>
-        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory">
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver`1">
             <summary>
-            Container class to resolve <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver"/>'s. 
+            Argument resolver
             </summary>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Contains``1">
-            <summary>
-            Checks if the container contains an resolver for the given type.
-            </summary>
-            <typeparam name="T">Generic type to check</typeparam>
-            <returns>True if it contains an resolver, false if not.</returns>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Contains(System.Type)">
-            <summary>
-            Checks if the container contains an resolver for the given type.
-            </summary>
-            <param name="argument">Type to check</param>
-            <returns>True if it contains an resolver, false if not.</returns>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Register``1(MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver{``0},System.Boolean)">
-            <summary>
-            Registers an instance of <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ArgumentResolver`1"/>
-            </summary>
-            <typeparam name="TArgument">Argument type to resolve</typeparam>
-            <param name="resolverInstance">Instance of the resolver</param>
-            <param name="overwrite">Overwrite if the resolver already exists</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Register``2(System.Boolean)">
-            <summary>
-            Registers a <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver`1"/>
-            </summary>
-            <typeparam name="TArgument">Argument type to resolve</typeparam>
-            <typeparam name="TResolver">Type of the resolver</typeparam>
-            <param name="overwrite">Overwrite if the resolver already exists</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.Register(System.Type,System.Type,System.Boolean)">
-            <summary>
-            Registers a <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver"/>
-            </summary>
-            <param name="argument">Argument type to resolve</param>
-            <param name="resolver">Type of the resolver</param>
-            <param name="overwrite">Overwrite if the resolver already exists</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.CreateResolver``1">
-            <summary>
-            Creates an resolver for a specific type
-            </summary>
-            <typeparam name="T">Type to resolve</typeparam>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver`1"/></returns>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory.CreateResolver(System.Type)">
-            <summary>
-            Creates an resolver for a specific type
-            </summary>
-            <param name="type">Type to resolve</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver`1"/></returns>
+            <typeparam name="TArgument">Argument type</typeparam>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver">
             <summary>
@@ -997,38 +953,18 @@
             </summary>
             <param name="parserOptions">The parser options</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
-            <param name="argumentResolverFactory">argument resolver to use</param>
+            <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
             <param name="parserOptions">options that the parser will use</param>
-            <param name="argumentResolverFactory">argument resolver to use</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.Abstractions.IContainerResolver)">
-            <summary>
-            Creates a new instance of the commandline parser
-            </summary>
-            <param name="containerResolver">container resolver to use</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
-            <summary>
-            Creates a new instance of the commandline parser
-            </summary>
-            <param name="parserOptions">options that the parser will use</param>
-            <param name="containerResolver">container resolver to use</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
-            <summary>
-            Creates a new instance of the commandline parser
-            </summary>
-            <param name="argumentResolverFactory">argument resolver to use</param>
-            <param name="containerResolver">container resolver to use</param>
+            <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PrefixShortOption">
             <summary>
@@ -1082,24 +1018,15 @@
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Printer">
-            <summary>
-            Tool to print usage info.
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Options">
             <summary>
             Read-only collection of options specified
             </summary>
         </member>
-        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ArgumentResolverFactory">
-            <summary>
-            Factory to create resolvers for options
-            </summary>
-        </member>
-        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ContainerResolver">
-            <summary>
-            Resolver that is used to instantiate types by an given container
-            </summary>
+        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Services">
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Commands">
             <summary>
@@ -1122,38 +1049,17 @@
             </summary>
             <param name="parserOptions">The parser options</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
-            <param name="argumentResolverFactory">argument resolver to use</param>
+            <param name="servicesCollection">container resolver to use</param>
         </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory)">
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
             Creates a new instance of the commandline parser
             </summary>
-            <param name="parserOptions">options that the parser will use</param>
-            <param name="argumentResolverFactory">argument resolver to use</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.Abstractions.IContainerResolver)">
-            <summary>
-            Creates a new instance of the commandline parser
-            </summary>
-            <param name="containerResolver">container resolver to use</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
-            <summary>
-            Creates a new instance of the commandline parser
-            </summary>
-            <param name="parserOptions">options that the parser will use</param>
-            <param name="containerResolver">container resolver to use</param>
-        </member>
-        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolverFactory,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
-            <summary>
-            Creates a new instance of the commandline parser
-            </summary>
-            <param name="argumentResolverFactory">argument resolver to use</param>
-            <param name="containerResolver">container resolver to use</param>
+            <param name="servicesCollection">container resolver to use</param>
             <param name="parserOptions">The options the parser will use</param>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
@@ -1190,7 +1096,6 @@
             <summary>
             Registers a command type
             </summary>
-            <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`1"/></typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.RegisterCommand(System.Type)">
             <summary>
@@ -1251,22 +1156,6 @@
             </summary>
             <param name="defaultValue">default value</param>
         </member>
-        <member name="T:MatthiWare.CommandLine.Core.Attributes.IgnoreAttribute">
-            <summary>
-            Specifies if the option should be ignored.
-            </summary>
-        </member>
-        <member name="P:MatthiWare.CommandLine.Core.Attributes.IgnoreAttribute.IgnoreOption">
-            <summary>
-            Indicates if the option should be ignored
-            </summary>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Core.Attributes.IgnoreAttribute.#ctor(System.Boolean)">
-            <summary>
-            Specifies if the option should be ignored.
-            </summary>
-            <param name="ignore">Ignore the option, true or false</param>
-        </member>
         <member name="T:MatthiWare.CommandLine.Core.Attributes.NameAttribute">
             <summary>
             Specifies the name of the option/command
@@ -1311,6 +1200,12 @@
             </summary>
             <param name="required">True if required, false if not</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Command.CommandDiscoverer">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Command.CommandDiscoverer.DiscoverCommandTypes(System.Type,System.Reflection.Assembly[])">
+            <inheritdoc/>
+        </member>
         <member name="M:MatthiWare.CommandLine.Core.Command.CommandLineCommand`2.InitialzeModel">
             <summary>
             Initializes the model class with the attributes specified.
@@ -1320,14 +1215,30 @@
             <summary>
             Registers a command type
             </summary>
-            <typeparam name="TCommandOption">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command`2"/></typeparam>
+            <typeparam name="TCommand">Command type, must be inherit <see cref="T:MatthiWare.CommandLine.Abstractions.Command.Command"/></typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Command.CommandLineCommand`2.RegisterCommand``2">
             <summary>
             Registers a command type
             </summary>
             <typeparam name="TCommand"></typeparam>
-            <typeparam name="TCommandOption"></typeparam>
+            <typeparam name="TActualCommandOption"></typeparam>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.DependencyInjectionExtensions">
+            <summary>
+            Extension methods to allow DI services to be registered.
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.DependencyInjectionExtensions.AddInternalCommandLineParserServices``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,MatthiWare.CommandLine.CommandLineParser{``0},MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds internal services used by <see cref="T:MatthiWare.CommandLine.CommandLineParser"/>. 
+            This won't overwrite existing services.
+            </summary>
+            <typeparam name="TOption">Base option type</typeparam>
+            <param name="services">Current service collection</param>
+            <param name="parser">Current instance reference</param>
+            <param name="options">Current options reference</param>
+            <returns>Input service collection to allow method chaining</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Exceptions.BaseParserException">
             <summary>
@@ -1518,13 +1429,6 @@
         </member>
         <member name="P:MatthiWare.CommandLine.Core.Usage.UsagePrinter.Builder">
             <inheritdoc/>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder)">
-            <summary>
-            Creates a new CLI output usage printer
-            </summary>
-            <param name="container"></param>
-            <param name="builder"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService)">
             <summary>
