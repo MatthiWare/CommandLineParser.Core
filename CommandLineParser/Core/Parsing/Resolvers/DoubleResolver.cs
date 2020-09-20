@@ -9,7 +9,10 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
     {
         public override bool CanResolve(ArgumentModel model)
         {
-            if (!model.HasValue) return false;
+            if (!model.HasValue)
+            {
+                return false;
+            }
 
             return TryResolve(model, out _);
         }

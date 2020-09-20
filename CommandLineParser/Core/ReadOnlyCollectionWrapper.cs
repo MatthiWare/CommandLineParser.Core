@@ -27,7 +27,9 @@ namespace MatthiWare.CommandLine.Core
             while (enumerator.MoveNext())
             {
                 if (i == index)
+                {
                     return enumerator.Current;
+                }
 
                 i++;
             }

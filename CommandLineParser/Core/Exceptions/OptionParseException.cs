@@ -15,13 +15,20 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         public ICommandLineOption Option => (ICommandLineOption)Argument;
 
         /// <summary>
+        /// Provided argument model
+        /// </summary>
+        public ArgumentModel ArgumentModel { get; }
+
+        /// <summary>
         /// Creates a new <see cref="OptionParseException"/>
         /// </summary>
         /// <param name="option">The failed option</param>
         /// <param name="argModel">The specified argument</param>
         public OptionParseException(ICommandLineOption option, ArgumentModel argModel)
             : base(option, CreateMessage(option, argModel))
-        { }
+        {
+            ArgumentModel = argModel;
+        }
 
         private static string CreateMessage(ICommandLineOption option, ArgumentModel argModel)
         {

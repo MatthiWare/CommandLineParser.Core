@@ -3,7 +3,7 @@
     /// <summary>
     /// Specifies the name of the option/command
     /// </summary>
-    public class NameAttribute : BaseAttribute
+    public sealed class NameAttribute : BaseAttribute
     {
         /// <summary>
         /// Short version

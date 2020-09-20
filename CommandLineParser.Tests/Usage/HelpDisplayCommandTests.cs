@@ -16,6 +16,22 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
         }
 
+        [Fact]
+        public void OptionsUseAppName()
+        {
+            string appName = nameof(appName);
+
+            var options = new CommandLineParserOptions { AppName = appName };
+
+            var parser = new CommandLineParser(options);
+
+            var builder = parser.Services.GetRequiredService<IUsageBuilder>();
+
+            builder.AddUsage(string.Empty, false, false);
+
+            Assert.Contains(appName, builder.Build());
+        }
+
         [Theory]
         [InlineData(new string[] { "db", "--help" }, true)]
         [InlineData(new string[] { "db" }, true)]

@@ -2,6 +2,9 @@
 
 namespace MatthiWare.CommandLine
 {
+    /// <summary>
+    /// Configuration options for <see cref="CommandLineParser"></see>
+    /// </summary>
     public class CommandLineParserOptions
     {
         /// <summary>
@@ -52,7 +55,7 @@ namespace MatthiWare.CommandLine
 
             var tokens = HelpOptionName.Split('|');
 
-            string shortResult = null;
+            string shortResult;
             string longResult = null;
 
             if (tokens.Length > 1)

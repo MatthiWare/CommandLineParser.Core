@@ -4,7 +4,6 @@ using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using MatthiWare.CommandLine.Abstractions.Validations;
-using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Parsing.Command;
 using MatthiWare.CommandLine.Core.Utils;
@@ -14,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,6 +34,7 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly CommandLineParserOptions m_parserOptions;
         private readonly IValidatorsContainer m_validators;
         private readonly ILogger logger;
+        private readonly IModelInitializer modelInitializer;
         private Action m_executor1;
         private Action<TOption> m_executor2;
         private Action<TOption, TCommandOption> m_executor3;
@@ -47,13 +46,14 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger, IModelInitializer modelInitializer)
         {
             m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(parserOptions));
             m_commandOption = new TCommandOption();
 
             m_validators = validators ?? throw new ArgumentNullException(nameof(validators));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.modelInitializer = modelInitializer ?? throw new ArgumentNullException(nameof(modelInitializer));
             m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             m_baseOption = option ?? throw new ArgumentNullException(nameof(option));
 
@@ -93,9 +93,20 @@ namespace MatthiWare.CommandLine.Core.Command
         {
             // await null-conditional doesn't work see https://github.com/dotnet/csharplang/issues/35
 
-            if (m_executorAsync3 != null) await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
-            if (m_executorAsync2 != null) await m_executorAsync2(m_baseOption, cancellationToken);
-            if (m_executorAsync1 != null) await m_executorAsync1(cancellationToken);
+            if (m_executorAsync3 != null)
+            {
+                await m_executorAsync3(m_baseOption, m_commandOption, cancellationToken);
+            }
+
+            if (m_executorAsync2 != null)
+            {
+                await m_executorAsync2(m_baseOption, cancellationToken);
+            }
+
+            if (m_executorAsync1 != null)
+            {
+                await m_executorAsync1(cancellationToken);
+            }
         }
 
         public IOptionBuilder<TProperty> Configure<TProperty>(Expression<Func<TCommandOption, TProperty>> selector)
@@ -154,42 +165,22 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private void ParseOptions(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
         {
-            foreach (var o in m_options)
+            foreach (var optionKeyValue in m_options)
             {
-                var option = o.Value;
-                bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
-
+                var option = optionKeyValue.Value;
+                
                 try
                 {
-                    if (found && HelpRequested(result, option, model))
-                    {
-                        logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+                    ParseOption(option, result, argumentManager);
 
+                    if (result.HelpRequested)
+                    {
                         break;
                     }
-                    else if (!found && option.IsRequired && !option.HasDefault)
-                    {
-                        throw new OptionNotFoundException(option);
-                    }
-                    else if ((!found && !model.HasValue && option.HasDefault) ||
-                        (found && !option.CanParse(model) && option.HasDefault))
-                    {
-                        logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
-
-                        option.UseDefault();
-
-                        continue;
-                    }
-                    else if (found && !option.CanParse(model))
-                    {
-                        throw new OptionParseException(option, model);
-                    }
-
-                    option.Parse(model);
                 }
                 catch (OptionParseException e)
                 {
-                    logger.LogDebug("Unable to parse option value '{Value}'", model.Value);
+                    logger.LogDebug("Unable to parse option value '{Value}'", e.ArgumentModel.Value);
 
                     errors.Add(e);
                 }
@@ -208,31 +199,48 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
+        private void ParseOption(CommandLineOptionBase option, CommandParserResult result, IArgumentManager argumentManager)
+        {
+            bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
+
+            if (found && HelpRequested(result, option, model))
+            {
+                logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+
+                return;
+            }
+            else if (!found && option.CheckOptionNotFound())
+            {
+                throw new OptionNotFoundException(option);
+            }
+            else if (option.ShouldUseDefault(found, model))
+            {
+                logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
+
+                option.UseDefault();
+
+                return;
+            }
+            else if (found && !option.CanParse(model))
+            {
+                throw new OptionParseException(option, model);
+            }
+
+            option.Parse(model);
+        }
+
         private void ParseCommands(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
         {
             foreach (var cmd in m_commands)
             {
                 try
                 {
-                    if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
+                    ParseCommand(cmd, result, argumentManager);
+
+                    if (result.HelpRequested)
                     {
-                        result.MergeResult(new CommandNotFoundParserResult(cmd));
-
-                        if (cmd.IsRequired)
-                            throw new CommandNotFoundException(cmd);
-
-                        continue;
-                    }
-
-                    var cmdParseResult = cmd.Parse(argumentManager);
-
-                    if (cmdParseResult.HelpRequested)
                         break;
-
-                    result.MergeResult(cmdParseResult);
-
-                    if (cmdParseResult.HasErrors)
-                        throw new CommandParseException(cmd, cmdParseResult.Errors);
+                    }
                 }
                 catch (CommandNotFoundException e)
                 {
@@ -252,6 +260,35 @@ namespace MatthiWare.CommandLine.Core.Command
 
                     errors.Add(ex);
                 }
+            }
+        }
+
+        private void ParseCommand(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager)
+        {
+            if (!argumentManager.TryGetValue(cmd, out _))
+            {
+                result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                if (cmd.IsRequired)
+                {
+                    throw new CommandNotFoundException(cmd);
+                }
+
+                return;
+            }
+
+            var cmdParseResult = cmd.Parse(argumentManager);
+
+            if (cmdParseResult.HelpRequested)
+            {
+                return;
+            }
+
+            result.MergeResult(cmdParseResult);
+
+            if (cmdParseResult.HasErrors)
+            {
+                throw new CommandParseException(cmd, cmdParseResult.Errors);
             }
         }
 
@@ -261,25 +298,12 @@ namespace MatthiWare.CommandLine.Core.Command
             {
                 try
                 {
-                    if (!argumentManager.TryGetValue(cmd, out ArgumentModel model))
+                    await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
+
+                    if (result.HelpRequested)
                     {
-                        result.MergeResult(new CommandNotFoundParserResult(cmd));
-
-                        if (cmd.IsRequired)
-                            throw new CommandNotFoundException(cmd);
-
-                        continue;
-                    }
-
-                    var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
-
-                    if (cmdParseResult.HelpRequested)
                         break;
-
-                    result.MergeResult(cmdParseResult);
-
-                    if (cmdParseResult.HasErrors)
-                        throw new CommandParseException(cmd, cmdParseResult.Errors);
+                    }
                 }
                 catch (CommandNotFoundException e)
                 {
@@ -302,20 +326,49 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
+        private async Task ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        {
+            if (!argumentManager.TryGetValue(cmd, out _))
+            {
+                result.MergeResult(new CommandNotFoundParserResult(cmd));
+
+                if (cmd.IsRequired)
+                {
+                    throw new CommandNotFoundException(cmd);
+                }
+
+                return;
+            }
+
+            var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
+
+            if (cmdParseResult.HelpRequested)
+            {
+                return;
+            }
+
+            result.MergeResult(cmdParseResult);
+
+            if (cmdParseResult.HasErrors)
+            {
+                throw new CommandParseException(cmd, cmdParseResult.Errors);
+            }
+        }
+
         private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
         {
-            if (!m_parserOptions.EnableHelpOption) return false;
+            if (!m_parserOptions.EnableHelpOption)
+            {
+                return false;
+            }
 
-            if (model.Key.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
-                model.Key.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase))
+            if (IsHelpOption(model.Key))
             {
                 result.HelpRequestedFor = this;
 
                 return true;
             }
-            else if (model.HasValue &&
-              (model.Value.Equals(m_helpOptionName, StringComparison.InvariantCultureIgnoreCase) ||
-              model.Value.Equals(m_helpOptionNameLong, StringComparison.InvariantCultureIgnoreCase)))
+            else if (model.HasValue && IsHelpOption(model.Value))
             {
                 result.HelpRequestedFor = option;
 
@@ -324,6 +377,9 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return false;
         }
+
+        private bool IsHelpOption(string input)
+            => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
 
         private void Validate<T>(T @object, List<Exception> errors)
         {
@@ -341,7 +397,9 @@ namespace MatthiWare.CommandLine.Core.Command
             foreach (var result in results)
             {
                 if (result.IsValid)
+                {
                     continue;
+                }
 
                 logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
@@ -365,7 +423,9 @@ namespace MatthiWare.CommandLine.Core.Command
             foreach (var result in results)
             {
                 if (result.IsValid)
+                {
                     continue;
+                }
 
                 logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
 
@@ -525,49 +585,7 @@ namespace MatthiWare.CommandLine.Core.Command
         /// </summary>
         private void InitialzeModel()
         {
-            var properties = typeof(TCommandOption).GetProperties();
-
-            foreach (var propInfo in properties)
-            {
-                var attributes = propInfo.GetCustomAttributes(true);
-
-                var lambda = propInfo.GetLambdaExpression(out string key);
-
-                var cfg = GetType().GetMethod(nameof(ConfigureInternal), BindingFlags.NonPublic | BindingFlags.Instance);
-
-                foreach (var attribute in attributes)
-                {
-                    switch (attribute)
-                    {
-                        case RequiredAttribute required:
-                            GetOption(cfg, propInfo, lambda, key).Required(required.Required);
-                            break;
-                        case DefaultValueAttribute defaultValue:
-                            GetOption(cfg, propInfo, lambda, key).Default(defaultValue.DefaultValue);
-                            break;
-                        case DescriptionAttribute helpText:
-                            GetOption(cfg, propInfo, lambda, key).Description(helpText.Description);
-                            break;
-                        case NameAttribute name:
-                            GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName);
-                            break;
-                    }
-                }
-
-                var commandType = propInfo.PropertyType;
-
-                bool isAssignableToCommand = typeof(Abstractions.Command.Command).IsAssignableFrom(commandType);
-
-                if (isAssignableToCommand)
-                {
-                    this.ExecuteGenericRegisterCommand(nameof(RegisterCommand), commandType);
-                }
-            }
-
-            IOptionBuilder GetOption(MethodInfo method, PropertyInfo prop, LambdaExpression lambda, string key)
-            {
-                return method.InvokeGenericMethod(prop, this, lambda, key) as IOptionBuilder;
-            }
+            modelInitializer.InitializeModel(typeof(TCommandOption), this, nameof(ConfigureInternal), nameof(RegisterCommand));
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Tests
 {

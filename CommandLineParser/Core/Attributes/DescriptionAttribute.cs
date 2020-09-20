@@ -1,9 +1,19 @@
 ﻿namespace MatthiWare.CommandLine.Core.Attributes
 {
-    public class DescriptionAttribute : BaseAttribute
+    /// <summary>
+    /// Specifies the description of the options
+    /// </summary>
+    public sealed class DescriptionAttribute : BaseAttribute
     {
+        /// <summary>
+        /// Description
+        /// </summary>
         public string Description { get; private set; }
 
-        public DescriptionAttribute(string helpText) => Description = helpText;
+        /// <summary>
+        /// Specifies the description of the options
+        /// </summary>
+        /// <param name="description">description text</param>
+        public DescriptionAttribute(string description) => Description = description;
     }
 }

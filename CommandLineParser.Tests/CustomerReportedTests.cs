@@ -63,7 +63,9 @@ namespace MatthiWare.CommandLine.Tests
             void AddItemToArray(string item)
             {
                 if (item != null)
+                {
                     items.Add(item);
+                }
             }
         }
 

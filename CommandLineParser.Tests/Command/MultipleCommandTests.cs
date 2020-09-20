@@ -1,5 +1,4 @@
 ﻿using MatthiWare.CommandLine.Core.Attributes;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
