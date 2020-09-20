@@ -1094,6 +1094,11 @@
             <param name="parserOptions">options that the parser will use</param>
             <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.CommandLineParserOptions">
+            <summary>
+            Configuration options for <see cref="T:MatthiWare.CommandLine.CommandLineParser"></see>
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParserOptions.PrefixShortOption">
             <summary>
             Prefix for the short option
