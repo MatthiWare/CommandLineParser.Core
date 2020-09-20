@@ -1,4 +1,5 @@
-﻿using MatthiWare.CommandLine.Abstractions;
+﻿using FluentValidation;
+using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core;
 using System;
@@ -30,7 +31,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         public IValidationResult Validate(object @object)
         {
             var errors = validators.Get()
-                .Select(v => v.Validate(@object))
+                .Select(v => v.Validate(new ValidationContext<object>(@object)))
                 .SelectMany(r => r.Errors)
                 .ToList();
 
@@ -47,7 +48,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         public async Task<IValidationResult> ValidateAsync(object @object, CancellationToken cancellationToken = default)
         {
             var errors = (await Task.WhenAll(validators.Get()
-                .Select(async v => await v.ValidateAsync(@object, cancellationToken))))
+                .Select(async v => await v.ValidateAsync(new ValidationContext<object>(@object), cancellationToken))))
                 .SelectMany(r => r.Errors)
                 .ToList();
 
