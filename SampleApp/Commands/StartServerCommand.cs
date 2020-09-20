@@ -25,27 +25,28 @@ namespace SampleApp.Commands
 
         public override async Task OnExecuteAsync(Options options, CommandOptions commandOptions, CancellationToken cancellationToken)
         {
-            Console.Write("Starting server");
-            for (int i = 0; i < 3; i++)
-            {
-                await Task.Delay(750);
-                Console.Write(".");
-            }
-            Console.WriteLine();
+            await WriteTextWithDots("Starting server");
 
             await Task.Delay(1250);
 
-            Console.Write("Beep boop initializing socket connections");
-            for (int i = 0; i < 3; i++)
-            {
-                await Task.Delay(750);
-                Console.Write(".");
-            }
-            Console.WriteLine();
+            await WriteTextWithDots("Beep boop initializing socket connections");
 
             await Task.Delay(1250);
 
             Console.WriteLine($"Server started using verbose option: {commandOptions.Verbose}");
+        }
+
+        private async Task WriteTextWithDots(string text, int delayPerDot = 750, int amountOfDots = 3)
+        {
+            Console.Write(text);
+
+            for (int i = 0; i < amountOfDots; i++)
+            {
+                await Task.Delay(delayPerDot);
+                Console.Write(".");
+            }
+
+            Console.WriteLine();
         }
     }
 }

@@ -581,6 +581,12 @@
             <param name="transformation">Transformation function</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.IOptionConfigurator`1">
+            <summary>
+            Allows options to be configured
+            </summary>
+            <typeparam name="TSource">Source type that contains the option</typeparam>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.IOptionConfigurator`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Configures if the command options
@@ -615,6 +621,20 @@
             </summary>
             <param name="key">model identifier</param>
             <param name="value">model value</param>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Models.IModelInitializer">
+            <summary>
+            Tool used to initialize based on a model
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Models.IModelInitializer.InitializeModel(System.Type,System.Object,System.String,System.String)">
+            <summary>
+            Configure options and register commands from the option model
+            </summary>
+            <param name="optionType">Option model type</param>
+            <param name="caller">Caller instance</param>
+            <param name="configureMethodName">configure method name</param>
+            <param name="registerMethodName">register method name</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1">
             <summary>
@@ -937,6 +957,114 @@
             </summary>
             <param name="errors">list of errors</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Validations.IValidator">
+            <summary>
+            Validator
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator.Validate(System.Object)">
+            <summary>
+            Validates an object
+            </summary>
+            <param name="object">Item to validate</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Validations.IValidationResult"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator.ValidateAsync(System.Object,System.Threading.CancellationToken)">
+            <summary>
+            Validates an object async
+            </summary>
+            <param name="object">Item to validate</param>
+            <param name="cancellationToken">Cancellation token</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Validations.IValidationResult"/></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer">
+            <summary>
+            Contains all the validators registered
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.AddValidator``1(MatthiWare.CommandLine.Abstractions.Validations.IValidator{``0})">
+            <summary>
+            Adds a validator
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <param name="validator"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.AddValidator(System.Type,MatthiWare.CommandLine.Abstractions.Validations.IValidator)">
+            <summary>
+            Adds a validator
+            </summary>
+            <param name="key"></param>
+            <param name="validator"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.AddValidator``2">
+            <summary>
+            Adds a validator
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <typeparam name="V"></typeparam>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.AddValidator(System.Type,System.Type)">
+            <summary>
+            Adds a validator
+            </summary>
+            <param name="key"></param>
+            <param name="validator"></param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.HasValidatorFor``1">
+            <summary>
+            Checks if a validator exists for a given type
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.HasValidatorFor(System.Type)">
+            <summary>
+            Checks if a validator exists for a given type
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.GetValidators``1">
+            <summary>
+            Returns a read-only list of validators for a given type
+            </summary>
+            <typeparam name="TKey"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer.GetValidators(System.Type)">
+            <summary>
+            Returns a read-only list of validators for a given type
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Validations.IValidator`1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator`1.Validate(`0)">
+            <summary>
+            Validates an object
+            </summary>
+            <param name="object">Item to validate</param>
+            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Validations.IValidationResult"/></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Validations.ValidationConfigurationBase">
+            <summary>
+            Base validation configuration provider. 
+            Needs to be inherited when implementing a specific validations provider
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Validations.ValidationConfigurationBase.Validators">
+            <summary>
+            Gets a container of all validators
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.ValidationConfigurationBase.#ctor(MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer)">
+            <summary>
+            Create instance of the validation configuration base
+            </summary>
+            <param name="validators">validator container</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.CommandLineParser">
             <summary>
             Command line parser
@@ -1156,6 +1284,22 @@
             </summary>
             <param name="defaultValue">default value</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Attributes.DescriptionAttribute">
+            <summary>
+            Specifies the description of the options
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Attributes.DescriptionAttribute.Description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Attributes.DescriptionAttribute.#ctor(System.String)">
+            <summary>
+            Specifies the description of the options
+            </summary>
+            <param name="description">description text</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Attributes.NameAttribute">
             <summary>
             Specifies the name of the option/command
@@ -1342,6 +1486,12 @@
             </summary>
             <param name="option">The failed option</param>
             <param name="argModel">The specified argument</param>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Models.ModelInitializer">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Models.ModelInitializer.InitializeModel(System.Type,System.Object,System.String,System.String)">
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.FindIndex(System.Object,System.Int32)">
             <summary>
