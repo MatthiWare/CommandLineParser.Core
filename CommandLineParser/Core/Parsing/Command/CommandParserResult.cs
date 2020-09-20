@@ -41,7 +41,10 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
         {
             HasErrors = errors.Any();
 
-            if (!HasErrors) return;
+            if (!HasErrors)
+            {
+                return;
+            }
 
             exceptions.AddRange(errors);
         }
@@ -51,7 +54,9 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
             HasErrors |= result.HasErrors;
 
             if (result.HelpRequested)
+            {
                 HelpRequestedFor = result.HelpRequestedFor;
+            }
 
             commandParserResults.Add(result);
         }

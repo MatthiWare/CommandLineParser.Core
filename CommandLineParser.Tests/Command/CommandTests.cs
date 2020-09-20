@@ -1,17 +1,22 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions.Command;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class CommandTests
+    public class CommandTests : TestBase
     {
+        private readonly CommandLineParser parser;
+
+        public CommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+            parser = new CommandLineParser(Services);
+        }
+
         [Fact]
         public void ConfiguringCommandsIncreasesTotalCommandInParser()
         {
-            var parser = new CommandLineParser<object>();
-
             parser.AddCommand<object>().Name("x");
             parser.AddCommand<object>().Name("y");
 
@@ -24,8 +29,6 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void AddOptionLessCommand()
         {
-            var parser = new CommandLineParser<object>();
-
             parser.AddCommand().Name("x");
             parser.AddCommand().Name("y");
 
@@ -40,12 +43,14 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(false)]
         public void AddCommandType(bool generic)
         {
-            var parser = new CommandLineParser<object>();
-
             if (generic)
+            {
                 parser.RegisterCommand<MyComand>();
+            }
             else
+            {
                 parser.RegisterCommand(typeof(MyComand));
+            }
 
             Assert.Equal(1, parser.Commands.Count);
 
@@ -57,12 +62,14 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(false)]
         public void AddOtherCommandType(bool generic)
         {
-            var parser = new CommandLineParser<object>();
-
             if (generic)
+            {
                 parser.RegisterCommand<OtherCommand>();
+            }
             else
+            {
                 parser.RegisterCommand(typeof(OtherCommand));
+            }
 
             Assert.Equal(1, parser.Commands.Count);
 
@@ -74,12 +81,33 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(false)]
         public void AddCommandTypeWithGenericOption(bool generic)
         {
-            var parser = new CommandLineParser<object>();
-
             if (generic)
+            {
                 parser.RegisterCommand<MyComand, object>();
+            }
             else
+            {
                 parser.RegisterCommand(typeof(MyComand), typeof(object));
+            }
+
+            Assert.Equal(1, parser.Commands.Count);
+
+            Assert.NotNull(parser.Commands.First(cmd => cmd.Name.Equals("bla")));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddCommandTypeWithoutGenericOption(bool generic)
+        {
+            if (generic)
+            {
+                parser.RegisterCommand<NonGenericCmd>();
+            }
+            else
+            {
+                parser.RegisterCommand(typeof(NonGenericCmd));
+            }
 
             Assert.Equal(1, parser.Commands.Count);
 
@@ -109,6 +137,19 @@ namespace MatthiWare.CommandLine.Tests.Command
             public override void OnConfigure(ICommandConfigurationBuilder builder)
             {
                 builder.Name("other");
+            }
+        }
+
+        private class NonGenericCmd : Abstractions.Command.Command
+        {
+            public override void OnConfigure(ICommandConfigurationBuilder builder)
+            {
+                builder.Name("bla");
+            }
+
+            public override void OnExecute()
+            {
+                base.OnExecute();
             }
         }
     }

@@ -1,18 +1,22 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Core.Attributes;
+﻿using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class MultipleCommandTests
+    public class MultipleCommandTests : TestBase
     {
+        public MultipleCommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Theory]
         [InlineData(new string[] { "cmd1", "-x", "8" }, false)]
         [InlineData(new string[] { "cmd2", "-x", "8" }, false)]
         [InlineData(new string[] { }, false)]
         public void NonRequiredCommandShouldNotSetResultInErrorStateWhenRequiredOptionsAreMissing(string[] args, bool _)
         {
-            var parser = new CommandLineParser();
+            var parser = new CommandLineParser(Services);
 
             parser.AddCommand<MultipleCommandTestsOptions>()
                 .Name("cmd1")

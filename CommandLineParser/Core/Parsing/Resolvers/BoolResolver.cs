@@ -6,7 +6,7 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    internal class BoolResolver : ArgumentResolver<bool>
+    internal class BoolResolver : BaseArgumentResolver<bool>
     {
         private static readonly string[] recognisedFalseArgs = new[] { "off", "0", "false", "no" };
         private static readonly string[] recognisedTrueArgs = new[] { "on", "1", "true", "yes", string.Empty, null };

@@ -1,24 +1,28 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using System;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class RegisterCommandTests
+    public class RegisterCommandTests : TestBase
     {
+        private readonly CommandLineParser parser;
+
+        public RegisterCommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+            parser = new CommandLineParser(Services);
+        }
+
         [Fact]
         public void RegisterCommandWithNoneCommandTypeThrowsException()
         {
-            var parser = new CommandLineParser();
-
             Assert.Throws<ArgumentException>(() => parser.RegisterCommand(typeof(object)));
         }
 
         [Fact]
         public void RegisterCommandWithWrongParentTypeThrowsException()
         {
-            var parser = new CommandLineParser();
-
             Assert.Throws<ArgumentException>(() => parser.RegisterCommand(typeof(MyWrongCommand)));
         }
 

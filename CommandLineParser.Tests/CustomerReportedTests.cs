@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using MatthiWare.CommandLine;
+﻿using System.Collections.Generic;
 using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
 
@@ -65,7 +63,9 @@ namespace MatthiWare.CommandLine.Tests
             void AddItemToArray(string item)
             {
                 if (item != null)
+                {
                     items.Add(item);
+                }
             }
         }
 

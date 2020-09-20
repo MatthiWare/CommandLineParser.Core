@@ -7,8 +7,10 @@ using System.Reflection;
 
 namespace MatthiWare.CommandLine.Core.Command
 {
+    /// <inheritdoc/>
     public class CommandDiscoverer : ICommandDiscoverer
     {
+        /// <inheritdoc/>
         public IReadOnlyList<Type> DiscoverCommandTypes(Type optionType, Assembly[] assemblies)
         {
             var foundCommands = new List<Type>();
@@ -31,18 +33,24 @@ namespace MatthiWare.CommandLine.Core.Command
                 return false;
             }
 
-            if (!type.IsAssignableToGenericType(typeof(Command<>)))
+            bool isAssignableToGenericCommand = type.IsAssignableToGenericType(typeof(Command<>));
+            bool isAssignableToCommand = typeof(Abstractions.Command.Command).IsAssignableFrom(type);
+
+            if (!isAssignableToCommand && !isAssignableToGenericCommand)
             {
                 return false;
             }
 
-            var firstGenericArgument = type.BaseType.GenericTypeArguments.First();
-
-            if (optionType != firstGenericArgument)
+            if (isAssignableToGenericCommand)
             {
-                return false;
-            }
+                var firstGenericArgument = type.BaseType.GenericTypeArguments.First();
 
+                if (optionType != firstGenericArgument)
+                {
+                    return false;
+                }
+            }
+            
             return true;
         }
     }

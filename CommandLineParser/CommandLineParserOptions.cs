@@ -2,6 +2,9 @@
 
 namespace MatthiWare.CommandLine
 {
+    /// <summary>
+    /// Configuration options for <see cref="CommandLineParser"></see>
+    /// </summary>
     public class CommandLineParserOptions
     {
         /// <summary>
@@ -42,5 +45,30 @@ namespace MatthiWare.CommandLine
         /// Sets the application name. Will use the <see cref="Process.ProcessName"/> by default if none is specified.
         /// </summary>
         public string AppName { get; set; }
+
+        internal (string shortOption, string longOption) GetConfiguredHelpOption()
+        {
+            if (!EnableHelpOption)
+            {
+                return (null, null);
+            }
+
+            var tokens = HelpOptionName.Split('|');
+
+            string shortResult;
+            string longResult = null;
+
+            if (tokens.Length > 1)
+            {
+                shortResult = $"{PrefixShortOption}{tokens[0]}";
+                longResult = $"{PrefixLongOption}{tokens[1]}";
+            }
+            else
+            {
+                shortResult = $"{PrefixLongOption}{tokens[0]}";
+            }
+
+            return (shortResult, longResult);
+        }
     }
 }

@@ -7,10 +7,17 @@ using System.Reflection;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    internal class DefaultResolver<T> : ArgumentResolver<T>
+    internal class DefaultResolver<T> : BaseArgumentResolver<T>
     {
         private static readonly string TryParseName = "TryParse";
         private static readonly string ParseName = "Parse";
+
+        private readonly Type genericType;
+
+        public DefaultResolver()
+        {
+            genericType = typeof(T);
+        }
 
         public override bool CanResolve(ArgumentModel model)
         {
@@ -32,18 +39,23 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                 return false;
             }
 
-            var ctor = typeof(T).GetConstructors()
+            if (genericType.IsEnum && TryParseEnum(model, out result))
+            {
+                return true;
+            }
+
+            var ctor = genericType.GetConstructors()
                 .Where(FindStringCtor)
                 .FirstOrDefault();
 
             if (ctor != null)
             {
-                result = (T)Activator.CreateInstance(typeof(T), model.Value);
+                result = (T)Activator.CreateInstance(genericType, model.Value);
                 return true;
             }
 
             // search for TryParse method and take one with most arguments
-            var tryParseMethod = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Static)
+            var tryParseMethod = genericType.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(FindTryParse).OrderByDescending(m => m.GetParameters().Length).FirstOrDefault();
 
             if (tryParseMethod != null)
@@ -65,7 +77,7 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
             }
 
             // search for Parse method and take one with most arguments
-            var parseMethod = typeof(T).GetMethods(BindingFlags.Public | BindingFlags.Static)
+            var parseMethod = genericType.GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(FindParse).OrderByDescending(m => m.GetParameters().Length).FirstOrDefault();
 
             if (parseMethod != null)
@@ -97,6 +109,21 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private delegate T CustomParseWithFormat(string input, IFormatProvider format);
         private delegate T CustomParse(string input);
 
+        private bool TryParseEnum(ArgumentModel model, out T result)
+        {
+            try
+            {
+                result = (T)Enum.Parse(genericType, model.Value, true);
+                return true;
+            }
+            catch (Exception)
+            {
+                result = default;
+
+                return false;
+            }
+        }
+
         /// <summary>
         /// Finds the Type.TryParse(String, IFormatProvider, out T result) method
         /// </summary>
@@ -105,27 +132,39 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private bool FindTryParse(MethodInfo method)
         {
             if (method.Name != TryParseName)
+            {
                 return false;
+            }
 
             if (method.ReturnType != typeof(bool))
+            {
                 return false;
+            }
 
             var args = method.GetParameters();
 
             if (args.Length < 2 || args.Length > 3)
+            {
                 return false;
+            }
 
             // Starts with string
             if (args[0].ParameterType != typeof(string))
+            {
                 return false;
+            }
 
             // Last one should be out param
-            if (!args[args.Length - 1].IsOut || args[args.Length - 1].ParameterType != typeof(T).MakeByRefType())
+            if (!args[args.Length - 1].IsOut || args[args.Length - 1].ParameterType != genericType.MakeByRefType())
+            {
                 return false;
+            }
 
             // If provided the 2nd param should be an IFormatProvider
             if (args.Length == 3 && args[1].ParameterType != typeof(IFormatProvider))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -138,23 +177,33 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private bool FindParse(MethodInfo method)
         {
             if (method.Name != ParseName)
+            {
                 return false;
+            }
 
-            if (method.ReturnType != typeof(T))
+            if (method.ReturnType != genericType)
+            {
                 return false;
+            }
 
             var args = method.GetParameters();
 
             if (args.Length < 1 || args.Length > 2)
+            {
                 return false;
+            }
 
             // Starts with string
             if (args[0].ParameterType != typeof(string))
+            {
                 return false;
+            }
 
             // If provided the 2nd param should be an IFormatProvider
             if (args.Length == 2 && args[1].ParameterType != typeof(IFormatProvider))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -165,11 +214,15 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
             // more than 1 ctor argument
             if (args.Length != 1)
+            {
                 return false;
+            }
 
             // Check if it is a string
             if (args[0].ParameterType != typeof(string))
+            {
                 return false;
+            }
 
             return true;
         }

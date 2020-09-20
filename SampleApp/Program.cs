@@ -3,7 +3,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Extensions.FluentValidations;
-using SampleApp.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using SampleApp.DependencyInjection;
 using SampleApp.Validations;
 
 namespace SampleApp
@@ -12,19 +13,33 @@ namespace SampleApp
     {
         static async Task<int> Main(string[] args)
         {
-            Console.WriteLine($"args: {string.Join(", ", args)}");
+            Console.WriteLine($"Input arguments: {string.Join(", ", args)}\n");
 
-            var parser = new CommandLineParser<Options>();
+            #region How to setup Dependency Injection
 
-            // Example to add FluentValidations to the project
+            var services = new ServiceCollection();
+
+            services.AddSingleton<IServiceCollection>(services);
+            // register our own service that will be injected when providing the "di" command in the console
+            services.AddScoped<ICustomInjectedService, CustomInjectedService>();
+
+            #endregion
+
+            var parserOptions = new CommandLineParserOptions { AppName = "Sample App" };
+
+            var parser = new CommandLineParser<Options>(parserOptions, services);
+
+            #region Example to add FluentValidations to the project 
             parser.UseFluentValidations((config) =>
             {
                 config
                     .AddValidator<Options, OptionsValidator>()
                     .AddValidator<CommandOptions, CommandOptionsValidator>();
             });
+            #endregion
 
-            // setup
+            #region Configure Options
+
             parser.Configure(opt => opt.MyInt)
                 .Name("i", "int")
                 .Description("Description for -i option, needs an integer.")
@@ -45,15 +60,21 @@ namespace SampleApp
                 .Description("Description for -d option, needs a double.")
                 .Required();
 
+            #endregion
+
+            #region Register / Add / Discover commands
+
             // discover commands
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
-
+            // or you can use:
             //parser.RegisterCommand<StartServerCommand>();
 
-            var throwExceptionCommand = parser.AddCommand()
+            parser.AddCommand()
                 .Name("throw")
                 .Description("Throws an error when executed")
                 .OnExecuting(opt => throw new Exception("It's Not a Bug, It's a Feature."));
+
+            #endregion
 
             var result = await parser.ParseAsync(args);
 

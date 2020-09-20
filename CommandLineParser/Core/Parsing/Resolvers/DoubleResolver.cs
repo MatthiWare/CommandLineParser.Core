@@ -5,11 +5,14 @@ using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
-    public class DoubleResolver : ArgumentResolver<double>
+    internal class DoubleResolver : BaseArgumentResolver<double>
     {
         public override bool CanResolve(ArgumentModel model)
         {
-            if (!model.HasValue) return false;
+            if (!model.HasValue)
+            {
+                return false;
+            }
 
             return TryResolve(model, out _);
         }

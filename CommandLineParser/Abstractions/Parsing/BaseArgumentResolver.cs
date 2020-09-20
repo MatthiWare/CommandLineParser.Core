@@ -6,8 +6,8 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
     /// Class to resolve arguments
     /// </summary>
     /// <typeparam name="TArgument">Argument type</typeparam>
-    public abstract class ArgumentResolver<TArgument>
-        : ICommandLineArgumentResolver<TArgument>, ICommandLineArgumentResolver
+    public abstract class BaseArgumentResolver<TArgument> 
+        : IArgumentResolver<TArgument>
     {
         /// <summary>
         /// Checks if the resolver can resolve the argument

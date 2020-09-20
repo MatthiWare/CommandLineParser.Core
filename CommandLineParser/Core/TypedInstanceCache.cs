@@ -1,4 +1,4 @@
-﻿using MatthiWare.CommandLine.Abstractions;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +11,16 @@ namespace MatthiWare.CommandLine.Core
     /// <typeparam name="TValue"></typeparam>
     public class TypedInstanceCache<TValue>
     {
-        private readonly IContainerResolver resolver;
+        private readonly IServiceProvider serviceProvider;
         private readonly Dictionary<Type, InstanceMetadata<TValue>> instances = new Dictionary<Type, InstanceMetadata<TValue>>();
 
-        public TypedInstanceCache(IContainerResolver resolver)
+        /// <summary>
+        /// Creates an instance of the strongly-typed instance cache
+        /// </summary>
+        /// <param name="serviceProvider"></param>
+        public TypedInstanceCache(IServiceProvider serviceProvider)
         {
-            this.resolver = resolver;
+            this.serviceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -28,9 +32,13 @@ namespace MatthiWare.CommandLine.Core
             var key = typeof(TValue);
 
             if (!instances.ContainsKey(key))
+            {
                 instances.Add(typeof(TValue), new InstanceMetadata<TValue>(key, value));
+            }
             else
+            {
                 instances[key].SetInstance(value);
+            }
         }
 
         /// <summary>
@@ -40,9 +48,13 @@ namespace MatthiWare.CommandLine.Core
         public void Add(Type type)
         {
             if (!instances.ContainsKey(type))
+            {
                 instances.Add(typeof(TValue), new InstanceMetadata<TValue>(type));
+            }
             else
+            {
                 instances[type].Clear();
+            }
         }
 
         /// <summary>
@@ -55,7 +67,7 @@ namespace MatthiWare.CommandLine.Core
 
             foreach (var meta in toResolve)
             {
-                var instance = resolver.Resolve(meta.Type);
+                var instance = ActivatorUtilities.GetServiceOrCreateInstance(this.serviceProvider, meta.Type);
 
                 meta.SetInstance(instance);
             }

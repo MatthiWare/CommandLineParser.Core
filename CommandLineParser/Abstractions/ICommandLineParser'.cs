@@ -2,7 +2,6 @@
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -20,20 +19,14 @@ namespace MatthiWare.CommandLine.Abstractions
         #region Properties
 
         /// <summary>
-        /// Tool to print usage info.
+        /// Utility to print usage information to the output
         /// </summary>
-        IUsagePrinter Printer { get; set; }
-
-        /// <summary>
-        /// Factory to resolve the argument type
-        /// <see cref="ICommandLineArgumentResolver"/> for more info.
-        /// </summary>
-        IArgumentResolverFactory ArgumentResolverFactory { get; }
+        IUsagePrinter Printer { get; }
 
         /// <summary>
         /// Resolver that is used to instantiate types by an given container
         /// </summary>
-        IContainerResolver ContainerResolver { get; }
+        IServiceProvider Services { get; }
 
         #endregion
 
@@ -97,7 +90,7 @@ namespace MatthiWare.CommandLine.Abstractions
         /// </summary>
         /// <typeparam name="TCommand">The command</typeparam>
         void RegisterCommand<TCommand>()
-            where TCommand : Command<TOption>;
+            where TCommand : Abstractions.Command.Command;
 
         /// <summary>
         /// Registers a new command

@@ -4,12 +4,17 @@
         <name>CommandLineParser.FluentValidations</name>
     </assembly>
     <members>
-        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.#ctor(MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer,MatthiWare.CommandLine.Abstractions.IContainerResolver)">
+        <member name="T:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration">
+            <summary>
+            Configuration for fluent validations
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.#ctor(MatthiWare.CommandLine.Abstractions.Validations.IValidatorsContainer,System.IServiceProvider)">
             <summary>
             Creates a new fluent validation configuration
             </summary>
             <param name="container"></param>
-            <param name="resolver"></param>
+            <param name="serviceProvider"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration.AddValidator(System.Type,System.Type)">
             <summary>
@@ -43,6 +48,11 @@
             <param name="key">Type to validate</param>
             <param name="instance">Validator instance</param>
             <returns>Self</returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Extensions.FluentValidations.FluentValidationsExtensions">
+            <summary>
+            FluentValidations Extensions for CommandLineParser
+            </summary>
         </member>
         <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.FluentValidationsExtensions.UseFluentValidations``1(MatthiWare.CommandLine.CommandLineParser{``0},System.Action{MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration})">
             <summary>

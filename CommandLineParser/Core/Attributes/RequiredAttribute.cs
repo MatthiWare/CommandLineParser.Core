@@ -3,7 +3,7 @@
     /// <summary>
     /// Specified if the command/option is required
     /// </summary>
-    public class RequiredAttribute : BaseAttribute
+    public sealed class RequiredAttribute : BaseAttribute
     {
         /// <summary>
         /// Is it required?

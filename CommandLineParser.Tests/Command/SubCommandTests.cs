@@ -1,18 +1,20 @@
-﻿using MatthiWare.CommandLine;
-using MatthiWare.CommandLine.Abstractions;
-using MatthiWare.CommandLine.Abstractions.Command;
-using MatthiWare.CommandLine.Core;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
-using System;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
-    public class SubCommandTests
+    public class SubCommandTests  : TestBase
     {
+        public SubCommandTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Theory]
         [InlineData(true, "something", 15, -1)]
         [InlineData(false, "something", 15, -1)]
@@ -22,9 +24,10 @@ namespace MatthiWare.CommandLine.Tests.Command
             var lock1 = new ManualResetEventSlim();
             var lock2 = new ManualResetEventSlim();
 
-            var containerResolver = new CustomInstantiator(lock1, lock2, autoExecute, bla, i, n);
+            Services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
+            Services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
 
-            var parser = new CommandLineParser<MainModel>(containerResolver);
+            var parser = new CommandLineParser<MainModel>(Services);
 
             var result = parser.Parse(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
 
@@ -52,9 +55,10 @@ namespace MatthiWare.CommandLine.Tests.Command
             var lock1 = new ManualResetEventSlim();
             var lock2 = new ManualResetEventSlim();
 
-            var containerResolver = new CustomInstantiator(lock1, lock2, autoExecute, bla, i, n);
+            Services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
+            Services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
 
-            var parser = new CommandLineParser<MainModel>(containerResolver);
+            var parser = new CommandLineParser<MainModel>(Services);
 
             var result = await parser.ParseAsync(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
 
@@ -71,38 +75,6 @@ namespace MatthiWare.CommandLine.Tests.Command
             Assert.True(lock2.Wait(1000), "SubCommand didn't execute in time.");
 
             Assert.All(result.CommandResults.Select(r => r.Executed), Assert.True);
-        }
-
-        private class CustomInstantiator : DefaultContainerResolver
-        {
-            private readonly ManualResetEventSlim lock1;
-            private readonly ManualResetEventSlim lock2;
-            private readonly bool autoExecute;
-            private readonly string bla;
-            private readonly int i;
-            private readonly int n;
-
-            public CustomInstantiator(ManualResetEventSlim lock1, ManualResetEventSlim lock2, bool autoExecute, string bla, int i, int n)
-            {
-                this.lock1 = lock1;
-                this.lock2 = lock2;
-                this.autoExecute = autoExecute;
-                this.bla = bla;
-                this.i = i;
-                this.n = n;
-            }
-
-            public override T Resolve<T>() => (T)Resolve(typeof(T));
-
-            public override object Resolve(Type type)
-            {
-                if (type == typeof(MainCommand))
-                    return Activator.CreateInstance(type, lock1, autoExecute, bla, i, n);
-                else if (type == typeof(SubCommand))
-                    return Activator.CreateInstance(type, lock2, autoExecute, bla, i, n);
-                else
-                    return base.Resolve(type);
-            }
         }
 
         public class MainCommand : Command<MainModel, SubModel>
