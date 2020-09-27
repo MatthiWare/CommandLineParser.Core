@@ -31,7 +31,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
             this.longHelpOption = longHelpOption;
 
             this.args = new List<ArgumentValueHolder>(
-                args.SplitOnPostfix(parserOptions, GetCommandLineOptions(options, commands))
+                args.SplitOnPostfix(parserOptions, GetOptions(options, commands))
                 .Select(arg => new ArgumentValueHolder
                 {
                     Argument = arg
@@ -71,21 +71,18 @@ namespace MatthiWare.CommandLine.Core.Parsing
             }
         }
 
-        private ICollection<ICommandLineOption> GetCommandLineOptions(ICollection<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
+        private IEnumerable<ICommandLineOption> GetOptions(IEnumerable<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
         {
-            List<ICommandLineOption> result = new List<ICommandLineOption>(options);
-
-            Traverse(commands);
-
-            return result;
-
-            void Traverse(IEnumerable<CommandLineCommandBase> cmds)
+            foreach (var option in options)
             {
-                foreach (var cmd in cmds)
-                {
-                    result.AddRange(cmd.Options);
+                yield return option;
+            }
 
-                    Traverse(cmd.Commands.Cast<CommandLineCommandBase>());
+            foreach (var command in commands)
+            {
+                foreach (var cmdOption in GetOptions(command.Options, command.Commands.Cast<CommandLineCommandBase>()))
+                {
+                    yield return cmdOption;
                 }
             }
         }

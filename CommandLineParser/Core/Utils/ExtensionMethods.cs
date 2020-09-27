@@ -13,7 +13,7 @@ namespace MatthiWare.CommandLine.Core.Utils
     /// </summary>
     public static class ExtensionMethods
     {
-        private static ICommandLineOption FindMatchingOption(ICollection<ICommandLineOption> options, CommandLineParserOptions settings, string item)
+        private static ICommandLineOption FindMatchingOption(IEnumerable<ICommandLineOption> options, CommandLineParserOptions settings, string item)
         {
             if (string.IsNullOrEmpty(settings.PostfixOption))
             {
@@ -153,7 +153,7 @@ namespace MatthiWare.CommandLine.Core.Utils
         /// <param name="settings"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, ICollection<ICommandLineOption> options)
+        public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, IEnumerable<ICommandLineOption> options)
         {
             bool hasPostfix = !string.IsNullOrEmpty(settings.PostfixOption);
 
