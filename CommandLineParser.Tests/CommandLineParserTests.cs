@@ -33,6 +33,7 @@ namespace MatthiWare.CommandLine.Tests
         [Theory]
         [InlineData("", "--")]
         [InlineData("-", "")]
+        [InlineData("---", "---")]
         public void InvalidOptionsThrowException(string shortOption, string longOption)
         {
             var options = new CommandLineParserOptions

@@ -128,6 +128,11 @@ namespace MatthiWare.CommandLine
             {
                 throw new ArgumentException($"The provided options are not valid. {nameof(options.PrefixLongOption)} cannot be null or empty.");
             }
+
+            if (options.PrefixShortOption.Length != 1)
+            {
+                throw new ArgumentException($"The provided options are not valid. {nameof(options.PrefixShortOption)} needs to be a single character.");
+            }
         }
 
         private CommandLineParserOptions UpdateOptionsIfNeeded(CommandLineParserOptions options)
