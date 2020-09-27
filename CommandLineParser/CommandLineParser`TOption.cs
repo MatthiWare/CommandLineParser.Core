@@ -98,6 +98,8 @@ namespace MatthiWare.CommandLine
         /// <param name="parserOptions">The options the parser will use</param>
         public CommandLineParser(CommandLineParserOptions parserOptions, IServiceCollection servicesCollection)
         {
+            ValidateOptions(parserOptions);
+
             ParserOptions = UpdateOptionsIfNeeded(parserOptions);
 
             var services = servicesCollection ?? new ServiceCollection();
@@ -113,6 +115,19 @@ namespace MatthiWare.CommandLine
             (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
 
             InitialzeModel();
+        }
+
+        private void ValidateOptions(CommandLineParserOptions options)
+        {
+            if (string.IsNullOrWhiteSpace(options.PrefixShortOption))
+            {
+                throw new ArgumentException($"The provided options are not valid. {nameof(options.PrefixShortOption)} cannot be null or empty.");
+            }
+
+            if (string.IsNullOrWhiteSpace(options.PrefixLongOption))
+            {
+                throw new ArgumentException($"The provided options are not valid. {nameof(options.PrefixLongOption)} cannot be null or empty.");
+            }
         }
 
         private CommandLineParserOptions UpdateOptionsIfNeeded(CommandLineParserOptions options)

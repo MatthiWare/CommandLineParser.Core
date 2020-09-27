@@ -31,6 +31,20 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
+        [InlineData("", "--")]
+        [InlineData("-", "")]
+        public void InvalidOptionsThrowException(string shortOption, string longOption)
+        {
+            var options = new CommandLineParserOptions
+            {
+                PrefixShortOption = shortOption,
+                PrefixLongOption = longOption
+            };
+
+            Assert.Throws<ArgumentException>(() => new CommandLineParser(options));
+        }
+
+        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void CommandLineParserParsesCorrectOptionsWithPostfix(bool useShort)
