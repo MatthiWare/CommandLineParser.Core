@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
 		build.cake = build.cake
+		build.config = build.config
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -28,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentValidationsExtensions
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23D6692A-8461-4253-A00A-9F0BE4E2384B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAssembly", "Tests\TestAssembly\TestAssembly.csproj", "{017DFFFD-EC78-420D-A3CA-0049ABD1E2A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestAssembly", "Tests\TestAssembly\TestAssembly.csproj", "{017DFFFD-EC78-420D-A3CA-0049ABD1E2A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
