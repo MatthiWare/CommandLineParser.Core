@@ -11,8 +11,7 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// <summary>
         /// Parses the arguments
         /// </summary>
-        /// <param name="argumentManager">Arguments to parse</param>
         /// <returns><see cref="ICommandParserResult"/></returns>
-        ICommandParserResult Parse(IArgumentManager argumentManager);
+        ICommandParserResult Parse();
     }
 }

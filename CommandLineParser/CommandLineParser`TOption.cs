@@ -40,6 +40,7 @@ namespace MatthiWare.CommandLine
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
         private readonly ILogger<CommandLineParser> logger;
+        private readonly IArgumentManager argumentManager;
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -109,6 +110,7 @@ namespace MatthiWare.CommandLine
             Services = services.BuildServiceProvider();
 
             logger = Services.GetRequiredService<ILogger<CommandLineParser>>();
+            argumentManager = Services.GetRequiredService<IArgumentManager>();
 
             m_option = new TOption();
 
@@ -186,15 +188,13 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager2(ParserOptions, this);
-
             argumentManager.Process(args);
 
-            ParseCommands(errors, result, argumentManager);
+            ParseCommands(errors, result);
 
-            ParseOptions(errors, result, argumentManager);
+            ParseOptions(errors, result);
 
-            CheckForExtraHelpArguments(result, argumentManager);
+            CheckForExtraHelpArguments(result);
 
             Validate(m_option, errors);
 
@@ -219,15 +219,13 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager2(ParserOptions, this);
-
             argumentManager.Process(args);
 
-            await ParseCommandsAsync(errors, result, argumentManager, cancellationToken);
+            await ParseCommandsAsync(errors, result, cancellationToken);
 
-            ParseOptions(errors, result, argumentManager);
+            ParseOptions(errors, result);
 
-            CheckForExtraHelpArguments(result, argumentManager);
+            CheckForExtraHelpArguments(result);
 
             await ValidateAsync(m_option, errors, cancellationToken);
 
@@ -281,7 +279,7 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager2 argumentManager)
+        private void CheckForExtraHelpArguments(ParseResult<TOption> result)
         {
             var unusedArg = argumentManager.UnusedArguments
                 .Where(a => a.Key.EqualsIgnoreCase(m_helpOptionName) || a.Key.EqualsIgnoreCase(m_helpOptionNameLong))
@@ -442,13 +440,13 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
+        private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result)
         {
             foreach (var cmd in m_commands)
             {
                 try
                 {
-                    ParseCommand(cmd, result, argumentManager);
+                    ParseCommand(cmd, result);
 
                     if (result.HelpRequested)
                     {
@@ -462,7 +460,7 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void ParseCommand(CommandLineCommandBase cmd, ParseResult<TOption> result, IArgumentManager argumentManager)
+        private void ParseCommand(CommandLineCommandBase cmd, ParseResult<TOption> result)
         {
             if (!argumentManager.TryGetValue(cmd, out _))
             {
@@ -476,7 +474,7 @@ namespace MatthiWare.CommandLine
                 return;
             }
 
-            var cmdParseResult = cmd.Parse(argumentManager);
+            var cmdParseResult = cmd.Parse();
 
             result.MergeResult(cmdParseResult);
 
@@ -486,13 +484,13 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private async Task ParseCommandsAsync(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        private async Task ParseCommandsAsync(IList<Exception> errors, ParseResult<TOption> result, CancellationToken cancellationToken)
         {
             foreach (var cmd in m_commands)
             {
                 try
                 {
-                    await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
+                    await ParseCommandAsync(cmd, result, cancellationToken);
 
                     if (result.HelpRequested)
                     {
@@ -506,7 +504,7 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private async Task ParseCommandAsync(CommandLineCommandBase cmd, ParseResult<TOption> result, IArgumentManager argumentManager, CancellationToken cancellationToken)
+        private async Task ParseCommandAsync(CommandLineCommandBase cmd, ParseResult<TOption> result, CancellationToken cancellationToken)
         {
             if (!argumentManager.TryGetValue(cmd, out _))
             {
@@ -520,7 +518,7 @@ namespace MatthiWare.CommandLine
                 return;
             }
 
-            var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
+            var cmdParseResult = await cmd.ParseAsync(cancellationToken);
 
             result.MergeResult(cmdParseResult);
 
@@ -530,13 +528,13 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void ParseOptions(IList<Exception> errors, ParseResult<TOption> result, IArgumentManager argumentManager)
+        private void ParseOptions(IList<Exception> errors, ParseResult<TOption> result)
         {
             foreach (var o in m_options)
             {
                 try
                 {
-                    ParseOption(o.Value, result, argumentManager);
+                    ParseOption(o.Value, result);
 
                     if (result.HelpRequested)
                     {
@@ -552,7 +550,7 @@ namespace MatthiWare.CommandLine
             result.MergeResult(m_option);
         }
 
-        private void ParseOption(CommandLineOptionBase option, ParseResult<TOption> result, IArgumentManager argumentManager)
+        private void ParseOption(CommandLineOptionBase option, ParseResult<TOption> result)
         {
             bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 

@@ -349,11 +349,10 @@
             Parser for a command line command
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser.Parse(MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser.Parse">
             <summary>
             Parses the arguments
             </summary>
-            <param name="argumentManager">Arguments to parse</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult"/></returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IArgument">

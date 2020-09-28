@@ -6,6 +6,7 @@ using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Models;
+using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Validations;
@@ -35,6 +36,7 @@ namespace MatthiWare.CommandLine.Core
         {
             return services
                 .AddCommandLineParser(parser)
+                .AddArgumentManager()
                 .AddValidatorContainer()
                 .AddParserOptions(options)
                 .AddDefaultResolvers()
@@ -43,6 +45,13 @@ namespace MatthiWare.CommandLine.Core
                 .AddEnvironmentVariables()
                 .AddDefaultLogger()
                 .AddModelInitializer();
+        }
+
+        internal static IServiceCollection AddArgumentManager(this IServiceCollection services)
+        {
+            services.TryAddScoped<IArgumentManager, ArgumentManager2>();
+
+            return services;
         }
 
         private static IServiceCollection AddParserOptions(this IServiceCollection services, CommandLineParserOptions options)
