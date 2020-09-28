@@ -2,13 +2,10 @@
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
@@ -20,6 +17,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private Dictionary<IArgument, ArgumentModel> results;
 
         private ProcessingContext CurrentContext { get; set; }
+
+        public List<(string key, IArgument argument)> UnusedArguments { get; } = new List<(string key, IArgument argument)>();
 
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
 
@@ -37,43 +36,76 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             while (enumerator.MoveNext())
             {
-                ProcessNext();
+                var processed = ProcessNext();
+
+                if (!processed)
+                {
+                    var item = (enumerator.Current.RawData, CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand);
+                    UnusedArguments.Add(item);
+                }
             }
         }
 
-        private void ProcessNext()
+        private bool ProcessNext()
         {
             switch (enumerator.Current)
             {
                 case OptionRecord option:
-                    ProcessOption(option);
-                    break;
+                    return ProcessOption(option);
                 case CommandOrOptionValueRecord commandOrValue:
-                    ProcessCommandOrOptionValue(commandOrValue);
-                    break;
+                    return ProcessCommandOrOptionValue(commandOrValue);
+                default:
+                    return false;
             }
         }
 
-        private void ProcessOption(OptionRecord rec)
+        private bool ProcessOption(OptionRecord rec)
         {
-            foreach (var option in CurrentContext.CurrentCommand.Options)
+            var foundOption = FindOption(rec);
+
+            if (foundOption == null)
             {
-                if (!rec.Name.EqualsIgnoreCase(rec.IsLongOption ? option.LongName : option.ShortName))
+                // In case we have an option named "-1" and int value -1. This causes confusion. 
+                return ProcessCommandOrOptionValue(rec);
+            }
+
+            var argumentModel = new ArgumentModel(rec.Name, rec.Value);
+
+            results.Add(foundOption, argumentModel);
+
+            return true;
+        }
+
+        private ICommandLineOption FindOption(OptionRecord rec)
+        {
+            var context = CurrentContext;
+
+            while (context != null)
+            {
+                foreach (var option in context.CurrentCommand.Options)
                 {
-                    continue;
+                    if (!rec.Name.EqualsIgnoreCase(rec.IsLongOption ? option.LongName : option.ShortName))
+                    {
+                        continue;
+                    }
+
+                    if (results.ContainsKey(option))
+                    {
+                        continue;
+                    }
+
+                    context.CurrentOption = option;
+
+                    return option;
                 }
 
-                var argumentModel = new ArgumentModel(rec.Name, rec.Value);
-
-                results.Add(option, argumentModel);
-
-                CurrentContext.CurrentOption = option;
-
-                break;
+                context = context.Parent;
             }
+
+            return null;
         }
 
-        private void ProcessCommandOrOptionValue(CommandOrOptionValueRecord rec)
+        private bool ProcessCommandOrOptionValue(ArgumentRecord rec)
         {
             foreach (var cmd in CurrentContext.CurrentCommand.Commands)
             {
@@ -84,50 +116,44 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                 results.Add(cmd, new ArgumentModel(cmd.Name, null));
 
-                CurrentContext.CurrentCommand = (ICommandLineCommandContainer)cmd;
+                CurrentContext = new ProcessingContext(CurrentContext, (ICommandLineCommandContainer)cmd);
 
-                return;
+                return true;
             }
 
-            if (CurrentContext.CurrentOption == null)
-            {
-                return;
-            }
+            var context = CurrentContext;
 
-            if (!TryGetValue(CurrentContext.CurrentOption, out var model))
+            while (context != null)
             {
-                // not sure yet what to do here.. 
-                // no option yet and not matching command => unknown item
-                return;
-            }
-
-            if (model.HasValue)
-            {
-                throw new ArgumentException("model already has a value????");
-            }
-
-            model.Value = rec.RawData;
-        }
-
-        private IEnumerable<ICommandLineOption> GetOptions(IEnumerable<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
-        {
-            foreach (var option in options)
-            {
-                yield return option;
-            }
-
-            foreach (var command in commands)
-            {
-                foreach (var cmdOption in GetOptions(command.Options, command.Commands.Cast<CommandLineCommandBase>()))
+                if (context.CurrentOption == null)
                 {
-                    yield return cmdOption;
+                    context = context.Parent;
+                    continue;
                 }
+
+                if (!TryGetValue(context.CurrentOption, out var model))
+                {
+                    // not sure yet what to do here.. 
+                    // no option yet and not matching command => unknown item
+                    context = context.Parent;
+                    continue;
+                }
+
+                if (model.HasValue)
+                {
+                    context = context.Parent;
+                    continue;
+                }
+
+                model.Value = rec.RawData;
+                return true;
             }
+
+            return false;
         }
 
         private class ProcessingContext
         {
-
             public ICommandLineOption CurrentOption { get; set; }
             public ProcessingContext Parent { get; set; }
             public ICommandLineCommandContainer CurrentCommand { get; set; }
@@ -232,7 +258,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 Name = tokens[0];
             }
 
-            public bool IsLongOption { get;  }
+            public bool IsLongOption { get; }
             public string Name { get; }
             public string Value { get; }
         }

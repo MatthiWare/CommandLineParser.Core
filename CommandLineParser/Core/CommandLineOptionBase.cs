@@ -78,6 +78,6 @@ namespace MatthiWare.CommandLine.Core
             => !CanParse(model) && HasDefault;
 
         private bool ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(ArgumentModel model)
-            => !model.HasValue && HasDefault;
+            => (model is null || !model.HasValue) && HasDefault;
     }
 }

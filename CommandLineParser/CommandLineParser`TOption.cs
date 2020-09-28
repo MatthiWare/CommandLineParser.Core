@@ -195,7 +195,7 @@ namespace MatthiWare.CommandLine
 
             ParseOptions(errors, result, argumentManager);
 
-            //CheckForExtraHelpArguments(result, argumentManager);
+            CheckForExtraHelpArguments(result, argumentManager);
 
             Validate(m_option, errors);
 
@@ -226,7 +226,7 @@ namespace MatthiWare.CommandLine
 
             ParseOptions(errors, result, argumentManager);
 
-            CheckForExtraHelpArguments(result, argumentManager);
+            //CheckForExtraHelpArguments(result, argumentManager);
 
             await ValidateAsync(m_option, errors, cancellationToken);
 
@@ -280,18 +280,18 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager argumentManager)
+        private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager2 argumentManager)
         {
             var unusedArg = argumentManager.UnusedArguments
-                .Where(a => a.Argument.EqualsIgnoreCase(m_helpOptionName) || a.Argument.EqualsIgnoreCase(m_helpOptionNameLong))
+                .Where(a => a.key.EqualsIgnoreCase(m_helpOptionName) || a.key.EqualsIgnoreCase(m_helpOptionNameLong))
                 .FirstOrDefault();
 
-            if (unusedArg == null)
+            if (unusedArg.argument == null)
             {
                 return;
             }
 
-            result.HelpRequestedFor = unusedArg.ArgModel ?? this;
+            result.HelpRequestedFor = unusedArg.argument ?? this;
         }
 
         private void AutoPrintUsageAndErrors(ParseResult<TOption> result, bool noArgsSupplied)

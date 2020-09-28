@@ -7,6 +7,8 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
     /// </summary>
     public interface IArgumentManager
     {
+
+
         /// <summary>
         /// Tries to get the arguments associated to the current option
         /// </summary>
