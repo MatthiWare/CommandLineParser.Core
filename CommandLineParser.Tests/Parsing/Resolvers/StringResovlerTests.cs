@@ -2,12 +2,17 @@
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class StringResovlerTests
         : BaseResolverTests
     {
+        public StringResovlerTests(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+        }
+
         [Theory]
         [InlineData(true, "-m", "test")]
         [InlineData(true, "-m", "my string")]

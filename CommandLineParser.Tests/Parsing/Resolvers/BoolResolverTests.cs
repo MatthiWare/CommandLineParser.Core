@@ -2,12 +2,17 @@
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class BoolResolverTests
         : BaseResolverTests
     {
+        public BoolResolverTests(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+        }
+
         [Theory]
         [InlineData("yes")]
         [InlineData("1")]
