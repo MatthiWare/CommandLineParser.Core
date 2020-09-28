@@ -16,6 +16,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly CommandLineParserOptions options;
         private readonly ICommandLineCommandContainer commandContainer;
         private IEnumerator<ArgumentRecord> enumerator;
+        private CommandContext commandContext;
 
         public bool TryGetValue(IArgument argument, out ArgumentModel model)
         {
@@ -31,6 +32,35 @@ namespace MatthiWare.CommandLine.Core.Parsing
         public void Process(IReadOnlyList<string> arguments)
         {
             enumerator = new ArgumentRecordEnumerator(options, arguments);
+            commandContext = new CommandContext(null, commandContainer);
+
+            while (enumerator.MoveNext())
+            {
+                ProcessNext();
+            }
+        }
+
+        private void ProcessNext()
+        {
+            switch (enumerator.Current)
+            {
+                case OptionRecord option:
+                    ProcessOption(option);
+                    break;
+                case CommandOrOptionValueRecord commandOrValue:
+                    ProcessCommandOrOptionValue(commandOrValue);
+                    break;
+            }
+        }
+
+        private void ProcessOption(OptionRecord option)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void ProcessCommandOrOptionValue(CommandOrOptionValueRecord commandOrValue)
+        {
+            throw new NotImplementedException();
         }
 
         private IEnumerable<ICommandLineOption> GetOptions(IEnumerable<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
@@ -47,6 +77,19 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     yield return cmdOption;
                 }
             }
+        }
+
+        private class CommandContext
+        {
+            public CommandContext(CommandContext parent, ICommandLineCommandContainer commandContainer)
+            {
+                Parent = parent;
+                CurrentCommand = commandContainer;
+            }
+
+            public CommandContext Parent { get; set; }
+
+            public ICommandLineCommandContainer CurrentCommand { get; set; }
         }
 
         private abstract class ArgumentRecord
@@ -100,6 +143,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 {
                     return new OptionRecord(current, options.PostfixOption, isLongOption, options.PrefixShortOption.Length, options.PrefixLongOption.Length);
                 }
+
+                return new CommandOrOptionValueRecord(current);
             }
 
             public void Reset()
@@ -115,9 +160,18 @@ namespace MatthiWare.CommandLine.Core.Parsing
             }
         }
 
+        private sealed class CommandOrOptionValueRecord : ArgumentRecord
+        {
+            public CommandOrOptionValueRecord(string data)
+                : base(data)
+            {
+
+            }
+        }
+
         private sealed class OptionRecord : ArgumentRecord
         {
-            public OptionRecord(string data, string postfix, bool isLongOption, int shortOptionLength,  int longOptionLength)
+            public OptionRecord(string data, string postfix, bool isLongOption, int shortOptionLength, int longOptionLength)
                 : base(data)
             {
                 var tokens = data.Split(postfix.ToCharArray()[0]);
@@ -127,7 +181,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     Value = tokens[1];
                 }
 
-                
+
                 Name = tokens[0].Substring(isLongOption ? longOptionLength : shortOptionLength);
             }
 
