@@ -284,15 +284,15 @@ namespace MatthiWare.CommandLine
         private void CheckForExtraHelpArguments(ParseResult<TOption> result, ArgumentManager2 argumentManager)
         {
             var unusedArg = argumentManager.UnusedArguments
-                .Where(a => a.key.EqualsIgnoreCase(m_helpOptionName) || a.key.EqualsIgnoreCase(m_helpOptionNameLong))
+                .Where(a => a.Key.EqualsIgnoreCase(m_helpOptionName) || a.Key.EqualsIgnoreCase(m_helpOptionNameLong))
                 .FirstOrDefault();
 
-            if (unusedArg.argument == null)
+            if (unusedArg.Argument == null)
             {
                 return;
             }
 
-            result.HelpRequestedFor = unusedArg.argument ?? this;
+            result.HelpRequestedFor = unusedArg.Argument ?? this;
         }
 
         private void AutoPrintUsageAndErrors(ParseResult<TOption> result, bool noArgsSupplied)

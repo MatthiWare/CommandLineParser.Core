@@ -730,6 +730,11 @@
             Managers the arguments
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.UnusedArguments">
+            <summary>
+            Returns a read-only list of unused arguments
+            </summary>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">
             <summary>
             Tries to get the arguments associated to the current option
@@ -737,6 +742,12 @@
             <param name="argument">the argument</param>
             <param name="model">The result arguments</param>
             <returns>True if arguments are found, false if not</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Processes the argument list
+            </summary>
+            <param name="arguments">Input arguments</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver`1">
             <summary>
@@ -1498,14 +1509,20 @@
         <member name="M:MatthiWare.CommandLine.Core.Models.ModelInitializer.InitializeModel(System.Type,System.Object,System.String,System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.FindIndex(System.Object,System.Int32)">
-            <summary>
-            Finds the index of the first unused argument
-            </summary>
-            <param name="args">List of arguments to search</param>
-            <param name="model">object to find</param>
-            <param name="startOffset">Search offset</param>
-            <returns></returns>
+        <member name="T:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.UnusedArguments">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.Process(System.Collections.Generic.IReadOnlyList{System.String})">
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindTryParse(System.Reflection.MethodInfo)">
             <summary>

@@ -9,25 +9,30 @@ using System.Collections.Generic;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
+    /// <inheritdoc/>
     public class ArgumentManager2 : IArgumentManager
     {
         private readonly CommandLineParserOptions options;
         private readonly ICommandLineCommandContainer commandContainer;
         private IEnumerator<ArgumentRecord> enumerator;
         private Dictionary<IArgument, ArgumentModel> results;
-
+        private List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
         private ProcessingContext CurrentContext { get; set; }
 
-        public List<(string key, IArgument argument)> UnusedArguments { get; } = new List<(string key, IArgument argument)>();
+        /// <inheritdoc/>
+        public IReadOnlyList<UnusedArgumentModel> UnusedArguments => unusedArguments;
 
+        /// <inheritdoc/>
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
 
+        /// <inheritdoc/>
         public ArgumentManager2(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.commandContainer = commandContainer ?? throw new ArgumentNullException(nameof(commandContainer));
         }
 
+        /// <inheritdoc/>
         public void Process(IReadOnlyList<string> arguments)
         {
             results = new Dictionary<IArgument, ArgumentModel>();
@@ -40,8 +45,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                 if (!processed)
                 {
-                    var item = (enumerator.Current.RawData, CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand);
-                    UnusedArguments.Add(item);
+                    var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
+                    var item = new UnusedArgumentModel(enumerator.Current.RawData, arg);
+
+                    unusedArguments.Add(item);
                 }
             }
         }
