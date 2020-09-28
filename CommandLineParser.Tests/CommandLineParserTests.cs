@@ -306,42 +306,6 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Fact]
-        public void ParseWithCommandTests()
-        {
-            var wait = new ManualResetEvent(false);
-
-            var parser = new CommandLineParser<Options>(Services);
-
-            parser.Configure(opt => opt.Option1)
-                .Name("o")
-                .Default("Default message")
-                .Required();
-
-            var addCmd = parser.AddCommand<AddOption>()
-                .Name("add")
-                .OnExecuting((opt, cmdOpt) =>
-                {
-                    Assert.Equal("test", opt.Option1);
-                    Assert.Equal("my message", cmdOpt.Message);
-                    wait.Set();
-                });
-
-            addCmd.Configure(opt => opt.Message)
-                .Name("m", "message")
-                .Required();
-
-            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test", "add", "-m=my message" });
-
-            parsed.AssertNoErrors();
-
-            Assert.Equal("test", parsed.Result.Option1);
-
-            parsed.ExecuteCommands();
-
-            Assert.True(wait.WaitOne(2000));
-        }
-
-        [Fact]
         public async Task ParseWithCommandTestsAsync()
         {
             var wait = new ManualResetEvent(false);
@@ -379,7 +343,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Assert.Equal("test", parsed.Result.Option1);
 
-            parsed.ExecuteCommands();
+            parsed.ExecuteCommandsAsync(default).GetAwaiter().GetResult();
 
             Assert.True(wait.WaitOne(2000));
         }

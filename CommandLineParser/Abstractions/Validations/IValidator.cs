@@ -9,13 +9,6 @@ namespace MatthiWare.CommandLine.Abstractions.Validations
     public interface IValidator
     {
         /// <summary>
-        /// Validates an object
-        /// </summary>
-        /// <param name="object">Item to validate</param>
-        /// <returns><see cref="IValidationResult"/></returns>
-        IValidationResult Validate(object @object);
-
-        /// <summary>
         /// Validates an object async
         /// </summary>
         /// <param name="object">Item to validate</param>

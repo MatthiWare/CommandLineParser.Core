@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading;
+using System.Threading.Tasks;
+using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing
 {
+    /// <summary>
+    /// Parser result
+    /// </summary>
+    /// <typeparam name="TResult"></typeparam>
     public interface IParserResult<TResult>
     {
         /// <summary>
@@ -12,6 +18,9 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// </summary>
         bool HelpRequested { get; }
 
+        /// <summary>
+        /// Help was requested for this <see cref="ICommandLineOption"/> or <see cref="ICommandLineCommand"/>
+        /// </summary>
         IArgument HelpRequestedFor { get; }
 
         /// <summary>
@@ -35,10 +44,11 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// <summary>
         /// Executes the commands
         /// </summary>
+        /// <param name="cancellationToken">cancellation token</param>
         /// /// <exception cref="InvalidOperationException">
         /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Errors"/> properties.
         /// </exception>
-        void ExecuteCommands();
+        Task ExecuteCommandsAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// Read-only collection that contains the parsed commands' results. 

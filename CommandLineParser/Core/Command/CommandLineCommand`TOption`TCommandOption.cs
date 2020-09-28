@@ -64,16 +64,6 @@ namespace MatthiWare.CommandLine.Core.Command
             InitialzeModel();
         }
 
-        public override void Execute()
-        {
-            logger.LogDebug("Executing Command '{Name}'", this.Name);
-
-            ExecuteInternal();
-
-            // Also executes the async stuff.
-            ExecuteInternalAsync(default).Wait();
-        }
-
         private void ExecuteInternal()
         {
             m_executor3?.Invoke(m_baseOption, m_commandOption);
@@ -131,22 +121,6 @@ namespace MatthiWare.CommandLine.Core.Command
             }
 
             return m_options[key] as IOptionBuilder<T>;
-        }
-
-        public override ICommandParserResult Parse()
-        {
-            var result = new CommandParserResult(this);
-            var errors = new List<Exception>();
-
-            ParseCommands(errors, result);
-
-            ParseOptions(errors, result);
-
-            Validate(m_commandOption, errors);
-
-            result.MergeResult(errors);
-
-            return result;
         }
 
         public override async Task<ICommandParserResult> ParseAsync(CancellationToken cancellationToken)
@@ -229,69 +203,6 @@ namespace MatthiWare.CommandLine.Core.Command
             }
 
             option.Parse(model);
-        }
-
-        private void ParseCommands(IList<Exception> errors, CommandParserResult result)
-        {
-            foreach (var cmd in m_commands)
-            {
-                try
-                {
-                    ParseCommand(cmd, result);
-
-                    if (result.HelpRequested)
-                    {
-                        break;
-                    }
-                }
-                catch (CommandNotFoundException e)
-                {
-                    logger.LogDebug("Command '{Name}' not found", cmd.Name);
-
-                    errors.Add(e);
-                }
-                catch (CommandParseException e)
-                {
-                    logger.LogDebug("Unable to parse command '{Name}'", cmd.Name);
-
-                    errors.Add(e);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Unknown error occured while parsing the commands");
-
-                    errors.Add(ex);
-                }
-            }
-        }
-
-        private void ParseCommand(CommandLineCommandBase cmd, CommandParserResult result)
-        {
-            if (!argumentManager.TryGetValue(cmd, out _))
-            {
-                result.MergeResult(new CommandNotFoundParserResult(cmd));
-
-                if (cmd.IsRequired)
-                {
-                    throw new CommandNotFoundException(cmd);
-                }
-
-                return;
-            }
-
-            var cmdParseResult = cmd.Parse();
-
-            if (cmdParseResult.HelpRequested)
-            {
-                return;
-            }
-
-            result.MergeResult(cmdParseResult);
-
-            if (cmdParseResult.HasErrors)
-            {
-                throw new CommandParseException(cmd, cmdParseResult.Errors);
-            }
         }
 
         private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, CancellationToken cancellationToken)
@@ -382,32 +293,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private bool IsHelpOption(string input)
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
-
-        private void Validate<T>(T @object, List<Exception> errors)
-        {
-            if (!m_validators.HasValidatorFor<T>())
-            {
-                logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);
-
-                return;
-            }
-
-            var results = m_validators.GetValidators<T>()
-                .Select(validator => validator.Validate(@object))
-                .ToArray();
-
-            foreach (var result in results)
-            {
-                if (result.IsValid)
-                {
-                    continue;
-                }
-
-                logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
-
-                errors.Add(result.Error);
-            }
-        }
 
         private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
         {

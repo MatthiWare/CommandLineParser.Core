@@ -1,5 +1,7 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MatthiWare.CommandLine.Abstractions.Command
 {
@@ -12,6 +14,6 @@ namespace MatthiWare.CommandLine.Abstractions.Command
         /// Parses the arguments
         /// </summary>
         /// <returns><see cref="ICommandParserResult"/></returns>
-        ICommandParserResult Parse();
+        Task<ICommandParserResult> ParseAsync(CancellationToken cancellationToken);
     }
 }

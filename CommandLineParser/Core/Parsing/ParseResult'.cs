@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Parsing.Command;
@@ -57,28 +59,28 @@ namespace MatthiWare.CommandLine.Core.Parsing
             this.Result = result;
         }
 
-        public void ExecuteCommands()
+        public async Task ExecuteCommandsAsync(CancellationToken cancellationToken)
         {
             if (HasErrors)
             {
                 throw new InvalidOperationException("Parsing failed, commands might be corrupted.");
             }
 
-            ExecuteCommandsInternal(CommandResults);
+            await ExecuteCommandsInternal(CommandResults, cancellationToken);
         }
 
-        private void ExecuteCommandsInternal(IReadOnlyCollection<ICommandParserResult> commandParserResults)
+        private async Task ExecuteCommandsInternal(IReadOnlyCollection<ICommandParserResult> commandParserResults, CancellationToken cancellationToken)
         {
             // execute parent commands first
             foreach (var cmdResult in commandParserResults)
             {
-                cmdResult.ExecuteCommand();
+                await cmdResult.ExecuteCommandAsync(cancellationToken);
             }
 
             // execute child commands
             foreach (var cmdResult in commandParserResults)
             {
-                ExecuteCommandsInternal(cmdResult.SubCommands);
+                await ExecuteCommandsInternal(cmdResult.SubCommands, cancellationToken);
             }
         }
     }

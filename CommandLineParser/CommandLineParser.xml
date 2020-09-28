@@ -349,7 +349,7 @@
             Parser for a command line command
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser.Parse">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser.ParseAsync(System.Threading.CancellationToken)">
             <summary>
             Parses the arguments
             </summary>
@@ -707,14 +707,6 @@
             Contains the thrown exception(s) during parsing.
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.ExecuteCommand">
-            <summary>
-            Executes the command
-            </summary>
-            <exception cref="T:System.InvalidOperationException">
-            Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Errors"/> properties.
-            </exception>
-        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.ExecuteCommandAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the command async
@@ -805,9 +797,20 @@
             </summary>
             <param name="model"></param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1">
+            <summary>
+            Parser result
+            </summary>
+            <typeparam name="TResult"></typeparam>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.HelpRequested">
             <summary>
             Returns true if the user specified a help option
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.HelpRequestedFor">
+            <summary>
+            Help was requested for this <see cref="T:MatthiWare.CommandLine.Abstractions.ICommandLineOption"/> or <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand"/>
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.Result">
@@ -828,10 +831,11 @@
             Contains the thrown exception during parsing.
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.ExecuteCommands">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.ExecuteCommandsAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the commands
             </summary>
+            <param name="cancellationToken">cancellation token</param>
             /// <exception cref="T:System.InvalidOperationException">
             Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.Errors"/> properties.
             </exception>
@@ -971,13 +975,6 @@
             <summary>
             Validator
             </summary>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator.Validate(System.Object)">
-            <summary>
-            Validates an object
-            </summary>
-            <param name="object">Item to validate</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Validations.IValidationResult"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator.ValidateAsync(System.Object,System.Threading.CancellationToken)">
             <summary>

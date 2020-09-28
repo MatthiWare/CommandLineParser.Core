@@ -184,27 +184,7 @@ namespace MatthiWare.CommandLine
         /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
         public IParserResult<TOption> Parse(string[] args)
         {
-            var errors = new List<Exception>();
-
-            var result = new ParseResult<TOption>();
-
-            argumentManager.Process(args);
-
-            ParseCommands(errors, result);
-
-            ParseOptions(errors, result);
-
-            CheckForExtraHelpArguments(result);
-
-            Validate(m_option, errors);
-
-            result.MergeResult(errors);
-
-            AutoExecuteCommands(result);
-
-            AutoPrintUsageAndErrors(result, args.Length == 0);
-
-            return result;
+            return ParseAsync(args).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -236,26 +216,6 @@ namespace MatthiWare.CommandLine
             AutoPrintUsageAndErrors(result, args.Length == 0);
 
             return result;
-        }
-
-        private void Validate<T>(T @object, List<Exception> errors)
-        {
-            if (!Validators.HasValidatorFor<T>())
-            {
-                return;
-            }
-
-            var results = Validators.GetValidators<T>().Select(validator => validator.Validate(@object)).ToArray();
-
-            foreach (var result in results)
-            {
-                if (result.IsValid)
-                {
-                    continue;
-                }
-
-                errors.Add(result.Error);
-            }
         }
 
         private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
@@ -338,16 +298,6 @@ namespace MatthiWare.CommandLine
 
         private void PrintHelp() => Printer.PrintUsage();
 
-        private void AutoExecuteCommands(ParseResult<TOption> result)
-        {
-            if (result.HasErrors)
-            {
-                return;
-            }
-
-            ExecuteCommandParserResults(result, result.CommandResults.Where(sub => sub.Command.AutoExecute));
-        }
-
         private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
         {
             if (result.HasErrors)
@@ -385,34 +335,6 @@ namespace MatthiWare.CommandLine
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Commands can throw all sorts of exceptions when executing")]
-        private void ExecuteCommandParserResults(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds)
-        {
-            var errors = new List<Exception>();
-
-            foreach (var cmd in cmds)
-            {
-                try
-                {
-                    cmd.ExecuteCommand();
-                }
-                catch (Exception ex)
-                {
-                    errors.Add(new CommandExecutionFailedException(cmd.Command, ex));
-                }
-            }
-
-            if (errors.Any())
-            {
-                results.MergeResult(errors);
-            }
-
-            foreach (var cmd in cmds)
-            {
-                ExecuteCommandParserResults(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute));
-            }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Commands can throw all sorts of exceptions when executing")]
         private async Task ExecuteCommandParserResultsAsync(ParseResult<TOption> results, IEnumerable<ICommandParserResult> cmds, CancellationToken cancellationToken)
         {
             var errors = new List<Exception>();
@@ -437,50 +359,6 @@ namespace MatthiWare.CommandLine
             foreach (var cmd in cmds)
             {
                 await ExecuteCommandParserResultsAsync(results, cmd.SubCommands.Where(sub => sub.Command.AutoExecute), cancellationToken);
-            }
-        }
-
-        private void ParseCommands(IList<Exception> errors, ParseResult<TOption> result)
-        {
-            foreach (var cmd in m_commands)
-            {
-                try
-                {
-                    ParseCommand(cmd, result);
-
-                    if (result.HelpRequested)
-                    {
-                        break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    errors.Add(ex);
-                }
-            }
-        }
-
-        private void ParseCommand(CommandLineCommandBase cmd, ParseResult<TOption> result)
-        {
-            if (!argumentManager.TryGetValue(cmd, out _))
-            {
-                result.MergeResult(new CommandNotFoundParserResult(cmd));
-
-                if (cmd.IsRequired)
-                {
-                    throw new CommandNotFoundException(cmd);
-                }
-
-                return;
-            }
-
-            var cmdParseResult = cmd.Parse();
-
-            result.MergeResult(cmdParseResult);
-
-            if (cmdParseResult.HasErrors)
-            {
-                throw new CommandParseException(cmd, cmdParseResult.Errors);
             }
         }
 
