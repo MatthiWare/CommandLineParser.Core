@@ -186,13 +186,16 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            var argumentManager = new ArgumentManager(args, ParserOptions, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values.Cast<ICommandLineOption>().ToArray());
+            //var argumentManager = new ArgumentManager(args, ParserOptions, m_helpOptionName, m_helpOptionNameLong, m_commands, m_options.Values.Cast<ICommandLineOption>().ToArray());
+            var argumentManager = new ArgumentManager2(ParserOptions, this);
+
+            argumentManager.Process(args);
 
             ParseCommands(errors, result, argumentManager);
 
             ParseOptions(errors, result, argumentManager);
 
-            CheckForExtraHelpArguments(result, argumentManager);
+            //CheckForExtraHelpArguments(result, argumentManager);
 
             Validate(m_option, errors);
 

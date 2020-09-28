@@ -3,6 +3,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Command;
+using MatthiWare.CommandLine.Core.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,12 +17,11 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly CommandLineParserOptions options;
         private readonly ICommandLineCommandContainer commandContainer;
         private IEnumerator<ArgumentRecord> enumerator;
-        private CommandContext commandContext;
+        private Dictionary<IArgument, ArgumentModel> results;
 
-        public bool TryGetValue(IArgument argument, out ArgumentModel model)
-        {
-            throw new NotImplementedException();
-        }
+        private ProcessingContext CurrentContext { get; set; }
+
+        public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
 
         public ArgumentManager2(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer)
         {
@@ -31,8 +31,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         public void Process(IReadOnlyList<string> arguments)
         {
+            results = new Dictionary<IArgument, ArgumentModel>();
             enumerator = new ArgumentRecordEnumerator(options, arguments);
-            commandContext = new CommandContext(null, commandContainer);
+            CurrentContext = new ProcessingContext(null, commandContainer);
 
             while (enumerator.MoveNext())
             {
@@ -53,14 +54,59 @@ namespace MatthiWare.CommandLine.Core.Parsing
             }
         }
 
-        private void ProcessOption(OptionRecord option)
+        private void ProcessOption(OptionRecord rec)
         {
-            throw new NotImplementedException();
+            foreach (var option in CurrentContext.CurrentCommand.Options)
+            {
+                if (!rec.Name.EqualsIgnoreCase(rec.IsLongOption ? option.LongName : option.ShortName))
+                {
+                    continue;
+                }
+
+                var argumentModel = new ArgumentModel(rec.Name, rec.Value);
+
+                results.Add(option, argumentModel);
+
+                CurrentContext.CurrentOption = option;
+
+                break;
+            }
         }
 
-        private void ProcessCommandOrOptionValue(CommandOrOptionValueRecord commandOrValue)
+        private void ProcessCommandOrOptionValue(CommandOrOptionValueRecord rec)
         {
-            throw new NotImplementedException();
+            foreach (var cmd in CurrentContext.CurrentCommand.Commands)
+            {
+                if (!rec.RawData.EqualsIgnoreCase(cmd.Name))
+                {
+                    continue;
+                }
+
+                results.Add(cmd, new ArgumentModel(cmd.Name, null));
+
+                CurrentContext.CurrentCommand = (ICommandLineCommandContainer)cmd;
+
+                return;
+            }
+
+            if (CurrentContext.CurrentOption == null)
+            {
+                return;
+            }
+
+            if (!TryGetValue(CurrentContext.CurrentOption, out var model))
+            {
+                // not sure yet what to do here.. 
+                // no option yet and not matching command => unknown item
+                return;
+            }
+
+            if (model.HasValue)
+            {
+                throw new ArgumentException("model already has a value????");
+            }
+
+            model.Value = rec.RawData;
         }
 
         private IEnumerable<ICommandLineOption> GetOptions(IEnumerable<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
@@ -79,17 +125,18 @@ namespace MatthiWare.CommandLine.Core.Parsing
             }
         }
 
-        private class CommandContext
+        private class ProcessingContext
         {
-            public CommandContext(CommandContext parent, ICommandLineCommandContainer commandContainer)
+
+            public ICommandLineOption CurrentOption { get; set; }
+            public ProcessingContext Parent { get; set; }
+            public ICommandLineCommandContainer CurrentCommand { get; set; }
+
+            public ProcessingContext(ProcessingContext parent, ICommandLineCommandContainer commandContainer)
             {
                 Parent = parent;
                 CurrentCommand = commandContainer;
             }
-
-            public CommandContext Parent { get; set; }
-
-            public ICommandLineCommandContainer CurrentCommand { get; set; }
         }
 
         private abstract class ArgumentRecord
@@ -141,7 +188,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                 if (isLongOption || isShortOption)
                 {
-                    return new OptionRecord(current, options.PostfixOption, isLongOption, options.PrefixShortOption.Length, options.PrefixLongOption.Length);
+                    return new OptionRecord(current, options.PostfixOption, isLongOption);
                 }
 
                 return new CommandOrOptionValueRecord(current);
@@ -171,7 +218,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private sealed class OptionRecord : ArgumentRecord
         {
-            public OptionRecord(string data, string postfix, bool isLongOption, int shortOptionLength, int longOptionLength)
+            public OptionRecord(string data, string postfix, bool isLongOption)
                 : base(data)
             {
                 var tokens = data.Split(postfix.ToCharArray()[0]);
@@ -181,12 +228,13 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     Value = tokens[1];
                 }
 
-
-                Name = tokens[0].Substring(isLongOption ? longOptionLength : shortOptionLength);
+                IsLongOption = isLongOption;
+                Name = tokens[0];
             }
 
-            public string Name { get; set; }
-            public string Value { get; set; }
+            public bool IsLongOption { get;  }
+            public string Name { get; }
+            public string Value { get; }
         }
     }
 }
