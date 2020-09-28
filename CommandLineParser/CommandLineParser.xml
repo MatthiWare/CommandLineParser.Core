@@ -349,11 +349,10 @@
             Parser for a command line command
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser.Parse(MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser.ParseAsync(System.Threading.CancellationToken)">
             <summary>
             Parses the arguments
             </summary>
-            <param name="argumentManager">Arguments to parse</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult"/></returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IArgument">
@@ -708,14 +707,6 @@
             Contains the thrown exception(s) during parsing.
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.ExecuteCommand">
-            <summary>
-            Executes the command
-            </summary>
-            <exception cref="T:System.InvalidOperationException">
-            Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.Errors"/> properties.
-            </exception>
-        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult.ExecuteCommandAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the command async
@@ -730,6 +721,11 @@
             Managers the arguments
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.UnusedArguments">
+            <summary>
+            Returns a read-only list of unused arguments
+            </summary>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">
             <summary>
             Tries to get the arguments associated to the current option
@@ -737,6 +733,12 @@
             <param name="argument">the argument</param>
             <param name="model">The result arguments</param>
             <returns>True if arguments are found, false if not</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Processes the argument list
+            </summary>
+            <param name="arguments">Input arguments</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver`1">
             <summary>
@@ -795,9 +797,20 @@
             </summary>
             <param name="model"></param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1">
+            <summary>
+            Parser result
+            </summary>
+            <typeparam name="TResult"></typeparam>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.HelpRequested">
             <summary>
             Returns true if the user specified a help option
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.HelpRequestedFor">
+            <summary>
+            Help was requested for this <see cref="T:MatthiWare.CommandLine.Abstractions.ICommandLineOption"/> or <see cref="T:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommand"/>
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.Result">
@@ -818,10 +831,11 @@
             Contains the thrown exception during parsing.
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.ExecuteCommands">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.ExecuteCommandsAsync(System.Threading.CancellationToken)">
             <summary>
             Executes the commands
             </summary>
+            <param name="cancellationToken">cancellation token</param>
             /// <exception cref="T:System.InvalidOperationException">
             Result contains exceptions. For more info see <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.HasErrors"/> and <see cref="P:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1.Errors"/> properties.
             </exception>
@@ -961,13 +975,6 @@
             <summary>
             Validator
             </summary>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator.Validate(System.Object)">
-            <summary>
-            Validates an object
-            </summary>
-            <param name="object">Item to validate</param>
-            <returns><see cref="T:MatthiWare.CommandLine.Abstractions.Validations.IValidationResult"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Validations.IValidator.ValidateAsync(System.Object,System.Threading.CancellationToken)">
             <summary>
@@ -1498,14 +1505,20 @@
         <member name="M:MatthiWare.CommandLine.Core.Models.ModelInitializer.InitializeModel(System.Type,System.Object,System.String,System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.FindIndex(System.Object,System.Int32)">
-            <summary>
-            Finds the index of the first unused argument
-            </summary>
-            <param name="args">List of arguments to search</param>
-            <param name="model">object to find</param>
-            <param name="startOffset">Search offset</param>
-            <returns></returns>
+        <member name="T:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.UnusedArguments">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager2.Process(System.Collections.Generic.IReadOnlyList{System.String})">
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindTryParse(System.Reflection.MethodInfo)">
             <summary>
@@ -1658,7 +1671,7 @@
             <param name="optionTypes">Option types</param>
             <returns></returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.SplitOnPostfix(System.Collections.Generic.IEnumerable{System.String},MatthiWare.CommandLine.CommandLineParserOptions,System.Collections.Generic.ICollection{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.SplitOnPostfix(System.Collections.Generic.IEnumerable{System.String},MatthiWare.CommandLine.CommandLineParserOptions,System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
             <summary>
             Splits on postfix
             </summary>

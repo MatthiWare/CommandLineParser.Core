@@ -1,20 +1,20 @@
 ﻿using MatthiWare.CommandLine.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
-    public abstract class BaseResolverTests
+    public abstract class BaseResolverTests : TestBase
     {
         public IServiceProvider ServiceProvider { get; }
 
-        public BaseResolverTests()
+        public BaseResolverTests(ITestOutputHelper outputHelper)
+            : base(outputHelper)
         {
-            var services = new ServiceCollection();
+            Services.AddDefaultResolvers();
 
-            services.AddDefaultResolvers();
-
-            ServiceProvider = services.BuildServiceProvider();
+            ServiceProvider = Services.BuildServiceProvider();
         }
     }
 }

@@ -19,37 +19,6 @@ namespace MatthiWare.CommandLine.Tests.Command
         [InlineData(true, "something", 15, -1)]
         [InlineData(false, "something", 15, -1)]
         [InlineData(true, "", 15, -1)]
-        public void TestSubCommandWorksCorrectlyInModel(bool autoExecute, string bla, int i, int n)
-        {
-            var lock1 = new ManualResetEventSlim();
-            var lock2 = new ManualResetEventSlim();
-
-            Services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
-            Services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
-
-            var parser = new CommandLineParser<MainModel>(Services);
-
-            var result = parser.Parse(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
-
-            result.AssertNoErrors();
-
-            if (!autoExecute)
-            {
-                Assert.All(result.CommandResults.Select(r => r.Executed), Assert.False);
-
-                result.ExecuteCommands();
-            }
-
-            Assert.True(lock1.Wait(1000), "MainCommand didn't execute in time.");
-            Assert.True(lock2.Wait(1000), "SubCommand didn't execute in time.");
-
-            Assert.All(result.CommandResults.Select(r => r.Executed), Assert.True);
-        }
-
-        [Theory]
-        [InlineData(true, "something", 15, -1)]
-        [InlineData(false, "something", 15, -1)]
-        [InlineData(true, "", 15, -1)]
         public async Task TestSubCommandWorksCorrectlyInModelAsync(bool autoExecute, string bla, int i, int n)
         {
             var lock1 = new ManualResetEventSlim();
@@ -68,7 +37,7 @@ namespace MatthiWare.CommandLine.Tests.Command
             {
                 Assert.All(result.CommandResults.Select(r => r.Executed), Assert.False);
 
-                result.ExecuteCommands();
+                await result.ExecuteCommandsAsync(default);
             }
 
             Assert.True(lock1.Wait(1000), "MainCommand didn't execute in time.");

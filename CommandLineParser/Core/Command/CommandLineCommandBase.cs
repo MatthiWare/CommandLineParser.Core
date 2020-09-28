@@ -26,12 +26,9 @@ namespace MatthiWare.CommandLine.Core.Command
         public string Description { get; protected set; }
         public bool IsRequired { get; protected set; }
         public bool AutoExecute { get; protected set; } = true;
-
-        public abstract void Execute();
-
+        
         public abstract Task ExecuteAsync(CancellationToken cancellationToken);
 
-        public abstract ICommandParserResult Parse(IArgumentManager argumentManager);
-        public abstract Task<ICommandParserResult> ParseAsync(IArgumentManager argumentManager, CancellationToken cancellationToken);
+        public abstract Task<ICommandParserResult> ParseAsync(CancellationToken cancellationToken);
     }
 }

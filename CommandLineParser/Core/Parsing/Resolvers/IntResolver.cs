@@ -24,6 +24,12 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
         private bool TryResolve(ArgumentModel model, out int result)
         {
+            if (model is null)
+            {
+                result = 0;
+                return false;
+            }
+
             if (!model.HasValue)
             {
                 result = 0;

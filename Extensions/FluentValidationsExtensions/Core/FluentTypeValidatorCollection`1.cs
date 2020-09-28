@@ -28,23 +28,6 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         public void AddValidator<K>() where K : FluentValidation.IValidator
             => AddValidator(typeof(K));
 
-        public IValidationResult Validate(object @object)
-        {
-            var errors = validators.Get()
-                .Select(v => v.Validate(new ValidationContext<object>(@object)))
-                .SelectMany(r => r.Errors)
-                .ToList();
-
-            if (errors.Any())
-            {
-                return FluentValidationsResult.Failure(errors);
-            }
-            else
-            {
-                return FluentValidationsResult.Succes();
-            }
-        }
-
         public async Task<IValidationResult> ValidateAsync(object @object, CancellationToken cancellationToken = default)
         {
             var errors = (await Task.WhenAll(validators.Get()
