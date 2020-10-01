@@ -49,7 +49,7 @@ namespace MatthiWare.CommandLine.Core
 
         internal static IServiceCollection AddArgumentManager(this IServiceCollection services)
         {
-            services.TryAddScoped<IArgumentManager, ArgumentManager2>();
+            services.TryAddScoped<IArgumentManager, ArgumentManager>();
 
             return services;
         }

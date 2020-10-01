@@ -11,7 +11,7 @@ using System.Linq;
 namespace MatthiWare.CommandLine.Core.Parsing
 {
     /// <inheritdoc/>
-    public class ArgumentManager2 : IArgumentManager
+    public class ArgumentManager : IArgumentManager
     {
         private readonly CommandLineParserOptions options;
         private readonly ICommandLineCommandContainer commandContainer;
@@ -28,7 +28,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
 
         /// <inheritdoc/>
-        public ArgumentManager2(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer)
+        public ArgumentManager(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.commandContainer = commandContainer ?? throw new ArgumentNullException(nameof(commandContainer));
