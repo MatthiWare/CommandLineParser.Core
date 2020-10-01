@@ -50,6 +50,8 @@ namespace MatthiWare.CommandLine.Core
 
         public bool AutoExecute { get; protected set; }
 
+        public int? Order { get; protected set; }
+
         public void UseDefault() => AssignValue(DefaultValue);
 
         public bool CanParse(ArgumentModel model) => Resolver.CanResolve(model);

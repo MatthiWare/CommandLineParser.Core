@@ -30,6 +30,38 @@ namespace MatthiWare.CommandLine.Tests
             }
         }
 
+        [Fact]
+        public void OrderAttributeWorks()
+        {
+            var from = @"path/from/file";
+            var to = @"path/to/file";
+
+            var parser = new CommandLineParser<OrderModel>(Services);
+
+            var result = parser.Parse(new string[] { "app.exe", from, to });
+
+            result.AssertNoErrors();
+
+            Assert.Equal(from, result.Result.From);
+            Assert.Equal(to, result.Result.To);
+        }
+        
+        [Fact]
+        public void OrderedOptions_With_Named_Option_Between_Does_Not_work()
+        {
+            var from = @"path/from/file";
+            var to = @"path/to/file";
+
+            var parser = new CommandLineParser<OrderModel>(Services);
+
+            var result = parser.Parse(new string[] { "app.exe", from, "-r", "5", to });
+
+            result.AssertNoErrors();
+
+            Assert.Equal(from, result.Result.From);
+            Assert.Equal(to, result.Result.To);
+        }
+
         [Theory]
         [InlineData("", "--")]
         [InlineData("-", "")]
@@ -770,6 +802,19 @@ namespace MatthiWare.CommandLine.Tests
             {
                 return null;
             }
+        }
+
+        private class OrderModel
+        {
+            [OptionOrder(1), Required]
+            public string From { get; set; }
+
+            [OptionOrder(2), Required]
+            public string To { get; set; }
+
+            [Name("r"), DefaultValue(5)]
+            public int Random { get; set; }
+
         }
     }
 }

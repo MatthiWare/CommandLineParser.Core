@@ -6,6 +6,7 @@ using MatthiWare.CommandLine.Core.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
@@ -18,6 +19,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private Dictionary<IArgument, ArgumentModel> results;
         private List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
         private ProcessingContext CurrentContext { get; set; }
+        private bool isFirstArgument = true;
 
         /// <inheritdoc/>
         public IReadOnlyList<UnusedArgumentModel> UnusedArguments => unusedArguments;
@@ -39,17 +41,18 @@ namespace MatthiWare.CommandLine.Core.Parsing
             enumerator = new ArgumentRecordEnumerator(options, arguments);
             CurrentContext = new ProcessingContext(null, commandContainer);
 
+            isFirstArgument = true;
+
             while (enumerator.MoveNext())
             {
                 var processed = ProcessNext();
 
                 if (!processed)
                 {
-                    var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
-                    var item = new UnusedArgumentModel(enumerator.Current.RawData, arg);
-
-                    unusedArguments.Add(item);
+                    AddUnprocessedArgument(enumerator.Current);
                 }
+
+                isFirstArgument = false;
             }
         }
 
@@ -64,6 +67,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 default:
                     return false;
             }
+        }
+
+        private void AddUnprocessedArgument(ArgumentRecord rec)
+        {
+            var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
+            var item = new UnusedArgumentModel(rec.RawData, arg);
+
+            unusedArguments.Add(item);
         }
 
         private bool ProcessOption(OptionRecord rec)
@@ -156,19 +167,49 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 return true;
             }
 
+            context = CurrentContext;
+
+            if (isFirstArgument)
+            {
+                return false;
+            }
+
+            while (context != null)
+            {
+                foreach (var option in context.CurrentCommand.Options.Where(opt => opt.Order.HasValue).OrderBy(opt => opt.Order))
+                {
+                    if (results.ContainsKey(option))
+                    {
+                        continue;
+                    }
+
+                    var argumentModel = new ArgumentModel(string.Empty, rec.RawData);
+
+                    results.Add(option, argumentModel);
+                    return true;
+                }
+
+                context = context.Parent;
+            }
+
             return false;
         }
 
         private class ProcessingContext
         {
+            private List<ICommandLineOption> orderedOptions;
             public ICommandLineOption CurrentOption { get; set; }
             public ProcessingContext Parent { get; set; }
             public ICommandLineCommandContainer CurrentCommand { get; set; }
+            public bool HasOrderedOptions { get; }
+            public bool AllOrderedOptionsProcessed => orderedOptions.Count == 0;
 
             public ProcessingContext(ProcessingContext parent, ICommandLineCommandContainer commandContainer)
             {
                 Parent = parent;
                 CurrentCommand = commandContainer;
+                orderedOptions = new List<ICommandLineOption>(CurrentCommand.Options.Where(o => o.Order.HasValue));
+                HasOrderedOptions = orderedOptions.Count > 0;
             }
         }
 
@@ -245,7 +286,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
             public CommandOrOptionValueRecord(string data)
                 : base(data)
             {
-
             }
         }
 

@@ -401,6 +401,11 @@
             Inidicates if a default value has been specified for this option
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineOption.Order">
+            <summary>
+            Option order
+            </summary>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1">
             <summary>
             Command line parser
@@ -532,6 +537,13 @@
             <param name="longName">Long name</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder"></see></returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder.Order(System.Int32)">
+            <summary>
+            Order in which the option will be parsed
+            </summary>
+            <param name="order"></param>
+            <returns></returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1">
             <summary>
             API for configuring options
@@ -572,6 +584,13 @@
             <param name="shortName">Short name</param>
             <param name="longName">Long name</param>
             <returns><see cref="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1"></see></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Order(System.Int32)">
+            <summary>
+            Order in which the option will be parsed
+            </summary>
+            <param name="order"></param>
+            <returns></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.IOptionBuilder`1.Transform(System.Linq.Expressions.Expression{System.Func{`0,`0}})">
             <summary>
@@ -1339,6 +1358,23 @@
             </summary>
             <param name="shortName">short name</param>
             <param name="longName">long name</param>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Attributes.OptionOrderAttribute">
+            <summary>
+            Give an order to options
+            </summary>
+            <example>app.exe move "first/argument/path" "second/argument/path"</example>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Attributes.OptionOrderAttribute.Order">
+            <summary>
+            Order in which the options will be parsed (Ascending). 
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Attributes.OptionOrderAttribute.#ctor(System.Int32)">
+            <summary>
+            Assign an order to options
+            </summary>
+            <param name="order">Order in which options will be parsed (Ascending)</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Attributes.RequiredAttribute">
             <summary>

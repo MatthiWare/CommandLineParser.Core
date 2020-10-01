@@ -40,6 +40,9 @@ namespace MatthiWare.CommandLine.Core.Models
                         case NameAttribute name:
                             GetOption(cfg, propInfo, lambda, key).Name(name.ShortName, name.LongName);
                             break;
+                        case OptionOrderAttribute order:
+                            GetOption(cfg, propInfo, lambda, key).Order(order.Order);
+                            break;
                     }
                 }
 

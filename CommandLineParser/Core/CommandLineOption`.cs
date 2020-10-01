@@ -91,5 +91,19 @@ namespace MatthiWare.CommandLine.Core
 
             return this;
         }
+
+        public IOptionBuilder<TOption> Order(int order)
+        {
+            ((IOptionBuilder)this).Order(order);
+
+            return this;
+        }
+
+        IOptionBuilder IOptionBuilder.Order(int order)
+        {
+            base.Order = order;
+
+            return this;
+        }
     }
 }
