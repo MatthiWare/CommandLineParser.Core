@@ -814,7 +814,6 @@ namespace MatthiWare.CommandLine.Tests
 
             [Name("r"), DefaultValue(5)]
             public int Random { get; set; }
-
         }
     }
 }
