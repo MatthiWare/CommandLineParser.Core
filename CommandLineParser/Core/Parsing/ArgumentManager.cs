@@ -3,6 +3,7 @@ using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Core.Utils;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
     {
         private readonly CommandLineParserOptions options;
         private readonly ICommandLineCommandContainer commandContainer;
+        private readonly ILogger logger;
         private IEnumerator<ArgumentRecord> enumerator;
         private Dictionary<IArgument, ArgumentModel> results;
         private List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
@@ -28,31 +30,45 @@ namespace MatthiWare.CommandLine.Core.Parsing
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
 
         /// <inheritdoc/>
-        public ArgumentManager(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer)
+        public ArgumentManager(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer, ILogger<CommandLineParser> logger)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
             this.commandContainer = commandContainer ?? throw new ArgumentNullException(nameof(commandContainer));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
-        public void Process(IReadOnlyList<string> arguments)
+        public void Process(IReadOnlyList<string> arguments, IList<Exception> errors)
         {
             results = new Dictionary<IArgument, ArgumentModel>();
             enumerator = new ArgumentRecordEnumerator(options, arguments);
-            CurrentContext = new ProcessingContext(null, commandContainer);
+            CurrentContext = new ProcessingContext(null, commandContainer, logger);
 
             isFirstArgument = true;
 
-            while (enumerator.MoveNext())
+            try
             {
-                var processed = ProcessNext();
-
-                if (!processed)
+                while (enumerator.MoveNext())
                 {
-                    AddUnprocessedArgument(enumerator.Current);
-                }
+                    var processed = ProcessNext();
 
-                isFirstArgument = false;
+                    if (!processed)
+                    {
+                        AddUnprocessedArgument(enumerator.Current);
+                    }
+
+                    isFirstArgument = false;
+                }
+            }
+            catch (InvalidOperationException invalidOpException)
+            {
+                logger.LogError(invalidOpException, "Error occured while processing the argument list");
+                errors.Add(invalidOpException);
+            }
+            finally
+            {
+                enumerator?.Dispose();
+                CurrentContext = null;
             }
         }
 
@@ -112,6 +128,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
                         continue;
                     }
 
+                    context.AssertSafeToSwitchProcessingContext();
+
                     context.CurrentOption = option;
 
                     return option;
@@ -134,7 +152,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                 results.Add(cmd, new ArgumentModel(cmd.Name, null));
 
-                CurrentContext = new ProcessingContext(CurrentContext, (ICommandLineCommandContainer)cmd);
+                CurrentContext = new ProcessingContext(CurrentContext, (ICommandLineCommandContainer)cmd, logger);
 
                 return true;
             }
@@ -186,6 +204,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     var argumentModel = new ArgumentModel(string.Empty, rec.RawData);
 
                     results.Add(option, argumentModel);
+
+                    context.CurrentOption = option;
+                    context.MarkOrderedOptionAsProcessed(option);
+
                     return true;
                 }
 
@@ -198,18 +220,54 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private class ProcessingContext
         {
             private List<ICommandLineOption> orderedOptions;
+            private readonly ILogger logger;
+
             public ICommandLineOption CurrentOption { get; set; }
             public ProcessingContext Parent { get; set; }
             public ICommandLineCommandContainer CurrentCommand { get; set; }
             public bool HasOrderedOptions { get; }
             public bool AllOrderedOptionsProcessed => orderedOptions.Count == 0;
+            public bool ProcessingOrderedOptions { get; private set; }
 
-            public ProcessingContext(ProcessingContext parent, ICommandLineCommandContainer commandContainer)
+            public ProcessingContext(ProcessingContext parent, ICommandLineCommandContainer commandContainer, ILogger logger)
             {
+                this.logger = logger;
+
+                parent?.AssertSafeToSwitchProcessingContext();
+
+                ProcessingOrderedOptions = false;
                 Parent = parent;
                 CurrentCommand = commandContainer;
                 orderedOptions = new List<ICommandLineOption>(CurrentCommand.Options.Where(o => o.Order.HasValue));
                 HasOrderedOptions = orderedOptions.Count > 0;
+            }
+
+            public void MarkOrderedOptionAsProcessed(ICommandLineOption option)
+            {
+                ProcessingOrderedOptions = true;
+                orderedOptions.Remove(option);
+
+                if (AllOrderedOptionsProcessed)
+                {
+                    ProcessingOrderedOptions = false;
+                }
+            }
+
+            public void AssertSafeToSwitchProcessingContext()
+            {
+                if (!ProcessingOrderedOptions || AllOrderedOptionsProcessed)
+                {
+                    return;
+                }
+
+                logger.LogDebug("Not all ordered options where processed before switching to a new context. The current context is '{ctx}' with {amount} of options left unprocessed", CurrentCommand.ToString(), orderedOptions.Count);
+
+                foreach (var unprocessedOption in orderedOptions)
+                {
+                    logger.LogDebug("{Option} was unprocessed", unprocessedOption);
+                }
+
+                throw new InvalidOperationException("Not all ordered options where processed before switching to another option/command context!");
             }
         }
 

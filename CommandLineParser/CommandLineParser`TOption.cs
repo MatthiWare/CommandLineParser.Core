@@ -199,7 +199,7 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            argumentManager.Process(args);
+            argumentManager.Process(args, errors);
 
             await ParseCommandsAsync(errors, result, cancellationToken);
 

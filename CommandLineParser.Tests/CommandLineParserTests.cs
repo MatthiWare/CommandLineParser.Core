@@ -56,10 +56,10 @@ namespace MatthiWare.CommandLine.Tests
 
             var result = parser.Parse(new string[] { "app.exe", from, "-r", "5", to });
 
-            result.AssertNoErrors();
+            Assert.True(result.HasErrors);
 
             Assert.Equal(from, result.Result.From);
-            Assert.Equal(to, result.Result.To);
+            Assert.NotEqual(to, result.Result.To);
         }
 
         [Theory]

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MatthiWare.CommandLine.Core
 {
-    [DebuggerDisplay("Cmd Option {ShortName ?? LongName}, Req: {IsRequired}, HasDefault: {HasDefault}")]
+    [DebuggerDisplay("Cmd Option {ShortName ?? LongName ?? m_selector.ToString()}, Req: {IsRequired}, HasDefault: {HasDefault}")]
     internal abstract class CommandLineOptionBase : IParser, ICommandLineOption
     {
         private readonly object m_source;
@@ -81,5 +81,7 @@ namespace MatthiWare.CommandLine.Core
 
         private bool ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(ArgumentModel model)
             => (model is null || !model.HasValue) && HasDefault;
+
+        public override string ToString() => m_selector.ToString();
     }
 }
