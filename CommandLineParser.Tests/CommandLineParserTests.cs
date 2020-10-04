@@ -45,7 +45,26 @@ namespace MatthiWare.CommandLine.Tests
             Assert.Equal(from, result.Result.From);
             Assert.Equal(to, result.Result.To);
         }
-        
+
+        [Fact]
+        public void OrderAttributeInCommandWorks()
+        {
+            var from = @"path/from/file";
+            var to = @"path/to/file";
+
+            var parser = new CommandLineParser(Services);
+
+            parser.AddCommand<OrderModel>().Name("cmd").Required().OnExecuting((o, model) => 
+            {
+                Assert.Equal(from, model.From);
+                Assert.Equal(to, model.To);
+            });
+
+            var result = parser.Parse(new string[] { "app.exe", "cmd", from, to });
+
+            result.AssertNoErrors();
+        }
+
         [Fact]
         public void OrderedOptions_With_Named_Option_Between_Does_Not_work()
         {
@@ -55,6 +74,22 @@ namespace MatthiWare.CommandLine.Tests
             var parser = new CommandLineParser<OrderModel>(Services);
 
             var result = parser.Parse(new string[] { "app.exe", from, "-r", "5", to });
+
+            Assert.True(result.HasErrors);
+
+            Assert.Equal(from, result.Result.From);
+            Assert.NotEqual(to, result.Result.To);
+        }
+
+        [Fact]
+        public void OrderedOptions_With_Named_Option_Between_Does_Not_work2()
+        {
+            var from = 5;
+            var to = 10;
+
+            var parser = new CommandLineParser<OrderModelInt>(Services);
+
+            var result = parser.Parse(new string[] { "app.exe", from.ToString(), "oops", to.ToString() });
 
             Assert.True(result.HasErrors);
 
@@ -811,6 +846,18 @@ namespace MatthiWare.CommandLine.Tests
 
             [OptionOrder(2), Required]
             public string To { get; set; }
+
+            [Name("r"), DefaultValue(5)]
+            public int Random { get; set; }
+        }
+
+        private class OrderModelInt
+        {
+            [OptionOrder(1), Required]
+            public int From { get; set; }
+
+            [OptionOrder(2), Required]
+            public int To { get; set; }
 
             [Name("r"), DefaultValue(5)]
             public int Random { get; set; }

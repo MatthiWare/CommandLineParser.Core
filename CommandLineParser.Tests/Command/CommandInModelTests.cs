@@ -15,7 +15,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         #region FindCommandsInModel
 
         [Fact]
-        public async Task FindCommandsInModel()
+        public void FindCommandsInModel()
         {
             var parser = new CommandLineParser<ModelWithCommands>(Services);
 
@@ -64,7 +64,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         #region SubCommandFindCommandsInModel
 
         [Fact]
-        public async Task FindCommandsInCommandModel()
+        public void FindCommandsInCommandModel()
         {
             var parser = new CommandLineParser(Services);
 
