@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MatthiWare.CommandLine.Core
 {
-    [DebuggerDisplay("Cmd Option {ShortName ?? LongName}, Req: {IsRequired}, HasDefault: {HasDefault}")]
+    [DebuggerDisplay("Cmd Option {ShortName ?? LongName ?? m_selector.ToString()}, Req: {IsRequired}, HasDefault: {HasDefault}")]
     internal abstract class CommandLineOptionBase : IParser, ICommandLineOption
     {
         private readonly object m_source;
@@ -50,6 +50,8 @@ namespace MatthiWare.CommandLine.Core
 
         public bool AutoExecute { get; protected set; }
 
+        public int? Order { get; protected set; }
+
         public void UseDefault() => AssignValue(DefaultValue);
 
         public bool CanParse(ArgumentModel model) => Resolver.CanResolve(model);
@@ -78,6 +80,8 @@ namespace MatthiWare.CommandLine.Core
             => !CanParse(model) && HasDefault;
 
         private bool ShouldUseDefaultWhenNoValueProvidedButDefaultValueIsSpecified(ArgumentModel model)
-            => !model.HasValue && HasDefault;
+            => (model is null || !model.HasValue) && HasDefault;
+
+        public override string ToString() => m_selector.ToString();
     }
 }

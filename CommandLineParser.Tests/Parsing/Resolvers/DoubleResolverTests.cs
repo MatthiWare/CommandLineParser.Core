@@ -2,12 +2,17 @@
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class DoubleResolverTests
         : BaseResolverTests
     {
+        public DoubleResolverTests(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+        }
+
         [Theory]
         [InlineData(true, "6E-14")]
         [InlineData(false, "false")]

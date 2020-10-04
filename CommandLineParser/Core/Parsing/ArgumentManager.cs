@@ -1,210 +1,371 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-using MatthiWare.CommandLine.Abstractions;
+﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
-using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Utils;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MatthiWare.CommandLine.Core.Parsing
 {
-    internal class ArgumentManager : IArgumentManager, IDisposable
+    /// <inheritdoc/>
+    public class ArgumentManager : IArgumentManager
     {
-        private readonly IDictionary<IArgument, ArgumentModel> resultCache;
-        private readonly List<ArgumentValueHolder> args;
-        private readonly bool helpOptionsEnabled;
-        private readonly string shortHelpOption;
-        private readonly string longHelpOption;
+        private readonly CommandLineParserOptions options;
+        private readonly ICommandLineCommandContainer commandContainer;
+        private readonly ILogger logger;
+        private IEnumerator<ArgumentRecord> enumerator;
+        private Dictionary<IArgument, ArgumentModel> results;
+        private List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
+        private ProcessingContext CurrentContext { get; set; }
+        private bool isFirstArgument = true;
 
-        public IQueryable<ArgumentValueHolder> UnusedArguments => args.AsQueryable().Where(a => !a.Used);
+        /// <inheritdoc/>
+        public IReadOnlyList<UnusedArgumentModel> UnusedArguments => unusedArguments;
 
-        public ArgumentManager(string[] args, CommandLineParserOptions parserOptions, string shortHelpOption, string longHelpOption, ICollection<CommandLineCommandBase> commands, ICollection<ICommandLineOption> options)
+        /// <inheritdoc/>
+        public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
+
+        /// <inheritdoc/>
+        public ArgumentManager(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer, ILogger<CommandLineParser> logger)
         {
-            resultCache = new Dictionary<IArgument, ArgumentModel>(commands.Count + options.Count);
+            this.options = options ?? throw new ArgumentNullException(nameof(options));
+            this.commandContainer = commandContainer ?? throw new ArgumentNullException(nameof(commandContainer));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
-            this.helpOptionsEnabled = parserOptions.EnableHelpOption;
-            this.shortHelpOption = shortHelpOption;
-            this.longHelpOption = longHelpOption;
+        /// <inheritdoc/>
+        public void Process(IReadOnlyList<string> arguments, IList<Exception> errors)
+        {
+            results = new Dictionary<IArgument, ArgumentModel>();
+            enumerator = new ArgumentRecordEnumerator(options, arguments);
+            CurrentContext = new ProcessingContext(null, commandContainer, logger);
 
-            this.args = new List<ArgumentValueHolder>(
-                args.SplitOnPostfix(parserOptions, GetCommandLineOptions(options, commands))
-                .Select(arg => new ArgumentValueHolder
-                {
-                    Argument = arg
-                }));
+            isFirstArgument = true;
 
-            ParseCommands(commands);
-
-            ParseOptions(options);
-
-            CheckHelpCommands();
-
-            // pre cache results
-            foreach (var item in this.args)
+            try
             {
-                if (item.ArgModel == null)
+                while (enumerator.MoveNext())
                 {
-                    continue;
+                    var processed = ProcessNext();
+
+                    if (!processed)
+                    {
+                        AddUnprocessedArgument(enumerator.Current);
+                    }
+
+                    isFirstArgument = false;
                 }
-
-                int nextIndex = item.Index + 1;
-
-                var argValue = nextIndex < this.args.Count ? this.args[nextIndex] : null;
-
-                var argModel = new ArgumentModel
-                {
-                    Key = item.Argument,
-                    // this checks if the argument is used in an other command/option. 
-                    Value = (argValue?.Used ?? true) ? null : argValue.Argument
-                };
-
-                if (resultCache.ContainsKey(item.ArgModel))
-                {
-                    continue;
-                }
-
-                resultCache.Add(item.ArgModel, argModel);
+            }
+            catch (InvalidOperationException invalidOpException)
+            {
+                logger.LogError(invalidOpException, "Error occured while processing the argument list");
+                errors.Add(invalidOpException);
+            }
+            finally
+            {
+                enumerator?.Dispose();
+                CurrentContext = null;
             }
         }
 
-        private ICollection<ICommandLineOption> GetCommandLineOptions(ICollection<ICommandLineOption> options, IEnumerable<CommandLineCommandBase> commands)
+        private bool ProcessNext()
         {
-            List<ICommandLineOption> result = new List<ICommandLineOption>(options);
-
-            Traverse(commands);
-
-            return result;
-
-            void Traverse(IEnumerable<CommandLineCommandBase> cmds)
+            switch (enumerator.Current)
             {
-                foreach (var cmd in cmds)
-                {
-                    result.AddRange(cmd.Options);
-
-                    Traverse(cmd.Commands.Cast<CommandLineCommandBase>());
-                }
+                case OptionRecord option:
+                    return ProcessOption(option);
+                case CommandOrOptionValueRecord commandOrValue:
+                    return ProcessCommandOrOptionValue(commandOrValue);
+                default:
+                    return false;
             }
         }
 
-        private void CheckHelpCommands()
+        private void AddUnprocessedArgument(ArgumentRecord rec)
         {
-            if (!helpOptionsEnabled)
-            {
-                return;
-            }
+            var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
+            var item = new UnusedArgumentModel(rec.RawData, arg);
 
-            SetHelpCommand(FindIndex(shortHelpOption));
-            SetHelpCommand(FindIndex(longHelpOption));
+            unusedArguments.Add(item);
         }
 
-        private void SetHelpCommand(int index)
+        private bool ProcessOption(OptionRecord rec)
         {
-            if (index == -1 || (index - 1) < 0 || args[index].ArgModel != null)
+            var foundOption = FindOption(rec);
+
+            if (foundOption == null)
             {
-                return;
+                // In case we have an option named "-1" and int value -1. This causes confusion. 
+                return ProcessCommandOrOptionValue(rec);
             }
 
-            args[index].ArgModel = args[index - 1].ArgModel;
+            var argumentModel = new ArgumentModel(rec.Name, rec.Value);
+
+            results.Add(foundOption, argumentModel);
+
+            return true;
         }
 
-        private void ParseOptions(IEnumerable<ICommandLineOption> options)
+        private ICommandLineOption FindOption(OptionRecord rec)
         {
-            foreach (var option in options)
+            var context = CurrentContext;
+
+            while (context != null)
             {
-                int idx = FindIndex(option);
-
-                if (idx == -1)
+                foreach (var option in context.CurrentCommand.Options)
                 {
-                    continue; // not found issue #12
-                }
-
-                SetArgumentUsed(idx, option);
-            }
-        }
-
-        private void ParseCommands(IEnumerable<CommandLineCommandBase> cmds)
-        {
-            foreach (var cmd in cmds)
-            {
-                int idx = FindIndex(cmd);
-
-                if (idx == -1)
-                {
-                    continue;
-                }
-
-                SetArgumentUsed(idx, cmd);
-
-                foreach (var option in cmd.Options)
-                {
-                    // find the option index starting at the command index
-                    int optionIdx = FindIndex(option, idx);
-
-                    if (optionIdx == -1)
+                    if (!rec.Name.EqualsIgnoreCase(rec.IsLongOption ? option.LongName : option.ShortName))
                     {
                         continue;
                     }
 
-                    SetArgumentUsed(optionIdx, option);
+                    if (results.ContainsKey(option))
+                    {
+                        continue;
+                    }
+
+                    context.AssertSafeToSwitchProcessingContext();
+
+                    context.CurrentOption = option;
+
+                    return option;
                 }
 
-                ParseCommands(cmd.Commands.Cast<CommandLineCommandBase>());
+                context = context.Parent;
+            }
+
+            return null;
+        }
+
+        private bool ProcessCommandOrOptionValue(ArgumentRecord rec)
+        {
+            foreach (var cmd in CurrentContext.CurrentCommand.Commands)
+            {
+                if (!rec.RawData.EqualsIgnoreCase(cmd.Name))
+                {
+                    continue;
+                }
+
+                results.Add(cmd, new ArgumentModel(cmd.Name, null));
+
+                CurrentContext = new ProcessingContext(CurrentContext, (ICommandLineCommandContainer)cmd, logger);
+
+                return true;
+            }
+
+            var context = CurrentContext;
+
+            while (context != null)
+            {
+                if (context.CurrentOption == null)
+                {
+                    context = context.Parent;
+                    continue;
+                }
+
+                if (!TryGetValue(context.CurrentOption, out var model))
+                {
+                    // not sure yet what to do here.. 
+                    // no option yet and not matching command => unknown item
+                    context = context.Parent;
+                    continue;
+                }
+
+                if (model.HasValue)
+                {
+                    context = context.Parent;
+                    continue;
+                }
+
+                model.Value = rec.RawData;
+                return true;
+            }
+
+            context = CurrentContext;
+
+            if (isFirstArgument)
+            {
+                return false;
+            }
+
+            while (context != null)
+            {
+                foreach (var option in context.CurrentCommand.Options.Where(opt => opt.Order.HasValue).OrderBy(opt => opt.Order))
+                {
+                    if (results.ContainsKey(option))
+                    {
+                        continue;
+                    }
+
+                    var argumentModel = new ArgumentModel(string.Empty, rec.RawData);
+
+                    results.Add(option, argumentModel);
+
+                    context.CurrentOption = option;
+                    context.MarkOrderedOptionAsProcessed(option);
+
+                    return true;
+                }
+
+                context = context.Parent;
+            }
+
+            return false;
+        }
+
+        private class ProcessingContext
+        {
+            private List<ICommandLineOption> orderedOptions;
+            private readonly ILogger logger;
+
+            public ICommandLineOption CurrentOption { get; set; }
+            public ProcessingContext Parent { get; set; }
+            public ICommandLineCommandContainer CurrentCommand { get; set; }
+            public bool HasOrderedOptions { get; }
+            public bool AllOrderedOptionsProcessed => orderedOptions.Count == 0;
+            public bool ProcessingOrderedOptions { get; private set; }
+
+            public ProcessingContext(ProcessingContext parent, ICommandLineCommandContainer commandContainer, ILogger logger)
+            {
+                this.logger = logger;
+
+                parent?.AssertSafeToSwitchProcessingContext();
+
+                ProcessingOrderedOptions = false;
+                Parent = parent;
+                CurrentCommand = commandContainer;
+                orderedOptions = new List<ICommandLineOption>(CurrentCommand.Options.Where(o => o.Order.HasValue));
+                HasOrderedOptions = orderedOptions.Count > 0;
+            }
+
+            public void MarkOrderedOptionAsProcessed(ICommandLineOption option)
+            {
+                ProcessingOrderedOptions = true;
+                orderedOptions.Remove(option);
+
+                if (AllOrderedOptionsProcessed)
+                {
+                    ProcessingOrderedOptions = false;
+                }
+            }
+
+            public void AssertSafeToSwitchProcessingContext()
+            {
+                if (!ProcessingOrderedOptions || AllOrderedOptionsProcessed)
+                {
+                    return;
+                }
+
+                logger.LogDebug("Not all ordered options where processed before switching to a new context. The current context is '{ctx}' with {amount} of options left unprocessed", CurrentCommand.ToString(), orderedOptions.Count);
+
+                foreach (var unprocessedOption in orderedOptions)
+                {
+                    logger.LogDebug("{Option} was unprocessed", unprocessedOption);
+                }
+
+                throw new InvalidOperationException("Not all ordered options where processed before switching to another option/command context!");
             }
         }
 
-        private void SetArgumentUsed(int idx, IArgument option)
+        private abstract class ArgumentRecord
         {
-            args[idx].Used = true;
-            args[idx].ArgModel = option;
-            args[idx].Index = idx;
+            protected ArgumentRecord(string data)
+            {
+                RawData = data;
+            }
+
+            public string RawData { get; }
         }
 
-        /// <summary>
-        /// Finds the index of the first unused argument
-        /// </summary>
-        /// <param name="args">List of arguments to search</param>
-        /// <param name="model">object to find</param>
-        /// <param name="startOffset">Search offset</param>
-        /// <returns></returns>
-        private int FindIndex(object model, int startOffset = 0)
+        private sealed class ArgumentRecordEnumerator : IEnumerator<ArgumentRecord>
         {
-            return args.FindIndex(startOffset, arg =>
+            private readonly IEnumerator<string> enumerator;
+            private readonly CommandLineParserOptions options;
+
+            public ArgumentRecordEnumerator(CommandLineParserOptions options, IReadOnlyList<string> arguments)
+            {
+                if (arguments is null)
                 {
-                    if (arg.Used)
-                    {
-                        return false;
-                    }
+                    throw new ArgumentNullException(nameof(arguments));
+                }
 
-                    switch (model)
-                    {
-                        case string key:
-                            return key.EqualsIgnoreCase(arg.Argument);
-                        case ICommandLineOption opt:
-                            return (opt.HasShortName && opt.ShortName.EqualsIgnoreCase(arg.Argument)) ||
-                                (opt.HasLongName && opt.LongName.EqualsIgnoreCase(arg.Argument));
-                        case ICommandLineCommand cmd:
-                            return cmd.Name.EqualsIgnoreCase(arg.Argument);
-                        default:
-                            return false;
-                    }
-                });
+                enumerator = arguments.GetEnumerator();
+                this.options = options ?? throw new ArgumentNullException(nameof(options));
+            }
+
+            public ArgumentRecord Current { get; private set; }
+
+            object IEnumerator.Current => Current;
+
+            public bool MoveNext()
+            {
+                if (!enumerator.MoveNext())
+                {
+                    return false;
+                }
+
+                Current = CreateRecord(enumerator.Current);
+
+                return true;
+            }
+
+            private ArgumentRecord CreateRecord(string current)
+            {
+                bool isLongOption = current.StartsWith(options.PrefixLongOption);
+                bool isShortOption = current.StartsWith(options.PrefixShortOption);
+
+                if (isLongOption || isShortOption)
+                {
+                    return new OptionRecord(current, options.PostfixOption, isLongOption);
+                }
+
+                return new CommandOrOptionValueRecord(current);
+            }
+
+            public void Reset()
+            {
+                Current = null;
+                enumerator.Reset();
+            }
+
+            public void Dispose()
+            {
+                Current = null;
+                enumerator.Dispose();
+            }
         }
 
-        public void Dispose() => args.Clear();
-
-        public bool TryGetValue(IArgument argument, out ArgumentModel model) => resultCache.TryGetValue(argument, out model);
-
-        [DebuggerDisplay("{Argument}, used: {Used}, index: {Index}")]
-        public class ArgumentValueHolder
+        private sealed class CommandOrOptionValueRecord : ArgumentRecord
         {
-            public string Argument { get; set; }
-            public bool Used { get; set; } = false;
-            public IArgument ArgModel { get; set; }
-            public int Index { get; set; }
+            public CommandOrOptionValueRecord(string data)
+                : base(data)
+            {
+            }
+        }
+
+        private sealed class OptionRecord : ArgumentRecord
+        {
+            public OptionRecord(string data, string postfix, bool isLongOption)
+                : base(data)
+            {
+                var tokens = data.Split(postfix.ToCharArray()[0]);
+
+                if (tokens.Length > 1)
+                {
+                    Value = tokens[1];
+                }
+
+                IsLongOption = isLongOption;
+                Name = tokens[0];
+            }
+
+            public bool IsLongOption { get; }
+            public string Name { get; }
+            public string Value { get; }
         }
     }
 }

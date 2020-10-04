@@ -25,14 +25,14 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Validation
 
             var optionWithCommandMockValidator = new Mock<IValidator<OptionWithCommand>>();
             optionWithCommandMockValidator
-                .Setup(v => v.Validate(It.IsAny<object>()))
-                .Returns(validValidationResultMock.Object)
+                .Setup(v => v.ValidateAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(validValidationResultMock.Object)
                 .Verifiable();
 
             var optionMockValidator = new Mock<IValidator<Option>>();
             optionMockValidator
-                .Setup(v => v.Validate(It.IsAny<object>()))
-                .Returns(validValidationResultMock.Object)
+                .Setup(v => v.ValidateAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(validValidationResultMock.Object)
                 .Verifiable();
 
             parser.Validators.AddValidator(optionWithCommandMockValidator.Object);
@@ -57,13 +57,13 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Validation
             var optionWithCommandMockValidator = new Mock<IValidator<OptionWithCommand>>();
             optionWithCommandMockValidator
                 .Setup(v => v.ValidateAsync(It.IsAny<OptionWithCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(validValidationResultMock.Object))
+                .ReturnsAsync(validValidationResultMock.Object)
                 .Verifiable();
 
             var optionMockValidator = new Mock<IValidator<Option>>();
             optionMockValidator
                 .Setup(v => v.ValidateAsync(It.IsAny<Option>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(validValidationResultMock.Object))
+                .ReturnsAsync(validValidationResultMock.Object)
                 .Verifiable();
 
             parser.Validators.AddValidator(optionWithCommandMockValidator.Object);

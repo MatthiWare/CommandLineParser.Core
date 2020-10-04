@@ -45,6 +45,13 @@ namespace MatthiWare.CommandLine.Abstractions
         new IOptionBuilder<TOption> Name(string shortName, string longName);
 
         /// <summary>
+        /// Order in which the option will be parsed
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        new IOptionBuilder<TOption> Order(int order);
+
+        /// <summary>
         /// Transforms the parsed value using the transform function
         /// </summary>
         /// <param name="transformation">Transformation function</param>

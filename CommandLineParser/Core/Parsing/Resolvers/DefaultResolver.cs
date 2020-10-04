@@ -1,5 +1,6 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -13,10 +14,12 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private static readonly string ParseName = "Parse";
 
         private readonly Type genericType;
+        private readonly ILogger<CommandLineParser> logger;
 
-        public DefaultResolver()
+        public DefaultResolver(ILogger<CommandLineParser> logger)
         {
             genericType = typeof(T);
+            this.logger = logger;
         }
 
         public override bool CanResolve(ArgumentModel model)
@@ -33,14 +36,23 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
         private bool TryResolve(ArgumentModel model, out T result)
         {
+            if (model is null)
+            {
+                logger.LogDebug("DefaultResolver input is null");
+                result = default;
+                return false;
+            }
+
             if (!model.HasValue)
             {
+                logger.LogDebug("DefaultResolver model does not have a value", model.Value);
                 result = default;
                 return false;
             }
 
             if (genericType.IsEnum && TryParseEnum(model, out result))
             {
+                logger.LogDebug("DefaultResolver {input} resolved to {result}", model.Value, result);
                 return true;
             }
 
@@ -66,13 +78,17 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                 {
                     var tryParse = (CustomTryParseWithFormat)tryParseMethod.CreateDelegate(typeof(CustomTryParseWithFormat));
 
-                    return tryParse(model.Value, CultureInfo.InvariantCulture, out result);
+                    var returnResult = tryParse(model.Value, CultureInfo.InvariantCulture, out result);
+                    logger.LogDebug("DefaultResolver {input} resolved to {result}", model.Value, result);
+                    return returnResult;
                 }
                 else if (amountOfParams == 2)
                 {
                     var tryParse = (CustomTryParse)tryParseMethod.CreateDelegate(typeof(CustomTryParse));
 
-                    return tryParse(model.Value, out result);
+                    var returnResult = tryParse(model.Value, out result);
+                    logger.LogDebug("DefaultResolver {input} resolved to {result}", model.Value, result);
+                    return returnResult;
                 }
             }
 
@@ -89,6 +105,7 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                     var parse = (CustomParseWithFormat)parseMethod.CreateDelegate(typeof(CustomParseWithFormat));
 
                     result = parse(model.Value, CultureInfo.InvariantCulture);
+                    logger.LogDebug("DefaultResolver {input} resolved to {result}", model.Value, result);
                     return true;
                 }
                 else if (amountOfParams == 1)
@@ -96,10 +113,12 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                     var parse = (CustomParse)parseMethod.CreateDelegate(typeof(CustomParse));
 
                     result = parse(model.Value);
+                    logger.LogDebug("DefaultResolver {input} resolved to {result}", model.Value, result);
                     return true;
                 }
             }
 
+            logger.LogDebug("DefaultResolver unable to resolve {input}", model.Value);
             result = default;
             return false;
         }

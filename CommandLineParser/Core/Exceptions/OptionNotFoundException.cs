@@ -22,15 +22,16 @@ namespace MatthiWare.CommandLine.Core.Exceptions
 
         private static string CreateMessage(ICommandLineOption option)
         {
-            bool hasShort = option.HasShortName;
-            bool hasLong = option.HasLongName;
-            bool hasBoth = hasShort && hasLong;
+            var hasShort = option.HasShortName;
+            var hasLong = option.HasLongName;
+            var hasBoth = hasShort && hasLong;
 
-            string hasBothSeperator = hasBoth ? "|" : string.Empty;
-            string shortName = hasShort ? $"{option.ShortName}" : string.Empty;
-            string longName = hasLong ? $"{option.LongName}" : string.Empty;
+            var hasBothSeperator = hasBoth ? "|" : string.Empty;
+            var shortName = hasShort ? $"{option.ShortName}" : string.Empty;
+            var longName = hasLong ? $"{option.LongName}" : string.Empty;
+            var optionString = hasShort || hasLong ? string.Empty : option.ToString();
 
-            return $"Required option '{shortName}{hasBothSeperator}{longName}' not found!";
+            return $"Required option '{shortName}{hasBothSeperator}{longName}{optionString}' not found!";
         }
     }
 }

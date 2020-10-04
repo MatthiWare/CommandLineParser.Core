@@ -40,5 +40,12 @@
         /// <param name="longName">Long name</param>
         /// <returns><see cref="IOptionBuilder"></see></returns>
         IOptionBuilder Name(string shortName, string longName);
+
+        /// <summary>
+        /// Order in which the option will be parsed
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        IOptionBuilder Order(int order);
     }
 }

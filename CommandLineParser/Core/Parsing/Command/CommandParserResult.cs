@@ -61,12 +61,6 @@ namespace MatthiWare.CommandLine.Core.Parsing.Command
             commandParserResults.Add(result);
         }
 
-        public void ExecuteCommand()
-        {
-            m_cmd.Execute();
-            Executed = true;
-        }
-
         public async Task ExecuteCommandAsync(CancellationToken cancellationToken)
         {
             await m_cmd.ExecuteAsync(cancellationToken);

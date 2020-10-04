@@ -52,14 +52,6 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing.Command
         IReadOnlyCollection<Exception> Errors { get; }
 
         /// <summary>
-        /// Executes the command
-        /// </summary>
-        /// <exception cref="InvalidOperationException">
-        /// Result contains exceptions. For more info see <see cref="HasErrors"/> and <see cref="Errors"/> properties.
-        /// </exception>
-        void ExecuteCommand();
-
-        /// <summary>
         /// Executes the command async
         /// </summary>
         /// <exception cref="InvalidOperationException">

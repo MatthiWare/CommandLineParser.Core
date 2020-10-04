@@ -35,6 +35,7 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly IValidatorsContainer m_validators;
         private readonly ILogger logger;
         private readonly IModelInitializer modelInitializer;
+        private readonly IArgumentManager argumentManager;
         private Action m_executor1;
         private Action<TOption> m_executor2;
         private Action<TOption, TCommandOption> m_executor3;
@@ -46,7 +47,7 @@ namespace MatthiWare.CommandLine.Core.Command
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
 
-        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger, IModelInitializer modelInitializer)
+        public CommandLineCommand(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider, TOption option, IValidatorsContainer validators, ILogger logger, IModelInitializer modelInitializer, IArgumentManager argumentManager)
         {
             m_parserOptions = parserOptions ?? throw new ArgumentNullException(nameof(parserOptions));
             m_commandOption = new TCommandOption();
@@ -54,22 +55,13 @@ namespace MatthiWare.CommandLine.Core.Command
             m_validators = validators ?? throw new ArgumentNullException(nameof(validators));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.modelInitializer = modelInitializer ?? throw new ArgumentNullException(nameof(modelInitializer));
+            this.argumentManager = argumentManager ?? throw new ArgumentNullException(nameof(argumentManager));
             m_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             m_baseOption = option ?? throw new ArgumentNullException(nameof(option));
 
             (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
 
             InitialzeModel();
-        }
-
-        public override void Execute()
-        {
-            logger.LogDebug("Executing Command '{Name}'", this.Name);
-
-            ExecuteInternal();
-
-            // Also executes the async stuff.
-            ExecuteInternalAsync(default).Wait();
         }
 
         private void ExecuteInternal()
@@ -131,30 +123,14 @@ namespace MatthiWare.CommandLine.Core.Command
             return m_options[key] as IOptionBuilder<T>;
         }
 
-        public override ICommandParserResult Parse(IArgumentManager argumentManager)
+        public override async Task<ICommandParserResult> ParseAsync(CancellationToken cancellationToken)
         {
             var result = new CommandParserResult(this);
             var errors = new List<Exception>();
 
-            ParseCommands(errors, result, argumentManager);
+            await ParseCommandsAsync(errors, result, cancellationToken);
 
-            ParseOptions(errors, result, argumentManager);
-
-            Validate(m_commandOption, errors);
-
-            result.MergeResult(errors);
-
-            return result;
-        }
-
-        public override async Task<ICommandParserResult> ParseAsync(IArgumentManager argumentManager, CancellationToken cancellationToken)
-        {
-            var result = new CommandParserResult(this);
-            var errors = new List<Exception>();
-
-            await ParseCommandsAsync(errors, result, argumentManager, cancellationToken);
-
-            ParseOptions(errors, result, argumentManager);
+            ParseOptions(errors, result);
 
             await ValidateAsync(m_commandOption, errors, cancellationToken);
 
@@ -163,7 +139,7 @@ namespace MatthiWare.CommandLine.Core.Command
             return result;
         }
 
-        private void ParseOptions(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
+        private void ParseOptions(IList<Exception> errors, CommandParserResult result)
         {
             foreach (var optionKeyValue in m_options)
             {
@@ -171,7 +147,7 @@ namespace MatthiWare.CommandLine.Core.Command
                 
                 try
                 {
-                    ParseOption(option, result, argumentManager);
+                    ParseOption(option, result);
 
                     if (result.HelpRequested)
                     {
@@ -199,7 +175,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
-        private void ParseOption(CommandLineOptionBase option, CommandParserResult result, IArgumentManager argumentManager)
+        private void ParseOption(CommandLineOptionBase option, CommandParserResult result)
         {
             bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
 
@@ -229,13 +205,13 @@ namespace MatthiWare.CommandLine.Core.Command
             option.Parse(model);
         }
 
-        private void ParseCommands(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager)
+        private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, CancellationToken cancellationToken)
         {
             foreach (var cmd in m_commands)
             {
                 try
                 {
-                    ParseCommand(cmd, result, argumentManager);
+                    await ParseCommandAsync(cmd, result, cancellationToken);
 
                     if (result.HelpRequested)
                     {
@@ -263,7 +239,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
-        private void ParseCommand(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager)
+        private async Task ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, CancellationToken cancellationToken)
         {
             if (!argumentManager.TryGetValue(cmd, out _))
             {
@@ -277,70 +253,7 @@ namespace MatthiWare.CommandLine.Core.Command
                 return;
             }
 
-            var cmdParseResult = cmd.Parse(argumentManager);
-
-            if (cmdParseResult.HelpRequested)
-            {
-                return;
-            }
-
-            result.MergeResult(cmdParseResult);
-
-            if (cmdParseResult.HasErrors)
-            {
-                throw new CommandParseException(cmd, cmdParseResult.Errors);
-            }
-        }
-
-        private async Task ParseCommandsAsync(IList<Exception> errors, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
-        {
-            foreach (var cmd in m_commands)
-            {
-                try
-                {
-                    await ParseCommandAsync(cmd, result, argumentManager, cancellationToken);
-
-                    if (result.HelpRequested)
-                    {
-                        break;
-                    }
-                }
-                catch (CommandNotFoundException e)
-                {
-                    logger.LogDebug("Command '{Name}' not found", cmd.Name);
-
-                    errors.Add(e);
-                }
-                catch (CommandParseException e)
-                {
-                    logger.LogDebug("Unable to parse command '{Name}'", cmd.Name);
-
-                    errors.Add(e);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Unknown error occured while parsing the commands");
-
-                    errors.Add(ex);
-                }
-            }
-        }
-
-        private async Task ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, IArgumentManager argumentManager, CancellationToken cancellationToken)
-        {
-            if (!argumentManager.TryGetValue(cmd, out _))
-            {
-                result.MergeResult(new CommandNotFoundParserResult(cmd));
-
-                if (cmd.IsRequired)
-                {
-                    throw new CommandNotFoundException(cmd);
-                }
-
-                return;
-            }
-
-            var cmdParseResult = await cmd.ParseAsync(argumentManager, cancellationToken);
+            var cmdParseResult = await cmd.ParseAsync(cancellationToken);
 
             if (cmdParseResult.HelpRequested)
             {
@@ -380,32 +293,6 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private bool IsHelpOption(string input)
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
-
-        private void Validate<T>(T @object, List<Exception> errors)
-        {
-            if (!m_validators.HasValidatorFor<T>())
-            {
-                logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);
-
-                return;
-            }
-
-            var results = m_validators.GetValidators<T>()
-                .Select(validator => validator.Validate(@object))
-                .ToArray();
-
-            foreach (var result in results)
-            {
-                if (result.IsValid)
-                {
-                    continue;
-                }
-
-                logger.LogDebug("Validation failed with '{message}'", result.Error.Message);
-
-                errors.Add(result.Error);
-            }
-        }
 
         private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
         {

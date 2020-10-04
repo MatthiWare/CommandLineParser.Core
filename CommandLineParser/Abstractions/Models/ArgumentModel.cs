@@ -6,7 +6,7 @@ namespace MatthiWare.CommandLine.Abstractions.Models
     /// Model for command line arguments
     /// </summary>
     [DebuggerDisplay("Argument key: {Key} value: {Value}")]
-    public struct ArgumentModel
+    public class ArgumentModel
     {
         /// <summary>
         /// Argument identifier
@@ -23,6 +23,9 @@ namespace MatthiWare.CommandLine.Abstractions.Models
         /// Checks if an value has been provided in the model
         /// </summary>
         public bool HasValue => Value != null;
+
+        public ArgumentModel()
+        { }
 
         /// <summary>
         /// Creates a new instance of the argument model

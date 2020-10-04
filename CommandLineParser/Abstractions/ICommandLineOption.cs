@@ -39,5 +39,10 @@
         /// Inidicates if a default value has been specified for this option
         /// </summary>
         bool HasDefault { get; }
+
+        /// <summary>
+        /// Option order
+        /// </summary>
+        int? Order { get; }
     }
 }
