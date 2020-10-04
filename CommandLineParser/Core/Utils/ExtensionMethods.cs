@@ -151,27 +151,45 @@ namespace MatthiWare.CommandLine.Core.Utils
         /// </summary>
         /// <param name="self"></param>
         /// <param name="settings"></param>
-        /// <param name="options"></param>
         /// <returns></returns>
-        public static IEnumerable<string> SplitOnPostfix(this IEnumerable<string> self, CommandLineParserOptions settings, IEnumerable<ICommandLineOption> options)
+        public static string WithoutPreAndPostfixes(this string self, CommandLineParserOptions settings)
         {
+            bool hasLongPrefix = !string.IsNullOrEmpty(settings.PrefixLongOption);
+            bool hasShortPrefix = !string.IsNullOrEmpty(settings.PrefixShortOption);
             bool hasPostfix = !string.IsNullOrEmpty(settings.PostfixOption);
 
-            foreach (var item in self)
-            {
-                int idx;
-                if (hasPostfix && (idx = item.IndexOf(settings.PostfixOption)) != -1 && FindMatchingOption(options, settings, item) != null)
-                {
-                    var tokens = new[] { item.Substring(0, idx), item.Substring(idx + 1, item.Length - idx - 1) };
+            string result = self;
 
-                    yield return tokens[0];
-                    yield return tokens[1];
-                }
-                else
-                {
-                    yield return item;
+            if (hasLongPrefix && self.StartsWith(settings.PrefixLongOption))
+            {
+                var index = self.IndexOf(settings.PrefixLongOption) + 1;
+
+                if (index != 0)
+                { 
+                    result = self.Substring(index);
                 }
             }
+            else if (hasShortPrefix && self.StartsWith(settings.PrefixShortOption))
+            {
+                var index = self.IndexOf(settings.PrefixShortOption) + 1;
+
+                if (index != 0)
+                { 
+                    result = self.Substring(index);
+                }
+            }
+
+            if (hasPostfix && self.EndsWith(settings.PostfixOption))
+            {
+                var index = self.LastIndexOf(settings.PostfixOption) + 1;
+
+                if (index != 0)
+                { 
+                    result = self.Substring(0, result.Length - index);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

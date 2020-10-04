@@ -47,6 +47,22 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Fact]
+        public void OrderAttributeWorks2()
+        {
+            var from = @"path/from/file";
+            var to = @"path/to/file";
+
+            var parser = new CommandLineParser<OrderModel>(Services);
+
+            var result = parser.Parse(new string[] { "app.exe", "-r", "5", from, to });
+
+            result.AssertNoErrors();
+
+            Assert.Equal(from, result.Result.From);
+            Assert.Equal(to, result.Result.To);
+        }
+
+        [Fact]
         public void OrderAttributeInCommandWorks()
         {
             var from = @"path/from/file";

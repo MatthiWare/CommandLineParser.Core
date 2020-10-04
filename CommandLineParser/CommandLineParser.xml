@@ -1708,13 +1708,12 @@
             <param name="optionTypes">Option types</param>
             <returns></returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.SplitOnPostfix(System.Collections.Generic.IEnumerable{System.String},MatthiWare.CommandLine.CommandLineParserOptions,System.Collections.Generic.IEnumerable{MatthiWare.CommandLine.Abstractions.ICommandLineOption})">
+        <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.WithoutPreAndPostfixes(System.String,MatthiWare.CommandLine.CommandLineParserOptions)">
             <summary>
             Splits on postfix
             </summary>
             <param name="self"></param>
             <param name="settings"></param>
-            <param name="options"></param>
             <returns></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Utils.ExtensionMethods.GetLambdaExpression(System.Reflection.PropertyInfo,System.String@)">

@@ -97,20 +97,16 @@ namespace MatthiWare.CommandLine.Core.Parsing
         {
             var foundOption = FindOption(rec);
 
-            if (foundOption == null)
+            if (!foundOption)
             {
                 // In case we have an option named "-1" and int value -1. This causes confusion. 
                 return ProcessCommandOrOptionValue(rec);
             }
 
-            var argumentModel = new ArgumentModel(rec.Name, rec.Value);
-
-            results.Add(foundOption, argumentModel);
-
             return true;
         }
 
-        private ICommandLineOption FindOption(OptionRecord rec)
+        private bool FindOption(OptionRecord rec)
         {
             var context = CurrentContext;
 
@@ -132,13 +128,77 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                     context.CurrentOption = option;
 
-                    return option;
+                    var argumentModel = new ArgumentModel(rec.Name, rec.Value);
+
+                    results.Add(option, argumentModel);
+
+                    return true;
+                }
+
+                if (ProcessClusteredOptions(context, rec))
+                {
+                    return true;
                 }
 
                 context = context.Parent;
             }
 
-            return null;
+            return false;
+        }
+
+        private bool ProcessClusteredOptions(ProcessingContext context, OptionRecord rec)
+        {
+            var tokens = rec.Name.WithoutPreAndPostfixes(options);
+
+            var list = new List<ICommandLineOption>();
+
+            foreach (var token in tokens)
+            {
+                bool found = false;
+
+                string key = $"{options.PrefixShortOption}{token}";
+
+                foreach (var option in context.CurrentCommand.Options.Where(ValidClusteredOption))
+                {
+                    if (!option.ShortName.EqualsIgnoreCase(key))
+                    {
+                        continue;
+                    }
+
+                    var model = new ArgumentModel(key, string.Empty);
+
+                    list.Add(option);
+                    results.Add(option, model);
+
+                    found = true;
+                    break;
+                }
+
+                if (!found)
+                {
+                    return false;
+                }
+            }
+
+            context.NextArgumentIsForClusteredOptions = true;
+            context.ProcessedClusteredOptions = list;
+
+            return true;
+        }
+
+        private bool ValidClusteredOption(ICommandLineOption option)
+        {
+            if (!option.HasShortName)
+            {
+                return false;
+            }
+
+            if (results.ContainsKey(option))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private bool ProcessCommandOrOptionValue(ArgumentRecord rec)
@@ -161,6 +221,17 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             while (context != null)
             {
+                if (context.NextArgumentIsForClusteredOptions)
+                {
+                    foreach (var option in context.ProcessedClusteredOptions)
+                    {
+                        results[option].Value = rec.RawData;
+                    }
+
+                    context.ProcessedClusteredOptions = null;
+                    context.NextArgumentIsForClusteredOptions = false;
+                }
+
                 if (context.CurrentOption == null)
                 {
                     context = context.Parent;
@@ -228,6 +299,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
             public bool HasOrderedOptions { get; }
             public bool AllOrderedOptionsProcessed => orderedOptions.Count == 0;
             public bool ProcessingOrderedOptions { get; private set; }
+            public bool NextArgumentIsForClusteredOptions { get; set; }
+            public List<ICommandLineOption> ProcessedClusteredOptions { get; set; }
 
             public ProcessingContext(ProcessingContext parent, ICommandLineCommandContainer commandContainer, ILogger logger)
             {
@@ -257,6 +330,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 if (!ProcessingOrderedOptions || AllOrderedOptionsProcessed)
                 {
+                    ProcessedClusteredOptions = null;
+                    NextArgumentIsForClusteredOptions = false;
                     return;
                 }
 
