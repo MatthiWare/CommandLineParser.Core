@@ -45,8 +45,8 @@ namespace MatthiWare.CommandLine.Core
         public string Description { get; protected set; }
         public bool IsRequired { get; protected set; }
         public bool HasDefault { get; protected set; }
-        public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName);
-        public bool HasLongName => !string.IsNullOrWhiteSpace(LongName);
+        public bool HasShortName => !string.IsNullOrWhiteSpace(ShortName) && !ShortName.Equals(m_parserOptions.PrefixShortOption);
+        public bool HasLongName => !string.IsNullOrWhiteSpace(LongName) && !LongName.Equals(m_parserOptions.PrefixLongOption);
 
         public bool AutoExecute { get; protected set; }
 
