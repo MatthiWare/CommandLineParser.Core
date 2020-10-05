@@ -65,6 +65,5 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections
         }
 
         object ICommandLineArgumentResolver.Resolve(ArgumentModel model) => Resolve(model);
-
     }
 }

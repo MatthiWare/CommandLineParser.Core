@@ -789,7 +789,6 @@ namespace MatthiWare.CommandLine.Tests
             public static bool TryParse() => false;
 
             public static void Tryparse(string input, IFormatProvider format, out StringType2 result)
-
             {
                 result = default;
             }

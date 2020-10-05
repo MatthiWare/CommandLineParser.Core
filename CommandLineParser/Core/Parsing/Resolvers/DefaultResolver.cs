@@ -150,7 +150,6 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                     || typeof(IReadOnlyCollection<>) == collectionType
                     || typeof(IReadOnlyList<>) == collectionType
                     || typeof(List<>) == collectionType)
-                    
             {
                 var elementType = genericType.GetGenericArguments().First();
                 var listType = typeof(IListResolver<>).MakeGenericType(elementType);
