@@ -88,6 +88,7 @@ namespace MatthiWare.CommandLine.Core
 
             services.TryAddScoped(typeof(IArgumentResolver<>), typeof(DefaultResolver<>));
             services.TryAddScoped(typeof(IArrayResolver<>), typeof(ArrayResolver<>));
+            services.TryAddScoped(typeof(IListResolver<>), typeof(ListResolver<>));
 
             return services;
         }

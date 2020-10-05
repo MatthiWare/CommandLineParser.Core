@@ -129,11 +129,12 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
                 var arrayType = typeof(IArrayResolver<>).MakeGenericType(elementType);
                 var resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(arrayType);
+
                 return resolver;
             }
 
             var collectionType = genericType.GetGenericTypeDefinition();
-            //var elementType = genericType.GetGenericArguments().First();
+            
 
             if (typeof(IList<>) == collectionType
                     || typeof(IEnumerable<>) == collectionType
@@ -144,7 +145,11 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
                     || typeof(ISet<>) == collectionType
                     || typeof(HashSet<>) == collectionType)
             {
+                var elementType = genericType.GetGenericArguments().First();
+                var listType = typeof(IListResolver<>).MakeGenericType(elementType);
+                var resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(listType);
 
+                return resolver;
             }
 
             return null;

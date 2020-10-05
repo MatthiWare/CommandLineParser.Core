@@ -681,6 +681,23 @@
             Resolve array types
             </summary>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Collections.IArrayResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <summary>
+            Resolves the argument from the model
+            </summary>
+            <param name="model">Argument model</param>
+            <returns>The resolved type</returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.Collections.IListResolver`1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.Collections.IListResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <summary>
+            Resolves the argument from the model
+            </summary>
+            <param name="model">Argument model</param>
+            <returns>The resolved type</returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult">
             <summary>
             Results fo the command that has been parsed
@@ -1576,6 +1593,42 @@
             <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IList{System.Exception})">
+            <inheritdoc/>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1">
+            <inheritdoc />
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1.#ctor(Microsoft.Extensions.Logging.ILogger{MatthiWare.CommandLine.CommandLineParser},MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver{`0})">
+            <inheritdoc />
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <inheritdoc />
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1.CanResolve(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <inheritdoc />
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1.Resolve(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ListResolver`1">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ListResolver`1.#ctor(Microsoft.Extensions.Logging.ILogger{MatthiWare.CommandLine.CommandLineParser},MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver{`0})">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ListResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ListResolver`1.CanResolve(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ListResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ListResolver`1.Resolve(System.String)">
             <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.Resolvers.DefaultResolver`1.FindTryParse(System.Reflection.MethodInfo)">

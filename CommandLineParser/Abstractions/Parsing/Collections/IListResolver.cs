@@ -1,10 +1,16 @@
-﻿using System;
+﻿using MatthiWare.CommandLine.Abstractions.Models;
 using System.Collections.Generic;
-using System.Text;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing.Collections
 {
-    public interface IListResolver : ICommandLineArgumentResolver
+    /// <inheritdoc/>
+    public interface IListResolver<TModel> : ICommandLineArgumentResolver
     {
+        /// <summary>
+        /// Resolves the argument from the model
+        /// </summary>
+        /// <param name="model">Argument model</param>
+        /// <returns>The resolved type</returns>
+        new List<TModel> Resolve(ArgumentModel model);
     }
 }
