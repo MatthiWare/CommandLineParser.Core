@@ -23,6 +23,11 @@ namespace MatthiWare.CommandLine
         public string PostfixOption { get; set; } = "=";
 
         /// <summary>
+        /// Stops parsing of remaining arguments after this has been found
+        /// </summary>
+        public string StopParsingAfter { get; set; }
+
+        /// <summary>
         /// Help option name. 
         /// Accepts both formatted and unformatted help name. 
         /// If the name is a single string it will use the <see cref="PrefixLongOption"/>

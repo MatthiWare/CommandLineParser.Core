@@ -82,9 +82,21 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     return ProcessOption(option);
                 case CommandOrOptionValueRecord commandOrValue:
                     return ProcessCommandOrOptionValue(commandOrValue);
+                case StopProcessingRecord _:
+                    return StopProcessing();
                 default:
                     return false;
             }
+        }
+
+        private bool StopProcessing()
+        {
+            while (enumerator.MoveNext())
+            { 
+                // do nothing
+            }
+
+            return true;
         }
 
         private void AddUnprocessedArgument(ArgumentRecord rec)
@@ -403,6 +415,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 bool isLongOption = current.StartsWith(options.PrefixLongOption);
                 bool isShortOption = current.StartsWith(options.PrefixShortOption);
+                bool stopProcessing = !string.IsNullOrEmpty(options.StopParsingAfter) && current.Equals(options.StopParsingAfter);
+
+                if (stopProcessing)
+                {
+                    return new StopProcessingRecord(current);
+                }
 
                 if (isLongOption || isShortOption)
                 {
@@ -422,6 +440,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 Current = null;
                 enumerator.Dispose();
+            }
+        }
+
+        private sealed class StopProcessingRecord : ArgumentRecord
+        {
+            public StopProcessingRecord(string data)
+                : base(data)
+            {
             }
         }
 
