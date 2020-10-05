@@ -23,7 +23,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         {
             var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<bool>>();
 
-            var result = resolver.Resolve(new ArgumentModel { Value = input });
+            var result = resolver.Resolve(new ArgumentModel(string.Empty, input));
 
             Assert.True(result);
         }
@@ -36,7 +36,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         {
             var resolver = ServiceProvider.GetRequiredService<IArgumentResolver<bool>>();
 
-            var result = resolver.Resolve(new ArgumentModel { Value = input });
+            var result = resolver.Resolve(new ArgumentModel(string.Empty, input));
 
             Assert.False(result);
         }

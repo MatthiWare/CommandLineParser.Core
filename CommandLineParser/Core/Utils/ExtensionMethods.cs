@@ -13,20 +13,40 @@ namespace MatthiWare.CommandLine.Core.Utils
     /// </summary>
     public static class ExtensionMethods
     {
-        private static ICommandLineOption FindMatchingOption(IEnumerable<ICommandLineOption> options, CommandLineParserOptions settings, string item)
+        internal static bool CanHaveMultipleValues(this Type type)
         {
-            if (string.IsNullOrEmpty(settings.PostfixOption))
+            if (type.IsArray)
             {
-                return null;
+                return true;
             }
 
-            return options.Where(option =>
+            if (type.IsEnum)
             {
-                string shortStr = $"{option.ShortName}{settings.PostfixOption}";
-                string longStr = $"{option.LongName}{settings.PostfixOption}";
+                var flagsAttribute = type.GetCustomAttribute<FlagsAttribute>();
 
-                return (option.HasShortName && item.StartsWith(shortStr)) || (option.HasLongName && item.StartsWith(longStr));
-            }).FirstOrDefault();
+                return flagsAttribute != null;
+            }
+
+            if (!type.IsGenericType)
+            {
+                return false;
+            }
+
+            var genericType = type.GetGenericTypeDefinition();
+
+            if (typeof(IList<>) == genericType
+                    || typeof(IEnumerable<>) == genericType
+                    || typeof(ICollection<>) == genericType
+                    || typeof(IReadOnlyCollection<>) == genericType
+                    || typeof(IReadOnlyList<>) == genericType
+                    || typeof(List<>) == genericType 
+                    || typeof(ISet<>) == genericType
+                    || typeof(HashSet<>) == genericType)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

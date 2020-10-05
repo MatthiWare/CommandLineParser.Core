@@ -2,12 +2,14 @@
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Parsing.Collections;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Models;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+using MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Validations;
 using Microsoft.Extensions.DependencyInjection;
@@ -85,6 +87,7 @@ namespace MatthiWare.CommandLine.Core
             services.TryAddScoped<IArgumentResolver<string>, StringResolver>();
 
             services.TryAddScoped(typeof(IArgumentResolver<>), typeof(DefaultResolver<>));
+            services.TryAddScoped(typeof(IArrayResolver<>), typeof(ArrayResolver<>));
 
             return services;
         }

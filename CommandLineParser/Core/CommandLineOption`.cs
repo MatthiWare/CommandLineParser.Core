@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Core.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace MatthiWare.CommandLine.Core
@@ -11,6 +12,7 @@ namespace MatthiWare.CommandLine.Core
         public CommandLineOption(CommandLineParserOptions parserOptions, object source, LambdaExpression selector, IArgumentResolver<TOption> argumentResolver, ILogger logger)
              : base(parserOptions, source, selector, argumentResolver, logger)
         {
+            this.AllowMultipleValues = typeof(TOption).CanHaveMultipleValues();
         }
 
         public IOptionBuilder<TOption> Required(bool required = true)

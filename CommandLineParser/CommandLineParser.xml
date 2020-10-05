@@ -406,6 +406,11 @@
             Option order
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineOption.AllowMultipleValues">
+            <summary>
+            Can have multiple values?
+            </summary>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1">
             <summary>
             Command line parser
@@ -622,10 +627,9 @@
             Argument identifier
             </summary>
         </member>
-        <member name="P:MatthiWare.CommandLine.Abstractions.Models.ArgumentModel.Value">
+        <member name="P:MatthiWare.CommandLine.Abstractions.Models.ArgumentModel.Values">
             <summary>
             Value of the argument
-            Can be null
             </summary>
         </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Models.ArgumentModel.HasValue">
@@ -661,25 +665,21 @@
             <typeparam name="TArgument">Argument type</typeparam>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.CanResolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
-            <summary>
-            Checks if the resolver can resolve the argument
-            </summary>
-            <param name="model">argument</param>
-            <returns>True if it can resolve it correctly</returns>
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.CanResolve(System.String)">
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
-            <summary>
-            Resolves the argument from the model
-            </summary>
-            <param name="model">Argument model</param>
-            <returns>The resolved type</returns>
+            <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.MatthiWare#CommandLine#Abstractions#Parsing#ICommandLineArgumentResolver#Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.BaseArgumentResolver`1.Resolve(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.Collections.IArrayResolver`1">
             <summary>
-            Resolves the argument from the model
+            Resolve array types
             </summary>
-            <param name="model">Argument model</param>
-            <returns>The resolved type</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult">
             <summary>
@@ -778,11 +778,25 @@
             <param name="model">argument</param>
             <returns>True if it can resolve it correctly</returns>
         </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver.CanResolve(System.String)">
+            <summary>
+            Checks if the resolver can resolve the argument
+            </summary>
+            <param name="value">Argument</param>
+            <returns>True if it can resolve it correctly</returns>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver.Resolve(MatthiWare.CommandLine.Abstractions.Models.ArgumentModel)">
             <summary>
             Resolves the argument from the model
             </summary>
             <param name="model">Argument model</param>
+            <returns>The resolved type</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver.Resolve(System.String)">
+            <summary>
+            Resolves the argument from the model
+            </summary>
+            <param name="value">Argument</param>
             <returns>The resolved type</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver`1">
@@ -796,6 +810,13 @@
             Resolves the argument from the model
             </summary>
             <param name="model">Argument model</param>
+            <returns>The resolved type</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.ICommandLineArgumentResolver`1.Resolve(System.String)">
+            <summary>
+            Resolves the argument from the model
+            </summary>
+            <param name="value">Argument</param>
             <returns>The resolved type</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IParser">

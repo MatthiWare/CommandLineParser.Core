@@ -44,5 +44,10 @@
         /// Option order
         /// </summary>
         int? Order { get; }
+
+        /// <summary>
+        /// Can have multiple values?
+        /// </summary>
+        bool AllowMultipleValues { get; }
     }
 }

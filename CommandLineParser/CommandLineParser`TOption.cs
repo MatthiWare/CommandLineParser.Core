@@ -321,7 +321,7 @@ namespace MatthiWare.CommandLine
 
                 return true;
             }
-            else if (model.HasValue && IsHelpOption(model.Value))
+            else if (model.HasValue && ContainsHelpOption(model.Values))
             {
                 result.HelpRequestedFor = option;
 
@@ -330,6 +330,9 @@ namespace MatthiWare.CommandLine
 
             return false;
         }
+
+        private bool ContainsHelpOption(List<string> values)
+            => values.Any(IsHelpOption);
 
         private bool IsHelpOption(string input)
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);

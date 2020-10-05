@@ -1,4 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Models;
+using System.Linq;
 
 namespace MatthiWare.CommandLine.Abstractions.Parsing
 {
@@ -9,25 +10,20 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
     public abstract class BaseArgumentResolver<TArgument> 
         : IArgumentResolver<TArgument>
     {
-        /// <summary>
-        /// Checks if the resolver can resolve the argument
-        /// </summary>
-        /// <param name="model">argument</param>
-        /// <returns>True if it can resolve it correctly</returns>
-        public abstract bool CanResolve(ArgumentModel model);
+        /// <inheritdoc/>
+        public virtual bool CanResolve(ArgumentModel model) => CanResolve(model.Values.FirstOrDefault());
 
-        /// <summary>
-        /// Resolves the argument from the model
-        /// </summary>
-        /// <param name="model">Argument model</param>
-        /// <returns>The resolved type</returns>
-        public abstract TArgument Resolve(ArgumentModel model);
+        /// <inheritdoc/>
+        public abstract bool CanResolve(string value);
 
-        /// <summary>
-        /// Resolves the argument from the model
-        /// </summary>
-        /// <param name="model">Argument model</param>
-        /// <returns>The resolved type</returns>
+        /// <inheritdoc/>
+        public virtual TArgument Resolve(ArgumentModel model) => Resolve(model.Values.FirstOrDefault());
+
+        /// <inheritdoc/>
+        public abstract TArgument Resolve(string value);
+
         object ICommandLineArgumentResolver.Resolve(ArgumentModel model) => Resolve(model);
+
+        object ICommandLineArgumentResolver.Resolve(string value) => Resolve(value);
     }
 }

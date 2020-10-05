@@ -156,7 +156,7 @@ namespace MatthiWare.CommandLine.Core.Command
                 }
                 catch (OptionParseException e)
                 {
-                    logger.LogDebug("Unable to parse option value '{Value}'", e.ArgumentModel.Value);
+                    logger.LogDebug("Unable to parse option value '{Value}'", e.ArgumentModel.Values);
 
                     errors.Add(e);
                 }
@@ -281,7 +281,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 return true;
             }
-            else if (model.HasValue && IsHelpOption(model.Value))
+            else if (model.HasValue && ContainsHelpOption(model.Values))
             {
                 result.HelpRequestedFor = option;
 
@@ -290,6 +290,9 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return false;
         }
+
+        private bool ContainsHelpOption(List<string> values)
+            => values.Any(IsHelpOption);
 
         private bool IsHelpOption(string input)
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);

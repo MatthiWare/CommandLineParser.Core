@@ -1,11 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MatthiWare.CommandLine.Abstractions.Models
 {
     /// <summary>
     /// Model for command line arguments
     /// </summary>
-    [DebuggerDisplay("Argument key: {Key} value: {Value}")]
+    [DebuggerDisplay("Argument key: {Key} values({Values.Count}): {string.Join(\", \", Values)}")]
     public class ArgumentModel
     {
         /// <summary>
@@ -15,17 +17,18 @@ namespace MatthiWare.CommandLine.Abstractions.Models
 
         /// <summary>
         /// Value of the argument
-        /// Can be null
         /// </summary>
-        public string Value { get; set; }
+        public List<string> Values { get; } = new List<string>();
 
         /// <summary>
         /// Checks if an value has been provided in the model
         /// </summary>
-        public bool HasValue => Value != null;
+        public bool HasValue => Values.Count > 0;
 
-        public ArgumentModel()
-        { }
+        public ArgumentModel(string key)
+        {
+            this.Key = key;
+        }
 
         /// <summary>
         /// Creates a new instance of the argument model
@@ -35,7 +38,11 @@ namespace MatthiWare.CommandLine.Abstractions.Models
         public ArgumentModel(string key, string value)
         {
             this.Key = key;
-            this.Value = value;
+
+            if (!string.IsNullOrEmpty(value))
+            { 
+                Values.Add(value);
+            }
         }
     }
 }

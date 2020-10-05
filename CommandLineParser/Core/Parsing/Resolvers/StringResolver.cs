@@ -1,12 +1,11 @@
-﻿using MatthiWare.CommandLine.Abstractions.Models;
-using MatthiWare.CommandLine.Abstractions.Parsing;
+﻿using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
     internal class StringResolver : BaseArgumentResolver<string>
     {
-        public override bool CanResolve(ArgumentModel model) => model != null && model.HasValue;
+        public override bool CanResolve(string value) => value != null;
 
-        public override string Resolve(ArgumentModel model) => model != null && model.HasValue ? model.Value : null;
+        public override string Resolve(string value) => value;
     }
 }

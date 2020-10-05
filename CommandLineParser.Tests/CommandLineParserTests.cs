@@ -311,6 +311,23 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
+        [InlineData(new string[] { "-int-arr", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-arr", "1", "-int-arr", "2", "-int-arr", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        public void ParseIntArray(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Equal(1, result.Result.IntArray[0]);
+            Assert.Equal(2, result.Result.IntArray[1]);
+            Assert.Equal(3, result.Result.IntArray[2]);
+        }
+
+        [Theory]
         // string
         [InlineData(typeof(string), new[] { "-1=message1", "-2", "-3" }, "default", "message1", "default", "default")]
         [InlineData(typeof(string), new[] { "-1", "-2", "message2", "-3" }, "default", "default", "message2", "default")]
@@ -779,6 +796,7 @@ namespace MatthiWare.CommandLine.Tests
 
             public string Result { get; }
 
+#pragma warning disable IDE0060 // Remove unused parameter
             public static bool TryParse(string input, IFormatProvider format, out StringType2 result)
             {
                 result = new StringType2(input);
@@ -788,6 +806,7 @@ namespace MatthiWare.CommandLine.Tests
             public static bool TryParse() => false;
 
             public static void Tryparse(string input, IFormatProvider format, out StringType2 result)
+
             {
                 result = default;
             }
@@ -853,6 +872,7 @@ namespace MatthiWare.CommandLine.Tests
             {
                 return null;
             }
+#pragma warning restore IDE0060 // Remove unused parameter
         }
 
         private class OrderModel
@@ -877,6 +897,12 @@ namespace MatthiWare.CommandLine.Tests
 
             [Name("r"), DefaultValue(5)]
             public int Random { get; set; }
+        }
+
+        private class CollectionModel
+        {
+            [Name("int-arr")]
+            public int[] IntArray { get; set; }
         }
     }
 }
