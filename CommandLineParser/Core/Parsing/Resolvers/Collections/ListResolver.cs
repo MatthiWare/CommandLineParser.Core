@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections
 {
     /// <inheritdoc/>
-    public sealed class ListResolver<TModel> : IListResolver<TModel>
+    internal sealed class ListResolver<TModel> : IListResolver<TModel>
     {
         private readonly ILogger<CommandLineParser> logger;
         private readonly IArgumentResolver<TModel> resolver;

@@ -7,7 +7,7 @@ using System;
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections
 {
     /// <inheritdoc />
-    public class ArrayResolver<TModel> : IArrayResolver<TModel>
+    internal class ArrayResolver<TModel> : IArrayResolver<TModel>
     {
         private readonly ILogger<CommandLineParser> logger;
         private readonly IArgumentResolver<TModel> resolver;

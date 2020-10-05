@@ -1,6 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
-using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers

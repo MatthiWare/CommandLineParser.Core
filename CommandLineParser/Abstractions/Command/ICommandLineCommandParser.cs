@@ -1,5 +1,4 @@
-﻿using MatthiWare.CommandLine.Abstractions.Parsing;
-using MatthiWare.CommandLine.Abstractions.Parsing.Command;
+﻿using MatthiWare.CommandLine.Abstractions.Parsing.Command;
 using System.Threading;
 using System.Threading.Tasks;
 

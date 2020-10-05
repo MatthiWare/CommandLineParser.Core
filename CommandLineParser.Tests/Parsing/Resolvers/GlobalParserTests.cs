@@ -1,7 +1,5 @@
 ﻿using MatthiWare.CommandLine.Core.Attributes;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -126,7 +124,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         {
             var parser = new CommandLineParser<CollectionModel>(Services);
 
-            var result = parser.Parse(new[] { "-decimal", "1.0m" });
+            var result = parser.Parse(new[] { "-decimal", "1.0" });
 
             result.AssertNoErrors();
 
@@ -138,7 +136,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         {
             var parser = new CommandLineParser<CollectionModel>(Services);
 
-            var result = parser.Parse(new[] { "-long", "1.0f" });
+            var result = parser.Parse(new[] { "-float", "1.0" });
 
             result.AssertNoErrors();
 

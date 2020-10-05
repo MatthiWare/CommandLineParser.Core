@@ -83,6 +83,8 @@ namespace MatthiWare.CommandLine.Core
         {
             services.TryAddScoped<IArgumentResolver<bool>, BoolResolver>();
             services.TryAddScoped<IArgumentResolver<double>, DoubleResolver>();
+            services.TryAddScoped<IArgumentResolver<decimal>, DecimalResolver>();
+            services.TryAddScoped<IArgumentResolver<float>, FloatResolver>();
             services.TryAddScoped<IArgumentResolver<int>, IntResolver>();
             services.TryAddScoped<IArgumentResolver<string>, StringResolver>();
 
