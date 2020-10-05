@@ -113,6 +113,25 @@ namespace MatthiWare.CommandLine.Tests
             Assert.NotEqual(to, result.Result.To);
         }
 
+        [Fact]
+        public void StopProcessingWorks()
+        {
+            var options = new CommandLineParserOptions 
+            {
+                StopParsingAfter = "--"
+            };
+
+            var parser = new CommandLineParser<OrderModelInt>(options, Services);
+
+            var result = parser.Parse(new string[] { "app.exe", "10", "20", "--", "some random stuff", "nothing to see here", "yadi yadi yadi", "-r", "10" });
+
+            result.AssertNoErrors();
+
+            Assert.Equal(10, result.Result.From);
+            Assert.Equal(20, result.Result.To);
+            Assert.NotEqual(10, result.Result.Random);
+        }
+
         [Theory]
         [InlineData("", "--")]
         [InlineData("-", "")]
