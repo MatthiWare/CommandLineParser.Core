@@ -779,6 +779,7 @@ namespace MatthiWare.CommandLine.Tests
 
             public string Result { get; }
 
+#pragma warning disable IDE0060 // Remove unused parameter
             public static bool TryParse(string input, IFormatProvider format, out StringType2 result)
             {
                 result = new StringType2(input);
@@ -853,6 +854,7 @@ namespace MatthiWare.CommandLine.Tests
             {
                 return null;
             }
+#pragma warning restore IDE0060 // Remove unused parameter
         }
 
         private class OrderModel

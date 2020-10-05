@@ -15,11 +15,25 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         bool CanResolve(ArgumentModel model);
 
         /// <summary>
+        /// Checks if the resolver can resolve the argument
+        /// </summary>
+        /// <param name="value">Argument</param>
+        /// <returns>True if it can resolve it correctly</returns>
+        bool CanResolve(string value);
+
+        /// <summary>
         /// Resolves the argument from the model
         /// </summary>
         /// <param name="model">Argument model</param>
         /// <returns>The resolved type</returns>
         object Resolve(ArgumentModel model);
+
+        /// <summary>
+        /// Resolves the argument from the model
+        /// </summary>
+        /// <param name="value">Argument</param>
+        /// <returns>The resolved type</returns>
+        object Resolve(string value);
     }
 
     /// <summary>
@@ -34,5 +48,12 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// <param name="model">Argument model</param>
         /// <returns>The resolved type</returns>
         new T Resolve(ArgumentModel model);
+
+        /// <summary>
+        /// Resolves the argument from the model
+        /// </summary>
+        /// <param name="value">Argument</param>
+        /// <returns>The resolved type</returns>
+        new T Resolve(string value);
     }
 }

@@ -18,8 +18,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private readonly ICommandLineCommandContainer commandContainer;
         private readonly ILogger logger;
         private IEnumerator<ArgumentRecord> enumerator;
-        private Dictionary<IArgument, ArgumentModel> results;
-        private List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
+        private readonly Dictionary<IArgument, ArgumentModel> results = new Dictionary<IArgument, ArgumentModel>();
+        private readonly List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
         private ProcessingContext CurrentContext { get; set; }
         private bool isFirstArgument = true;
 
@@ -40,7 +40,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
         /// <inheritdoc/>
         public void Process(IReadOnlyList<string> arguments, IList<Exception> errors)
         {
-            results = new Dictionary<IArgument, ArgumentModel>();
+            results.Clear();
+            unusedArguments.Clear();
+
             enumerator = new ArgumentRecordEnumerator(options, arguments);
             CurrentContext = new ProcessingContext(null, commandContainer, logger);
 
@@ -121,6 +123,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                     if (results.ContainsKey(option))
                     {
+                        if (option.AllowMultipleValues)
+                        {
+                            context.AssertSafeToSwitchProcessingContext();
+                            context.CurrentOption = option;
+
+                            return true;
+                        }
+
                         continue;
                     }
 
@@ -165,7 +175,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                         continue;
                     }
 
-                    var model = new ArgumentModel(key, string.Empty);
+                    var model = new ArgumentModel(key);
 
                     list.Add(option);
                     results.Add(option, model);
@@ -225,7 +235,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 {
                     foreach (var option in context.ProcessedClusteredOptions)
                     {
-                        results[option].Value = rec.RawData;
+                        results[option].Values.Add(rec.RawData);
                     }
 
                     context.ProcessedClusteredOptions = null;
@@ -246,13 +256,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     continue;
                 }
 
-                if (model.HasValue)
+                if (model.HasValue && !context.CurrentOption.AllowMultipleValues)
                 {
+                    // multiple values are not allowed for this option type
                     context = context.Parent;
                     continue;
                 }
 
-                model.Value = rec.RawData;
+                model.Values.Add(rec.RawData);
                 return true;
             }
 
@@ -290,7 +301,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private class ProcessingContext
         {
-            private List<ICommandLineOption> orderedOptions;
+            private readonly List<ICommandLineOption> orderedOptions;
             private readonly ILogger logger;
 
             public ICommandLineOption CurrentOption { get; set; }

@@ -1,44 +1,30 @@
 ﻿using System.Globalization;
-
-using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 
 namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 {
     internal class DoubleResolver : BaseArgumentResolver<double>
     {
-        public override bool CanResolve(ArgumentModel model)
+        public override bool CanResolve(string value)
         {
-            if (!model.HasValue)
+            if (value is null)
             {
                 return false;
             }
 
-            return TryResolve(model, out _);
+            return TryResolve(value, out _);
         }
 
-        public override double Resolve(ArgumentModel model)
+        public override double Resolve(string value)
         {
-            TryResolve(model, out double result);
+            TryResolve(value, out double result);
 
             return result;
         }
 
-        private bool TryResolve(ArgumentModel model, out double result)
+        private bool TryResolve(string value, out double result)
         {
-            if (model is null)
-            {
-                result = 0;
-                return false;
-            }
-
-            if (!model.HasValue)
-            {
-                result = 0;
-                return false;
-            }
-
-            return double.TryParse(model.Value, NumberStyles.AllowExponent | NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out result);
+            return double.TryParse(value, NumberStyles.AllowExponent | NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out result);
         }
     }
 }

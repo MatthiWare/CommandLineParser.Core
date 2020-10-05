@@ -52,6 +52,8 @@ namespace MatthiWare.CommandLine.Core
 
         public int? Order { get; protected set; }
 
+        public bool AllowMultipleValues { get; protected set; }
+
         public void UseDefault() => AssignValue(DefaultValue);
 
         public bool CanParse(ArgumentModel model) => Resolver.CanResolve(model);

@@ -156,19 +156,19 @@ namespace MatthiWare.CommandLine.Core.Command
                 }
                 catch (OptionParseException e)
                 {
-                    logger.LogDebug("Unable to parse option value '{Value}'", e.ArgumentModel.Value);
+                    logger.LogDebug("Unable to parse option '{Name}' value '{Value}'", option.ToString(), e.ArgumentModel.Values.FirstOrDefault());
 
                     errors.Add(e);
                 }
                 catch (OptionNotFoundException e)
                 {
-                    logger.LogDebug("Command Option '{Name}' not found! Option is marked as required, with no default values configured.", option.ShortName);
+                    logger.LogDebug("Command Option '{Name}' not found! Option is marked as required, with no default values configured.", option.ToString());
 
                     errors.Add(e);
                 }
                 catch (Exception e)
                 {
-                    logger.LogError(e, "Command Option '{Name}' unknown error occured during parsing.", option.ShortName);
+                    logger.LogError(e, "Command Option '{Name}' unknown error occured during parsing.", option.ToString());
 
                     errors.Add(e);
                 }
@@ -181,7 +181,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
             if (found && HelpRequested(result, option, model))
             {
-                logger.LogDebug("Command Option '{Name}' got help requested.", option.ShortName);
+                logger.LogDebug("Command Option '{Name}' got help requested.", option.ToString());
 
                 return;
             }
@@ -191,7 +191,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
             else if (option.ShouldUseDefault(found, model))
             {
-                logger.LogDebug("Command Option '{Name}' using default value.", option.ShortName);
+                logger.LogDebug("Command Option '{Name}' using default value.", option.ToString());
 
                 option.UseDefault();
 
@@ -200,6 +200,10 @@ namespace MatthiWare.CommandLine.Core.Command
             else if (found && !option.CanParse(model))
             {
                 throw new OptionParseException(option, model);
+            }
+            else if (!found)
+            {
+                return;
             }
 
             option.Parse(model);
@@ -281,7 +285,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
                 return true;
             }
-            else if (model.HasValue && IsHelpOption(model.Value))
+            else if (model.HasValue && ContainsHelpOption(model.Values))
             {
                 result.HelpRequestedFor = option;
 
@@ -290,6 +294,9 @@ namespace MatthiWare.CommandLine.Core.Command
 
             return false;
         }
+
+        private bool ContainsHelpOption(List<string> values)
+            => values.Any(IsHelpOption);
 
         private bool IsHelpOption(string input)
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);

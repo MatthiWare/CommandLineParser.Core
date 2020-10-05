@@ -18,32 +18,36 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
             this.logger = logger;
         }
 
-        public override bool CanResolve(ArgumentModel model) => TryParse(model, out _);
+        public override bool CanResolve(ArgumentModel model) => CanResolve(model.Values.FirstOrDefault());
 
-        public override bool Resolve(ArgumentModel model)
+        public override bool CanResolve(string value) => TryParse(value, out _);
+
+        public override bool Resolve(ArgumentModel model) => Resolve(model.Values.FirstOrDefault());
+
+        public override bool Resolve(string value)
         {
-            TryParse(model, out bool result);
+            TryParse(value, out bool result);
 
             return result;
         }
 
-        private bool TryParse(ArgumentModel model, out bool result)
+        private bool TryParse(string value, out bool result)
         {
-            if (recognisedFalseArgs.Contains(model.Value, StringComparer.InvariantCultureIgnoreCase))
+            if (recognisedFalseArgs.Contains(value, StringComparer.InvariantCultureIgnoreCase))
             {
-                logger.LogDebug("BoolResolver does not recognize {input} as false", model.Value);
+                logger.LogDebug("BoolResolver does not recognize {input} as false", value);
                 result = false;
                 return true;
             }
 
-            if (recognisedTrueArgs.Contains(model.Value, StringComparer.OrdinalIgnoreCase))
+            if (recognisedTrueArgs.Contains(value, StringComparer.OrdinalIgnoreCase))
             {
-                logger.LogDebug("BoolResolver does not recognize {input} as true", model.Value);
+                logger.LogDebug("BoolResolver does not recognize {input} as true", value);
                 result = true;
                 return true;
             }
 
-            return bool.TryParse(model.Value, out result);
+            return bool.TryParse(value, out result);
         }
     }
 }

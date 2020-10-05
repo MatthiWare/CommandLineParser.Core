@@ -1,6 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 

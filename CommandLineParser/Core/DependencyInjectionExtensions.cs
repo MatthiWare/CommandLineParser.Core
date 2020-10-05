@@ -2,12 +2,14 @@
 using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Parsing;
+using MatthiWare.CommandLine.Abstractions.Parsing.Collections;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Abstractions.Validations;
 using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Models;
 using MatthiWare.CommandLine.Core.Parsing;
 using MatthiWare.CommandLine.Core.Parsing.Resolvers;
+using MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections;
 using MatthiWare.CommandLine.Core.Usage;
 using MatthiWare.CommandLine.Core.Validations;
 using Microsoft.Extensions.DependencyInjection;
@@ -81,10 +83,15 @@ namespace MatthiWare.CommandLine.Core
         {
             services.TryAddScoped<IArgumentResolver<bool>, BoolResolver>();
             services.TryAddScoped<IArgumentResolver<double>, DoubleResolver>();
+            services.TryAddScoped<IArgumentResolver<decimal>, DecimalResolver>();
+            services.TryAddScoped<IArgumentResolver<float>, FloatResolver>();
             services.TryAddScoped<IArgumentResolver<int>, IntResolver>();
             services.TryAddScoped<IArgumentResolver<string>, StringResolver>();
 
             services.TryAddScoped(typeof(IArgumentResolver<>), typeof(DefaultResolver<>));
+            services.TryAddScoped(typeof(IArrayResolver<>), typeof(ArrayResolver<>));
+            services.TryAddScoped(typeof(IListResolver<>), typeof(ListResolver<>));
+            services.TryAddScoped(typeof(ISetResolver<>), typeof(SetResolver<>));
 
             return services;
         }
