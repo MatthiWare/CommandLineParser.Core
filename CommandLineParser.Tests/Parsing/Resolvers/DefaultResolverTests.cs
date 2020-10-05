@@ -25,7 +25,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             Assert.Throws<NotImplementedException>(() => new DefaultResolver<object>(NullLogger<CommandLineParser>.Instance, ServiceProvider).Resolve(""));
         }
 
-
         [Fact]
         public void WorksCorrectlyWithNullValues()
         {
