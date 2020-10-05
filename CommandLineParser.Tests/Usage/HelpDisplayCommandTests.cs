@@ -96,6 +96,31 @@ namespace MatthiWare.CommandLine.Tests.Usage
             Assert.Equal(fires, calledFlag);
         }
 
+        [Theory]
+        [InlineData(new string[] { "db", "-o", "help" }, false)]
+        public async Task TestHelpDisplayFiresCorrectlyAsync2(string[] args, bool fires)
+        {
+            bool calledFlag = false;
+
+            var usagePrinterMock = new Mock<IUsagePrinter>();
+
+            usagePrinterMock.Setup(mock => mock.PrintUsage()).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintCommandUsage(It.IsAny<ICommandLineCommand>())).Callback(() => calledFlag = true);
+            usagePrinterMock.Setup(mock => mock.PrintOptionUsage(It.IsAny<ICommandLineOption>())).Callback(() => calledFlag = true);
+
+            Services.AddSingleton(usagePrinterMock.Object);
+
+            var parser = new CommandLineParser<CommandOptions>(Services);
+
+            var cmd = parser.AddCommand<Options>()
+                .Name("db")
+                .Description("Database commands");
+
+            var result = await parser.ParseAsync(args);
+
+            Assert.Equal(fires, calledFlag);
+        }
+
         [Fact]
         public void DisabledHelpOptionShouldNotPrintHelp()
         {
