@@ -137,7 +137,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     {
                         if (option.AllowMultipleValues)
                         {
-                            context.AssertSafeToSwitchProcessingContext();
+                            context.AssertSafeToSwitchProcessingContext(OptionHasBeenProcessed);
                             context.CurrentOption = option;
 
                             return true;
@@ -146,7 +146,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
                         continue;
                     }
 
-                    context.AssertSafeToSwitchProcessingContext();
+                    context.AssertSafeToSwitchProcessingContext(OptionHasBeenProcessed);
 
                     context.CurrentOption = option;
 
@@ -167,6 +167,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             return false;
         }
+
+        private bool OptionHasBeenProcessed(ICommandLineOption option) => results.ContainsKey(option);
 
         private bool ProcessClusteredOptions(ProcessingContext context, OptionRecord rec)
         {
@@ -234,6 +236,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                 results.Add(cmd, new ArgumentModel(cmd.Name, null));
 
+                CurrentContext.AssertSafeToSwitchProcessingContext(OptionHasBeenProcessed);
                 CurrentContext = new ProcessingContext(CurrentContext, (ICommandLineCommandContainer)cmd, logger);
 
                 return true;
@@ -329,8 +332,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
             {
                 this.logger = logger;
 
-                parent?.AssertSafeToSwitchProcessingContext();
-
                 ProcessingOrderedOptions = false;
                 Parent = parent;
                 CurrentCommand = commandContainer;
@@ -349,9 +350,9 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 }
             }
 
-            public void AssertSafeToSwitchProcessingContext()
+            public void AssertSafeToSwitchProcessingContext(Func<ICommandLineOption, bool> lookup)
             {
-                if (!ProcessingOrderedOptions || AllOrderedOptionsProcessed)
+                if (!ProcessingOrderedOptions || AllOrderedOptionsProcessed || AllRequiredOptionsHaveBeenProcessed(lookup))
                 {
                     ProcessedClusteredOptions = null;
                     NextArgumentIsForClusteredOptions = false;
@@ -366,6 +367,19 @@ namespace MatthiWare.CommandLine.Core.Parsing
                 }
 
                 throw new InvalidOperationException("Not all ordered options where processed before switching to another option/command context!");
+            }
+
+            private bool AllRequiredOptionsHaveBeenProcessed(Func<ICommandLineOption, bool> lookup)
+            {
+                foreach (var option in CurrentCommand.Options.Where(o => o.IsRequired && !o.HasDefault))
+                {
+                    if (!lookup(option))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
             }
         }
 
