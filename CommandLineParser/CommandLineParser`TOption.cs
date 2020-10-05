@@ -453,6 +453,10 @@ namespace MatthiWare.CommandLine
             {
                 throw new OptionParseException(option, model);
             }
+            else if (!found)
+            {
+                return;
+            }
 
             option.Parse(model);
         }
