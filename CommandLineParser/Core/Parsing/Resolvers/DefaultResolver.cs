@@ -162,8 +162,7 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
             }
 
             if (typeof(ISet<>) == collectionType
-                    || typeof(HashSet<>) == collectionType 
-                    || typeof(SortedSet<>) == collectionType)
+                    || typeof(HashSet<>) == collectionType)
             {
                 var elementType = genericType.GetGenericArguments().First();
                 var listType = typeof(ISetResolver<>).MakeGenericType(elementType);

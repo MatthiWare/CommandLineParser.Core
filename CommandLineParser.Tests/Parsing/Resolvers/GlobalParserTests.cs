@@ -210,6 +210,78 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         }
 
         [Theory]
+        [InlineData(new string[] { "-int-enum", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-enum", "1", "-int-enum", "2", "-int-enum", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
+        public void ParseIntEnumerable(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Contains(1, result.Result.IntEnum);
+            Assert.Contains(2, result.Result.IntEnum);
+            Assert.Contains(3, result.Result.IntEnum);
+        }
+
+        [Theory]
+        [InlineData(new string[] { "-int-icollection", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-icollection", "1", "-int-icollection", "2", "-int-icollection", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
+        public void ParseIntCollection(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Contains(1, result.Result.IntCollection);
+            Assert.Contains(2, result.Result.IntCollection);
+            Assert.Contains(3, result.Result.IntCollection);
+        }
+
+        [Theory]
+        [InlineData(new string[] { "-int-irolist", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-irolist", "1", "-int-irolist", "2", "-int-irolist", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
+        public void ParseIntReadonlyList(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Equal(1, result.Result.IntReadOnlyList[0]);
+            Assert.Equal(2, result.Result.IntReadOnlyList[1]);
+            Assert.Equal(3, result.Result.IntReadOnlyList[2]);
+        }
+
+        [Theory]
+        [InlineData(new string[] { "-int-irocollection", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-irocollection", "1", "-int-irocollection", "2", "-int-irocollection", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
+        public void ParseIntReadonlyCollection(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Contains(1, result.Result.IntReadOnlyCollection);
+            Assert.Contains(2, result.Result.IntReadOnlyCollection);
+            Assert.Contains(3, result.Result.IntReadOnlyCollection);
+        }
+
+        [Theory]
         [InlineData(new string[] { "-int-set", "1", "2", "3" }, true)]
         [InlineData(new string[] { "-int-set", "1", "-int-set", "2", "-int-set", "3" }, true)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
@@ -225,6 +297,24 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             Assert.Contains(1, result.Result.IntSet);
             Assert.Contains(2, result.Result.IntSet);
             Assert.Contains(3, result.Result.IntSet);
+        }
+
+        [Theory]
+        [InlineData(new string[] { "-int-iset", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-iset", "1", "-int-iset", "2", "-int-iset", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
+        public void ParseIntISet(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Contains(1, result.Result.IntISet);
+            Assert.Contains(2, result.Result.IntISet);
+            Assert.Contains(3, result.Result.IntISet);
         }
 
         private class CollectionModel
@@ -261,6 +351,14 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             public string[] StrArray { get; set; }
             [Name("int-list")]
             public List<int> IntList { get; set; }
+            [Name("int-enum")]
+            public IEnumerable<int> IntEnum { get; set; }
+            [Name("int-icollection")]
+            public ICollection<int> IntCollection { get; set; }
+            [Name("int-irolist")]
+            public IReadOnlyList<int> IntReadOnlyList { get; set; }
+            [Name("int-irocollection")]
+            public IReadOnlyCollection<int> IntReadOnlyCollection { get; set; }
             [Name("int-iset")]
             public ISet<int> IntISet { get; set; }
             [Name("int-set")]
