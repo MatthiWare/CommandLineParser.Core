@@ -21,6 +21,8 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
         private readonly ILogger<CommandLineParser> logger;
         private readonly IServiceProvider serviceProvider;
 
+        private readonly Dictionary<Type, ICommandLineArgumentResolver> CachedCollectionResolvers = new Dictionary<Type, ICommandLineArgumentResolver>();
+
         public DefaultResolver(ILogger<CommandLineParser> logger, IServiceProvider serviceProvider)
         {
             genericType = typeof(T);
@@ -123,31 +125,51 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
         private ICommandLineArgumentResolver GetOrCreateCollectionTypeResolver()
         {
+            if (CachedCollectionResolvers.TryGetValue(genericType, out var resolver))
+            {
+                return resolver;
+            }
+
             if (genericType.IsArray)
             {
                 var elementType = genericType.GetElementType();
 
                 var arrayType = typeof(IArrayResolver<>).MakeGenericType(elementType);
-                var resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(arrayType);
+                resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(arrayType);
+
+                CachedCollectionResolvers.Add(genericType, resolver);
 
                 return resolver;
             }
 
             var collectionType = genericType.GetGenericTypeDefinition();
             
-
             if (typeof(IList<>) == collectionType
                     || typeof(IEnumerable<>) == collectionType
                     || typeof(ICollection<>) == collectionType
                     || typeof(IReadOnlyCollection<>) == collectionType
                     || typeof(IReadOnlyList<>) == collectionType
-                    || typeof(List<>) == collectionType
-                    || typeof(ISet<>) == collectionType
-                    || typeof(HashSet<>) == collectionType)
+                    || typeof(List<>) == collectionType)
+                    
             {
                 var elementType = genericType.GetGenericArguments().First();
                 var listType = typeof(IListResolver<>).MakeGenericType(elementType);
-                var resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(listType);
+                resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(listType);
+
+                CachedCollectionResolvers.Add(genericType, resolver);
+
+                return resolver;
+            }
+
+            if (typeof(ISet<>) == collectionType
+                    || typeof(HashSet<>) == collectionType 
+                    || typeof(SortedSet<>) == collectionType)
+            {
+                var elementType = genericType.GetGenericArguments().First();
+                var listType = typeof(ISetResolver<>).MakeGenericType(elementType);
+                resolver = (ICommandLineArgumentResolver)serviceProvider.GetRequiredService(listType);
+
+                CachedCollectionResolvers.Add(genericType, resolver);
 
                 return resolver;
             }

@@ -67,6 +67,24 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             Assert.Equal(3, result.Result.IntList[2]);
         }
 
+        [Theory]
+        [InlineData(new string[] { "-int-set", "1", "2", "3" }, true)]
+        [InlineData(new string[] { "-int-set", "1", "-int-set", "2", "-int-set", "3" }, true)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Compiler Error")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
+        public void ParseIntSet(string[] args, bool avoidCompilerError)
+        {
+            var parser = new CommandLineParser<CollectionModel>(Services);
+
+            var result = parser.Parse(args);
+
+            result.AssertNoErrors();
+
+            Assert.Contains(1, result.Result.IntSet);
+            Assert.Contains(2, result.Result.IntSet);
+            Assert.Contains(3, result.Result.IntSet);
+        }
+
         private class CollectionModel
         {
             [Name("int-arr")]
@@ -77,6 +95,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 
             [Name("int-list")]
             public List<int> IntList { get; set; }
+
+            [Name("int-set")]
+            public HashSet<int> IntSet { get; set; }
         }
     }
 }
