@@ -46,7 +46,8 @@ namespace MatthiWare.CommandLine.Core
                 .AddCommandDiscoverer()
                 .AddEnvironmentVariables()
                 .AddDefaultLogger()
-                .AddModelInitializer();
+                .AddModelInitializer()
+                .AddSuggestionProvider();
         }
 
         internal static IServiceCollection AddArgumentManager(this IServiceCollection services)
@@ -75,6 +76,13 @@ namespace MatthiWare.CommandLine.Core
         private static IServiceCollection AddValidatorContainer(this IServiceCollection services)
         {
             services.AddSingleton<IValidatorsContainer, ValidatorsContainer>();
+
+            return services;
+        }
+
+        private static IServiceCollection AddSuggestionProvider(this IServiceCollection services)
+        {
+            services.AddSingleton<ISuggestionProvider, DamerauLevenshteinSuggestionProvider>();
 
             return services;
         }
