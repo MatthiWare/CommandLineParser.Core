@@ -925,6 +925,19 @@
             https://no-color.org/
             </summary>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Usage.ISuggestionProvider">
+            <summary>
+            Creates suggestions based on input
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.ISuggestionProvider.GetSuggestions(System.String,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
+            <summary>
+            Gets a list of matching suggestions
+            </summary>
+            <param name="input">The wrongly typed input</param>
+            <param name="command">The current command context</param>
+            <returns>A sorted list of suggestions, first item being the best match.</returns>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder">
             <summary>
             Output builder
@@ -1707,6 +1720,17 @@
             Gets the values from the cache. This will instantiate unresolved items. 
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.DamerauLevenshteinSuggestionProvider.FindDistance(System.String@,System.String@)">
+            <summary>
+            Damerau-Levenshtein Distance algorithm implemented using Optimal String Alignment Distance. 
+            </summary>
+            <remarks>
+            https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+            </remarks>
+            <param name="input">string A</param>
+            <param name="suggestion">string B</param>
+            <returns>Damerau-Levenshtein Distance</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Usage.EnvironmentVariableService">
             <inheritdoc/>
