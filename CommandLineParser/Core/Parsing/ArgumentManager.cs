@@ -101,6 +101,11 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private void AddUnprocessedArgument(ArgumentRecord rec)
         {
+            //if (isFirstArgument)
+            //{
+            //    return;
+            //}
+
             var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
             var item = new UnusedArgumentModel(rec.RawData, arg);
 
@@ -281,10 +286,10 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             context = CurrentContext;
 
-            if (isFirstArgument)
-            {
-                return false;
-            }
+            //if (isFirstArgument)
+            //{
+            //    return false;
+            //}
 
             while (context != null)
             {

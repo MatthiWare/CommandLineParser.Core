@@ -68,7 +68,7 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
-            var result = await parser.ParseAsync(new[] { "app.exe", "cmd" });
+            var result = await parser.ParseAsync(new[] { "cmd" });
 
             myServiceMock.Verify(_ => _.Call(), Times.Once());
         }
@@ -87,7 +87,7 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             parser.DiscoverCommands(typeof(NonGenericDiscoverableCommand).Assembly);
 
-            var result = await parser.ParseAsync(new[] { "app.exe", "cmd" });
+            var result = await parser.ParseAsync(new[] { "cmd" });
 
             Assert.True(parser.Commands.Count == 1);
 

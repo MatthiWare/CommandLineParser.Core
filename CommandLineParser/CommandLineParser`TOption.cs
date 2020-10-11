@@ -213,7 +213,7 @@ namespace MatthiWare.CommandLine
 
             await AutoExecuteCommandsAsync(result, cancellationToken);
 
-            AutoPrintUsageAndErrors(result, args.Length == 0);
+            AutoPrintUsageAndErrors(result, args.Length == 0 || args.Length == argumentManager.UnusedArguments.Count);
 
             return result;
         }
@@ -260,7 +260,7 @@ namespace MatthiWare.CommandLine
                 return;
             }
 
-            if (noArgsSupplied && (Options.Any(opt => !opt.HasDefault) || Commands.Any(cmd => cmd.IsRequired)))
+            if (noArgsSupplied && (Options.Any(opt => !opt.HasDefault) || result.CommandResults.Any(cmd => !cmd.Found)))
             {
                 PrintHelp();
             }

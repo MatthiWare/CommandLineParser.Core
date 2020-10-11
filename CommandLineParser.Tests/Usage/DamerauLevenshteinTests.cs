@@ -105,7 +105,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             parser.AddCommand().Name("cmd");
 
-            var result = parser.Parse(new[] { "app.exe", "cmdd" });
+            var result = parser.Parse(new[] { "cmdd" });
 
             result.AssertNoErrors();
         }
