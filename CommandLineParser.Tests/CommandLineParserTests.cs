@@ -603,7 +603,7 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(new string[] { "" }, "defaulttransformed", false)]
+        [InlineData(new string[] {  }, "defaulttransformed", false)]
         [InlineData(new string[] { "-m", "test" }, "testtransformed", false)]
         [InlineData(new string[] { "--message", "test" }, "testtransformed", false)]
         public void TransformationWorksAsExpected(string[] args, string expected, bool errors)

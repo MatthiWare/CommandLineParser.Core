@@ -84,27 +84,46 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     return ProcessCommandOrOptionValue(commandOrValue);
                 case StopProcessingRecord _:
                     return StopProcessing();
+                case HelpRecord help:
+                    return ProcessHelp(help);
                 default:
                     return false;
             }
         }
 
-        private bool StopProcessing()
+        private bool ProcessHelp(HelpRecord help)
         {
-            while (enumerator.MoveNext())
-            { 
-                // do nothing
+            var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
+
+            if (TryGetValue(arg, out var model))
+            {
+                model.Values.Add(help.RawData);
+            }
+            else
+            {
+                model = new ArgumentModel(help.RawData);
+                results.Add(arg, model);
             }
 
             return true;
         }
 
+        private bool StopProcessing()
+        {
+            while (enumerator.MoveNext())
+            {
+                // do nothing
+            }
+
+            return false;
+        }
+
         private void AddUnprocessedArgument(ArgumentRecord rec)
         {
-            //if (isFirstArgument)
-            //{
-            //    return;
-            //}
+            if (isFirstArgument)
+            {
+                //throw new Exception("NOT FOUND OOPSIE");
+            }
 
             var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
             var item = new UnusedArgumentModel(rec.RawData, arg);
@@ -387,7 +406,12 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private sealed class ArgumentRecordEnumerator : IEnumerator<ArgumentRecord>
         {
             private readonly IEnumerator<string> enumerator;
-            private readonly CommandLineParserOptions options;
+            private readonly string prefixShort;
+            private readonly string prefixLong;
+            private readonly string postFix;
+            private readonly (string shortHelp, string longHelp) help;
+            private readonly string stopParsing;
+            private readonly bool canStopParsing;
 
             public ArgumentRecordEnumerator(CommandLineParserOptions options, IReadOnlyList<string> arguments)
             {
@@ -396,8 +420,18 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     throw new ArgumentNullException(nameof(arguments));
                 }
 
+                if (options is null)
+                {
+                    throw new ArgumentNullException(nameof(options));
+                }
+
                 enumerator = arguments.GetEnumerator();
-                this.options = options ?? throw new ArgumentNullException(nameof(options));
+                prefixShort = options.PrefixShortOption;
+                prefixLong = options.PrefixLongOption;
+                postFix = options.PostfixOption;
+                stopParsing = options.StopParsingAfter;
+                help = options.GetConfiguredHelpOption();
+                canStopParsing = !string.IsNullOrEmpty(options.StopParsingAfter);
             }
 
             public ArgumentRecord Current { get; private set; }
@@ -418,18 +452,23 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
             private ArgumentRecord CreateRecord(string current)
             {
-                bool isLongOption = current.StartsWith(options.PrefixLongOption);
-                bool isShortOption = current.StartsWith(options.PrefixShortOption);
-                bool stopProcessing = !string.IsNullOrEmpty(options.StopParsingAfter) && current.Equals(options.StopParsingAfter);
+                bool isLongOption = current.StartsWith(prefixLong);
+                bool isShortOption = current.StartsWith(prefixShort);
+                bool stopProcessing = canStopParsing && current.Equals(stopParsing);
 
                 if (stopProcessing)
                 {
                     return new StopProcessingRecord(current);
                 }
 
+                if (current.Equals(help.shortHelp) || current.Equals(help.longHelp))
+                {
+                    return new HelpRecord(current);
+                }
+
                 if (isLongOption || isShortOption)
                 {
-                    return new OptionRecord(current, options.PostfixOption, isLongOption);
+                    return new OptionRecord(current, postFix, isLongOption);
                 }
 
                 return new CommandOrOptionValueRecord(current);
@@ -451,6 +490,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private sealed class StopProcessingRecord : ArgumentRecord
         {
             public StopProcessingRecord(string data)
+                : base(data)
+            {
+            }
+        }
+
+        private sealed class HelpRecord : ArgumentRecord
+        {
+            public HelpRecord(string data)
                 : base(data)
             {
             }

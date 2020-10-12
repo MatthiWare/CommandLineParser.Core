@@ -132,7 +132,7 @@ namespace MatthiWare.CommandLine.Core.Command
 
             ParseOptions(errors, result);
 
-            await ValidateAsync(m_commandOption, errors, cancellationToken);
+            await ValidateAsync(m_commandOption, result, errors, cancellationToken);
 
             result.MergeResult(errors);
 
@@ -141,6 +141,11 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private void ParseOptions(IList<Exception> errors, CommandParserResult result)
         {
+            if (result.HelpRequested)
+            {
+                return;
+            }
+
             foreach (var optionKeyValue in m_options)
             {
                 var option = optionKeyValue.Value;
@@ -245,7 +250,8 @@ namespace MatthiWare.CommandLine.Core.Command
 
         private async Task ParseCommandAsync(CommandLineCommandBase cmd, CommandParserResult result, CancellationToken cancellationToken)
         {
-            if (!argumentManager.TryGetValue(cmd, out _))
+            var found = argumentManager.TryGetValue(cmd, out var model);
+            if (!found)
             {
                 result.MergeResult(new CommandNotFoundParserResult(cmd));
 
@@ -254,6 +260,10 @@ namespace MatthiWare.CommandLine.Core.Command
                     throw new CommandNotFoundException(cmd);
                 }
 
+                return;
+            }
+            else if (found && HelpRequested(result, cmd, model))
+            {
                 return;
             }
 
@@ -272,7 +282,7 @@ namespace MatthiWare.CommandLine.Core.Command
             }
         }
 
-        private bool HelpRequested(CommandParserResult result, CommandLineOptionBase option, ArgumentModel model)
+        private bool HelpRequested(CommandParserResult result, IArgument option, ArgumentModel model)
         {
             if (!m_parserOptions.EnableHelpOption)
             {
@@ -301,8 +311,13 @@ namespace MatthiWare.CommandLine.Core.Command
         private bool IsHelpOption(string input)
             => input.EqualsIgnoreCase(m_helpOptionName) || input.EqualsIgnoreCase(m_helpOptionNameLong);
 
-        private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
+        private async Task ValidateAsync<T>(T @object, CommandParserResult parserResult, List<Exception> errors, CancellationToken token)
         {
+            if (parserResult.HelpRequested)
+            {
+                return;
+            }
+
             if (!m_validators.HasValidatorFor<T>())
             {
                 logger.LogDebug("No validator configured for {name} in command '{cmdName}'", typeof(T).Name, Name);

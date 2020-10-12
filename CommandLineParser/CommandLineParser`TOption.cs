@@ -201,13 +201,13 @@ namespace MatthiWare.CommandLine
 
             argumentManager.Process(args, errors);
 
+            CheckForGlobalHelpOption(result);
+
             await ParseCommandsAsync(errors, result, cancellationToken);
 
             ParseOptions(errors, result);
 
-            CheckForExtraHelpArguments(result);
-
-            await ValidateAsync(m_option, errors, cancellationToken);
+            await ValidateAsync(m_option, result, errors, cancellationToken);
 
             result.MergeResult(errors);
 
@@ -218,8 +218,13 @@ namespace MatthiWare.CommandLine
             return result;
         }
 
-        private async Task ValidateAsync<T>(T @object, List<Exception> errors, CancellationToken token)
+        private async Task ValidateAsync<T>(T @object, ParseResult<TOption> parseResult, List<Exception> errors, CancellationToken token)
         {
+            if (parseResult.HelpRequested)
+            {
+                return;
+            }
+
             if (!Validators.HasValidatorFor<T>())
             {
                 return;
@@ -239,18 +244,12 @@ namespace MatthiWare.CommandLine
             }
         }
 
-        private void CheckForExtraHelpArguments(ParseResult<TOption> result)
+        private void CheckForGlobalHelpOption(ParseResult<TOption> result)
         {
-            var unusedArg = argumentManager.UnusedArguments
-                .Where(a => a.Key.EqualsIgnoreCase(m_helpOptionName) || a.Key.EqualsIgnoreCase(m_helpOptionNameLong))
-                .FirstOrDefault();
-
-            if (unusedArg.Argument == null)
+            if (argumentManager.TryGetValue(this, out var model))
             {
-                return;
+                HelpRequested(result, this, model);
             }
-
-            result.HelpRequestedFor = unusedArg.Argument ?? this;
         }
 
         private void AutoPrintUsageAndErrors(ParseResult<TOption> result, bool noArgsSupplied)
@@ -300,7 +299,7 @@ namespace MatthiWare.CommandLine
 
         private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
         {
-            if (result.HasErrors)
+            if (result.HasErrors || result.HelpRequested)
             {
                 return;
             }
@@ -308,7 +307,7 @@ namespace MatthiWare.CommandLine
             await ExecuteCommandParserResultsAsync(result, result.CommandResults.Where(sub => sub.Command.AutoExecute), cancellationToken);
         }
 
-        private bool HelpRequested(ParseResult<TOption> result, CommandLineOptionBase option, ArgumentModel model)
+        private bool HelpRequested(ParseResult<TOption> result, IArgument argument, ArgumentModel model)
         {
             if (!ParserOptions.EnableHelpOption)
             {
@@ -323,7 +322,7 @@ namespace MatthiWare.CommandLine
             }
             else if (model.HasValue && ContainsHelpOption(model.Values))
             {
-                result.HelpRequestedFor = option;
+                result.HelpRequestedFor = argument;
 
                 return true;
             }
@@ -387,7 +386,9 @@ namespace MatthiWare.CommandLine
 
         private async Task ParseCommandAsync(CommandLineCommandBase cmd, ParseResult<TOption> result, CancellationToken cancellationToken)
         {
-            if (!argumentManager.TryGetValue(cmd, out _))
+            var found = argumentManager.TryGetValue(cmd, out var model);
+
+            if (!found)
             {
                 result.MergeResult(new CommandNotFoundParserResult(cmd));
 
@@ -396,6 +397,10 @@ namespace MatthiWare.CommandLine
                     throw new CommandNotFoundException(cmd);
                 }
 
+                return;
+            }
+            else if (found && HelpRequested(result, cmd, model))
+            {
                 return;
             }
 
@@ -411,6 +416,12 @@ namespace MatthiWare.CommandLine
 
         private void ParseOptions(IList<Exception> errors, ParseResult<TOption> result)
         {
+            if (result.HelpRequested)
+            {
+                result.MergeResult(m_option);
+                return;
+            }
+
             foreach (var o in m_options)
             {
                 try
