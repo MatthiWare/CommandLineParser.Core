@@ -59,6 +59,14 @@ namespace MatthiWare.CommandLine.Tests.Usage
         }
 
         [Fact]
+        public void NoContainerReturnsEmptyResult()
+        {
+            var dl = new DamerauLevenshteinSuggestionProvider();
+
+            Assert.Empty(dl.GetSuggestions(string.Empty, null));
+        }
+
+        [Fact]
         public void InvalidSuggestionIsNotReturned()
         {
             var containerMock = new Mock<ICommandLineCommandContainer>();

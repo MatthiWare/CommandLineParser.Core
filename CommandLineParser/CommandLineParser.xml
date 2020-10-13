@@ -1777,7 +1777,7 @@
         <member name="P:MatthiWare.CommandLine.Core.Usage.UsagePrinter.Builder">
             <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService)">
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService,MatthiWare.CommandLine.Abstractions.Usage.ISuggestionProvider)">
             <summary>
             Creates a new CLI output usage printer
             </summary>
