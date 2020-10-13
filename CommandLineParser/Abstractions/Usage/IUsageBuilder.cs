@@ -66,5 +66,8 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
         /// </summary>
         /// <param name="errors"></param>
         void AddErrors(IReadOnlyCollection<Exception> errors);
+
+        void AddSuggestionHeader(string inputKey);
+        void AddSuggestion(string suggestion);
     }
 }

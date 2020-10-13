@@ -1,4 +1,5 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,5 +62,7 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
         /// </summary>
         /// <param name="errors">list of errors</param>
         void PrintErrors(IReadOnlyCollection<Exception> errors);
+
+        void PrintSuggestion(UnusedArgumentModel model);
     }
 }

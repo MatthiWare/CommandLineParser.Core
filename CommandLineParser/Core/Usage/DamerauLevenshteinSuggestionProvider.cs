@@ -13,6 +13,11 @@ namespace MatthiWare.CommandLine.Core.Usage
 
         public IEnumerable<string> GetSuggestions(string input, ICommandLineCommandContainer command)
         {
+            if (command is null)
+            {
+                return Array.Empty<string>();
+            }
+
             var suggestions = GetAvailableSuggestions(command);
 
             return GetBestMatchesOrdered(suggestions, input);

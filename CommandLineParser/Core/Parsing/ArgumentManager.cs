@@ -20,8 +20,8 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private IEnumerator<ArgumentRecord> enumerator;
         private readonly Dictionary<IArgument, ArgumentModel> results = new Dictionary<IArgument, ArgumentModel>();
         private readonly List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
-        private ProcessingContext CurrentContext { get; set; }
-        private bool isFirstArgument = true;
+        private ProcessingContext CurrentContext;
+        private bool isFirstUnprocessedArgument = true;
 
         /// <inheritdoc/>
         public IReadOnlyList<UnusedArgumentModel> UnusedArguments => unusedArguments;
@@ -46,7 +46,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
             enumerator = new ArgumentRecordEnumerator(options, arguments);
             CurrentContext = new ProcessingContext(null, commandContainer, logger);
 
-            isFirstArgument = true;
+            isFirstUnprocessedArgument = true;
 
             try
             {
@@ -58,8 +58,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
                     {
                         AddUnprocessedArgument(enumerator.Current);
                     }
-
-                    isFirstArgument = false;
                 }
             }
             catch (InvalidOperationException invalidOpException)
@@ -120,11 +118,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private void AddUnprocessedArgument(ArgumentRecord rec)
         {
-            if (isFirstArgument)
-            {
-                //throw new Exception("NOT FOUND OOPSIE");
-            }
-
             var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
             var item = new UnusedArgumentModel(rec.RawData, arg);
 

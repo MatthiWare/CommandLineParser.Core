@@ -1,8 +1,10 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MatthiWare.CommandLine.Core.Usage
 {
@@ -10,6 +12,7 @@ namespace MatthiWare.CommandLine.Core.Usage
     public class UsagePrinter : IUsagePrinter
     {
         private readonly IEnvironmentVariablesService environmentVariablesService;
+        private readonly ISuggestionProvider suggestionProvider;
 
         protected ICommandLineCommandContainer Container { get; }
 
@@ -24,11 +27,12 @@ namespace MatthiWare.CommandLine.Core.Usage
         /// <param name="container"></param>
         /// <param name="builder"></param>
         /// <param name="environmentVariablesService"></param>
-        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService)
+        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService, ISuggestionProvider suggestionProvider)
         {
             Container = container ?? throw new ArgumentNullException(nameof(container));
             Builder = builder ?? throw new ArgumentNullException(nameof(builder));
             this.environmentVariablesService = environmentVariablesService ?? throw new ArgumentNullException(nameof(environmentVariablesService));
+            this.suggestionProvider = suggestionProvider ?? throw new ArgumentNullException(nameof(suggestionProvider));
         }
 
         /// <inheritdoc/>
@@ -100,5 +104,22 @@ namespace MatthiWare.CommandLine.Core.Usage
         /// <inheritdoc/>
         public virtual void PrintUsage(ICommandLineOption option)
             => PrintOptionUsage(option);
+
+        public void PrintSuggestion(UnusedArgumentModel model)
+        {
+            var suggestions = suggestionProvider.GetSuggestions(model.Key, model.Argument as ICommandLineCommandContainer);
+
+            if (!suggestions.Any())
+            {
+                return;
+            }
+
+            Builder.AddSuggestion(model.Key);
+
+            foreach (var suggestion in suggestions)
+            {
+                Builder.AddSuggestion(suggestion);
+            }
+        }
     }
 }
