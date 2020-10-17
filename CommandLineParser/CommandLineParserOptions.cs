@@ -30,7 +30,7 @@ namespace MatthiWare.CommandLine
         /// <summary>
         /// Help option name. 
         /// Accepts both formatted and unformatted help name. 
-        /// If the name is a single string it will use the <see cref="PrefixLongOption"/>
+        /// If the name is a single string it will use the <see cref="HelpOptionName"/>
         /// If the name is split for example h|help it will use the following format <![CDATA[<shortOption>|<longOption>]]>
         /// </summary>
         public string HelpOptionName { get; set; } = "h|help";
@@ -53,11 +53,6 @@ namespace MatthiWare.CommandLine
 
         internal (string shortOption, string longOption) GetConfiguredHelpOption()
         {
-            if (!EnableHelpOption)
-            {
-                return (null, null);
-            }
-
             var tokens = HelpOptionName.Split('|');
 
             string shortResult;

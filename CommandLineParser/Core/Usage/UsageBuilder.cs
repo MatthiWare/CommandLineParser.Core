@@ -119,5 +119,19 @@ namespace MatthiWare.CommandLine.Core.Usage
                 stringBuilder.AppendLine(error.Message);
             }
         }
+
+        /// <inheritdoc/>
+        public void AddSuggestionHeader(string inputKey)
+        {
+            stringBuilder.AppendLine($"'{inputKey}' is not recognized as a valid command or option.");
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine("Did you mean: ");
+        }
+
+        /// <inheritdoc/>
+        public void AddSuggestion(string suggestion)
+        {
+            stringBuilder.AppendLine($"\t{suggestion}"); 
+        }
     }
 }

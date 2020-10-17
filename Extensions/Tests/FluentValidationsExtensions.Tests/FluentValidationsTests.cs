@@ -35,7 +35,7 @@ namespace FluentValidationsExtensions.Tests
 
             parser.RegisterCommand<CommandWithModel<FirstModel, EmailModel>, EmailModel>();
 
-            var result = parser.Parse(new string[] { "app.exe", "-f", "JamesJames1", "-l", "Bond123456789", "cmd", "-e", "jane.doe@provider.com", "-i", "50" });
+            var result = parser.Parse(new string[] { "-f", "JamesJames1", "-l", "Bond123456789", "cmd", "-e", "jane.doe@provider.com", "-i", "50" });
 
             result.AssertNoErrors();
         }
@@ -56,7 +56,7 @@ namespace FluentValidationsExtensions.Tests
 
             parser.RegisterCommand<CommandWithModel<FirstModel, EmailModel>, EmailModel>();
 
-            var result = parser.Parse(new string[] { "app.exe", "-f", "James", "-l", "Bond", "cmd", "-e", "jane.doe@provider.com", "-i", "50" });
+            var result = parser.Parse(new string[] { "-f", "James", "-l", "Bond", "cmd", "-e", "jane.doe@provider.com", "-i", "50" });
 
             Assert.True(result.AssertNoErrors(false));
         }
@@ -77,7 +77,7 @@ namespace FluentValidationsExtensions.Tests
 
             parser.RegisterCommand<CommandWithModel<FirstModel, EmailModel>, EmailModel>();
 
-            var result = parser.Parse(new string[] { "app.exe", "-f", "JamesJames1", "-l", "BondBond1231456", "cmd", "-e", "jane.doe@provider.com", "-i", "0" });
+            var result = parser.Parse(new string[] { "-f", "JamesJames1", "-l", "BondBond1231456", "cmd", "-e", "jane.doe@provider.com", "-i", "0" });
 
             Assert.True(result.AssertNoErrors(false));
         }

@@ -1,10 +1,14 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
+using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
+using MatthiWare.CommandLine.Core.Usage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -166,7 +170,97 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 ToTimes(optPassed));
         }
 
+        [Fact]
+        public void TestSuggestion()
+        {
+            // SETUP
+            string result = string.Empty;
+            var expected = $"'tst' is not recognized as a valid command or option.{Environment.NewLine}{Environment.NewLine}Did you mean: {Environment.NewLine}\tTest{Environment.NewLine}";
+
+            var consoleMock = new Mock<IConsole>();
+            consoleMock.Setup(_ => _.WriteLine(It.IsAny<string>())).Callback((string s) => result = s).Verifiable();
+
+            Services.AddSingleton(consoleMock.Object);
+            Services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<OptionModel>(Services);
+
+            var cmdConfig = parser.AddCommand<OptionModel>();
+            cmdConfig.Name("ZZZZZZZZZZZZZZ").Configure(o => o.Option).Name("tst");
+
+            parser.AddCommand().Name("Test");
+            parser.Configure(o => o.Option).Name("Test1");
+
+            var model = new UnusedArgumentModel("tst", parser);
+            var printer = parser.Services.GetRequiredService<IUsagePrinter>();
+
+            // ACT
+            printer.PrintSuggestion(model);
+
+            // ASSERT
+            consoleMock.VerifyAll();
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void TestNoSuggestion()
+        {
+            var usageBuilderMock = new Mock<IUsageBuilder>();
+            var suggestionProviderMock = new Mock<ISuggestionProvider>();
+
+            suggestionProviderMock
+                .Setup(_ => _.GetSuggestions(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()))
+                .Returns(Array.Empty<string>());
+
+            Services.AddSingleton(usageBuilderMock.Object);
+            Services.AddSingleton(suggestionProviderMock.Object);
+            Services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<OptionModel>(Services);
+
+            // ACT
+            parser.Parse(new[] { "tst" }).AssertNoErrors();
+
+            // ASSERT
+            usageBuilderMock.Verify(_ => _.AddSuggestion(It.IsAny<string>()), Times.Never());
+            usageBuilderMock.Verify(_ => _.AddSuggestionHeader(It.IsAny<string>()), Times.Never());
+        }
+
+        [Fact]
+        public void TestSuggestionWithParsing()
+        {
+            // SETUP
+            string result = string.Empty;
+            var expected = $"'tst' is not recognized as a valid command or option.{Environment.NewLine}{Environment.NewLine}Did you mean: {Environment.NewLine}\tTest{Environment.NewLine}";
+
+            var consoleMock = new Mock<IConsole>();
+            consoleMock.Setup(_ => _.WriteLine(It.IsAny<string>())).Callback((string s) => result += s).Verifiable();
+
+            Services.AddSingleton(consoleMock.Object);
+            Services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<OptionModel>(Services);
+
+            var cmdConfig = parser.AddCommand<OptionModel>();
+            cmdConfig.Name("ZZZZZZZZZZZZZZ").Configure(o => o.Option).Name("tst");
+
+            parser.AddCommand().Name("Test");
+            parser.Configure(o => o.Option).Name("Test1");
+
+            // ACT
+            parser.Parse(new[] { "tst" }).AssertNoErrors();
+
+            // ASSERT
+            consoleMock.VerifyAll();
+            Assert.Contains(expected, result);
+        }
+
         private Times ToTimes(bool input)
             => input ? Times.Once() : Times.Never();
+
+        private class OptionModel
+        {
+            public string Option { get; set; }
+        }
     }
 }

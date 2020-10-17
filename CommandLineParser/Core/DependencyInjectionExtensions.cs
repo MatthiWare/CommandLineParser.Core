@@ -46,7 +46,8 @@ namespace MatthiWare.CommandLine.Core
                 .AddCommandDiscoverer()
                 .AddEnvironmentVariables()
                 .AddDefaultLogger()
-                .AddModelInitializer();
+                .AddModelInitializer()
+                .AddSuggestionProvider();
         }
 
         internal static IServiceCollection AddArgumentManager(this IServiceCollection services)
@@ -79,6 +80,13 @@ namespace MatthiWare.CommandLine.Core
             return services;
         }
 
+        private static IServiceCollection AddSuggestionProvider(this IServiceCollection services)
+        {
+            services.AddSingleton<ISuggestionProvider, DamerauLevenshteinSuggestionProvider>();
+
+            return services;
+        }
+
         internal static IServiceCollection AddDefaultResolvers(this IServiceCollection services)
         {
             services.TryAddScoped<IArgumentResolver<bool>, BoolResolver>();
@@ -100,6 +108,7 @@ namespace MatthiWare.CommandLine.Core
         {
             services.TryAddScoped<IUsageBuilder, UsageBuilder>();
             services.TryAddScoped<IUsagePrinter, UsagePrinter>();
+            services.TryAddScoped<IConsole, SystemConsole>();
 
             return services;
         }

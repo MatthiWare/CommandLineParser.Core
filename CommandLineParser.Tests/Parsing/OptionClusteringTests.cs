@@ -15,7 +15,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         {
             var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
 
-            var result = parser.Parse(new[] { "app.exe", "-abc" });
+            var result = parser.Parse(new[] { "-abc" });
 
             result.AssertNoErrors();
 
@@ -31,7 +31,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         {
             var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
 
-            var result = parser.Parse(new[] { "app.exe", "-abc", "false" });
+            var result = parser.Parse(new[] { "-abc", "false" });
 
             result.AssertNoErrors();
 
@@ -47,7 +47,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         {
             var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
 
-            var result = parser.Parse(new[] { "app.exe", "-abc", "false", "-abc", "true" });
+            var result = parser.Parse(new[] { "-abc", "false", "-abc", "true" });
 
             result.AssertNoErrors();
 
@@ -70,7 +70,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
                 Assert.False(model.C);
             });
 
-            var result = parser.Parse(new[] { "app.exe", "cmd", "-abc", "false" });
+            var result = parser.Parse(new[] { "cmd", "-abc", "false" });
 
             result.AssertNoErrors();
         }
@@ -87,7 +87,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
                 Assert.False(model.C);
             });
 
-            var result = parser.Parse(new[] { "app.exe", "-abc", "cmd", "-abc", "false" });
+            var result = parser.Parse(new[] { "-abc", "cmd", "-abc", "false" });
 
             result.AssertNoErrors();
 
@@ -108,7 +108,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing
                 Assert.Equal("false", model.C);
             });
 
-            var result = parser.Parse(new[] { "app.exe", "-abc", "works", "cmd", "-abc", "false" });
+            var result = parser.Parse(new[] { "-abc", "works", "cmd", "-abc", "false" });
 
             result.AssertNoErrors();
 

@@ -38,7 +38,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parser = new CommandLineParser<OrderModel>(Services);
 
-            var result = parser.Parse(new string[] { "app.exe", from, to });
+            var result = parser.Parse(new string[] { from, to });
 
             result.AssertNoErrors();
 
@@ -54,7 +54,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parser = new CommandLineParser<OrderModel>(Services);
 
-            var result = parser.Parse(new string[] { "app.exe", "-r", "5", from, to });
+            var result = parser.Parse(new string[] { "-r", "5", from, to });
 
             result.AssertNoErrors();
 
@@ -76,7 +76,7 @@ namespace MatthiWare.CommandLine.Tests
                 Assert.Equal(to, model.To);
             });
 
-            var result = parser.Parse(new string[] { "app.exe", "cmd", from, to });
+            var result = parser.Parse(new string[] { "cmd", from, to });
 
             result.AssertNoErrors();
         }
@@ -89,7 +89,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parser = new CommandLineParser<OrderModel>(Services);
 
-            var result = parser.Parse(new string[] { "app.exe", from, "-r", "5", to });
+            var result = parser.Parse(new string[] { from, "-r", "5", to });
 
             Assert.True(result.HasErrors);
 
@@ -105,7 +105,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parser = new CommandLineParser<OrderModelInt>(Services);
 
-            var result = parser.Parse(new string[] { "app.exe", from.ToString(), "oops", to.ToString() });
+            var result = parser.Parse(new string[] { from.ToString(), "oops", to.ToString() });
 
             Assert.True(result.HasErrors);
 
@@ -123,7 +123,7 @@ namespace MatthiWare.CommandLine.Tests
 
             var parser = new CommandLineParser<OrderModelInt>(options, Services);
 
-            var result = parser.Parse(new string[] { "app.exe", "10", "20", "--", "some random stuff", "nothing to see here", "yadi yadi yadi", "-r", "10" });
+            var result = parser.Parse(new string[] { "10", "20", "--", "some random stuff", "nothing to see here", "yadi yadi yadi", "-r", "10" });
 
             result.AssertNoErrors();
 
@@ -203,7 +203,7 @@ namespace MatthiWare.CommandLine.Tests
                 parser.RegisterCommand(typeof(MyCommand), typeof(object));
             }
 
-            var result = parser.Parse(new[] { "app.exe", "my" });
+            var result = parser.Parse(new[] { "my" });
 
             result.AssertNoErrors();
 
@@ -238,7 +238,7 @@ namespace MatthiWare.CommandLine.Tests
                 parser.RegisterCommand(typeof(MyCommand), typeof(object));
             }
 
-            var result = await parser.ParseAsync(new[] { "app.exe", "my" });
+            var result = await parser.ParseAsync(new[] { "my" });
 
             result.AssertNoErrors();
 
@@ -299,7 +299,7 @@ namespace MatthiWare.CommandLine.Tests
                 .Default("Default message")
                 .Required();
 
-            var parsed = parser.Parse(new string[] { "app.exe", "-o", "test" });
+            var parsed = parser.Parse(new string[] { "-o", "test" });
 
             Assert.NotNull(parsed);
 
@@ -309,11 +309,11 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "app.exe", "-e", "Opt1" }, false, EnumOption.Opt1)]
-        [InlineData(new[] { "app.exe", "-e=opt1" }, false, EnumOption.Opt1)]
-        [InlineData(new[] { "app.exe", "-e", "Opt2" }, false, EnumOption.Opt2)]
-        [InlineData(new[] { "app.exe", "-e", "bla" }, true, default(EnumOption))]
-        [InlineData(new[] { "app.exe", "-e" }, true, default(EnumOption))]
+        [InlineData(new[] { "-e", "Opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "-e=opt1" }, false, EnumOption.Opt1)]
+        [InlineData(new[] { "-e", "Opt2" }, false, EnumOption.Opt2)]
+        [InlineData(new[] { "-e", "bla" }, true, default(EnumOption))]
+        [InlineData(new[] { "-e" }, true, default(EnumOption))]
         public void ParseEnumInArguments(string[] args, bool hasErrors, EnumOption enumOption)
         {
             var parser = new CommandLineParser<EnumOptions>(Services);
@@ -439,7 +439,7 @@ namespace MatthiWare.CommandLine.Tests
                 .Name("m", "message")
                 .Required();
 
-            var parsed = await parser.ParseAsync(new string[] { "app.exe", "-o", "test", "add", "-m=my message" });
+            var parsed = await parser.ParseAsync(new string[] { "-o", "test", "add", "-m=my message" });
 
             parsed.AssertNoErrors();
 
@@ -451,8 +451,8 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
-        [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
         [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         public void ParseCommandTests(string[] args, string result1, string result2)
@@ -487,8 +487,8 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(new[] { "app.exe", "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
-        [InlineData(new[] { "app.exe", "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
+        [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
+        [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         [InlineData(new[] { "add", "-m", "message2", "-m", "message1" }, "message1", "message2")]
         [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         public async Task ParseCommandTestsAsync(string[] args, string result1, string result2)
@@ -603,7 +603,7 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Theory]
-        [InlineData(new string[] { "" }, "defaulttransformed", false)]
+        [InlineData(new string[] {  }, "defaulttransformed", false)]
         [InlineData(new string[] { "-m", "test" }, "testtransformed", false)]
         [InlineData(new string[] { "--message", "test" }, "testtransformed", false)]
         public void TransformationWorksAsExpected(string[] args, string expected, bool errors)

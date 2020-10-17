@@ -27,7 +27,7 @@ namespace MatthiWare.CommandLine.Tests
 
             parser.RegisterCommand<MyCommandThatUsesService>();
 
-            var result = parser.Parse(new[] { "app.exe", "cmd" });
+            var result = parser.Parse(new[] { "cmd" });
 
             result.AssertNoErrors();
 
