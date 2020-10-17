@@ -108,6 +108,7 @@ namespace MatthiWare.CommandLine.Core
         {
             services.TryAddScoped<IUsageBuilder, UsageBuilder>();
             services.TryAddScoped<IUsagePrinter, UsagePrinter>();
+            services.TryAddScoped<IConsole, SystemConsole>();
 
             return services;
         }

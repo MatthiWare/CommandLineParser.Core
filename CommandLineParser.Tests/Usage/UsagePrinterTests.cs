@@ -1,8 +1,11 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
+using MatthiWare.CommandLine.Core.Command;
 using MatthiWare.CommandLine.Core.Exceptions;
+using MatthiWare.CommandLine.Core.Usage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
@@ -166,7 +169,24 @@ namespace MatthiWare.CommandLine.Tests.Usage
                 ToTimes(optPassed));
         }
 
+        [Fact]
+        public void TestSuggestion()
+        {
+            var builder = new UsageBuilder(new CommandLineParserOptions());
+            var commandMock = new Mock<CommandLineCommandBase>();
+            var environmentService = Mock.Of<IEnvironmentVariablesService>();
+            var suggestionsProvider = new DamerauLevenshteinSuggestionProvider();
+            var model = new UnusedArgumentModel("tst", commandMock.Object);
+
+            var printer = new UsagePrinter(commandMock.Object, builder, environmentService, suggestionsProvider);
+
+            printer.PrintSuggestion(model);
+
+            var result = printer.
+        }
+
         private Times ToTimes(bool input)
             => input ? Times.Once() : Times.Never();
     }
 }
+ 

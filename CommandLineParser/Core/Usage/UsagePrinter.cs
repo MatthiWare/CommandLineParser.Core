@@ -11,6 +11,7 @@ namespace MatthiWare.CommandLine.Core.Usage
     /// <inheritdoc/>
     public class UsagePrinter : IUsagePrinter
     {
+        private readonly IConsole console;
         private readonly IEnvironmentVariablesService environmentVariablesService;
         private readonly ISuggestionProvider suggestionProvider;
 
@@ -19,16 +20,17 @@ namespace MatthiWare.CommandLine.Core.Usage
         /// <inheritdoc/>
         public IUsageBuilder Builder { get; }
 
-        internal ConsoleColor m_currentConsoleColor = ConsoleColor.Gray;
-
         /// <summary>
         /// Creates a new CLI output usage printer
         /// </summary>
+        /// <param name="console"></param>
         /// <param name="container"></param>
         /// <param name="builder"></param>
         /// <param name="environmentVariablesService"></param>
-        public UsagePrinter(ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService, ISuggestionProvider suggestionProvider)
+        /// <param name="suggestionProvider"></param>
+        public UsagePrinter(IConsole console, ICommandLineCommandContainer container, IUsageBuilder builder, IEnvironmentVariablesService environmentVariablesService, ISuggestionProvider suggestionProvider)
         {
+            this.console = console ?? throw new ArgumentNullException(nameof(console));
             Container = container ?? throw new ArgumentNullException(nameof(container));
             Builder = builder ?? throw new ArgumentNullException(nameof(builder));
             this.environmentVariablesService = environmentVariablesService ?? throw new ArgumentNullException(nameof(environmentVariablesService));
@@ -42,42 +44,40 @@ namespace MatthiWare.CommandLine.Core.Usage
 
             if (canOutputColor)
             {
-                m_currentConsoleColor = ConsoleColor.Red;
-                Console.ForegroundColor = ConsoleColor.Red;
+                console = ConsoleColor.Red;
             }
 
             Builder.AddErrors(errors);
 
-            Console.Error.WriteLine(Builder.Build());
+            console.ErrorWriteLine(Builder.Build());
 
             if (canOutputColor)
             {
-                m_currentConsoleColor = ConsoleColor.Gray;
-                Console.ResetColor();
+                console.ResetColor();
             }
 
-            Console.WriteLine();
+            console.WriteLine();
         }
 
         /// <inheritdoc/>
         public virtual void PrintCommandUsage(ICommandLineCommand command)
         {
             Builder.AddCommand(command.Name, command);
-            Console.WriteLine(Builder.Build());
+            console.WriteLine(Builder.Build());
         }
 
         /// <inheritdoc/>
         public virtual void PrintOptionUsage(ICommandLineOption option)
         {
             Builder.AddOption(option);
-            Console.WriteLine(Builder.Build());
+            console.WriteLine(Builder.Build());
         }
 
         /// <inheritdoc/>
         public virtual void PrintUsage()
         {
             Builder.AddCommand(string.Empty, Container);
-            Console.WriteLine(Builder.Build());
+            console.WriteLine(Builder.Build());
         }
 
         /// <inheritdoc/>
@@ -105,6 +105,7 @@ namespace MatthiWare.CommandLine.Core.Usage
         public virtual void PrintUsage(ICommandLineOption option)
             => PrintOptionUsage(option);
 
+        /// <inheritdoc/>
         public void PrintSuggestion(UnusedArgumentModel model)
         {
             var suggestions = suggestionProvider.GetSuggestions(model.Key, model.Argument as ICommandLineCommandContainer);
@@ -120,6 +121,8 @@ namespace MatthiWare.CommandLine.Core.Usage
             {
                 Builder.AddSuggestion(suggestion);
             }
+
+            console.WriteLine(Builder.Build());
         }
     }
 }
