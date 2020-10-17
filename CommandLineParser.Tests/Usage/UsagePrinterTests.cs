@@ -175,7 +175,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
             // SETUP
             string result = string.Empty;
-            var expected = "'tst' is not recognized as a valid command or option.\r\n\r\nDid you mean: \r\n\tTest\r\n";
+            var expected = $"'tst' is not recognized as a valid command or option.{Environment.NewLine}{Environment.NewLine}Did you mean: {Environment.NewLine}\tTest{Environment.NewLine}";
 
             var consoleMock = new Mock<IConsole>();
             consoleMock.Setup(_ => _.WriteLine(It.IsAny<string>())).Callback((string s) => result = s).Verifiable();
@@ -231,7 +231,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
         {
             // SETUP
             string result = string.Empty;
-            var expected = "'tst' is not recognized as a valid command or option.\r\n\r\nDid you mean: \r\n\tTest\r\n";
+            var expected = $"'tst' is not recognized as a valid command or option.{Environment.NewLine}{Environment.NewLine}Did you mean: {Environment.NewLine}\tTest{Environment.NewLine}";
 
             var consoleMock = new Mock<IConsole>();
             consoleMock.Setup(_ => _.WriteLine(It.IsAny<string>())).Callback((string s) => result += s).Verifiable();
