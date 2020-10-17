@@ -8,6 +8,7 @@ using MatthiWare.CommandLine.Core.Exceptions;
 using MatthiWare.CommandLine.Core.Usage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -199,6 +200,30 @@ namespace MatthiWare.CommandLine.Tests.Usage
             // ASSERT
             consoleMock.VerifyAll();
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void TestNoSuggestion()
+        {
+            var usageBuilderMock = new Mock<IUsageBuilder>();
+            var suggestionProviderMock = new Mock<ISuggestionProvider>();
+
+            suggestionProviderMock
+                .Setup(_ => _.GetSuggestions(It.IsAny<string>(), It.IsAny<ICommandLineCommandContainer>()))
+                .Returns(Array.Empty<string>());
+
+            Services.AddSingleton(usageBuilderMock.Object);
+            Services.AddSingleton(suggestionProviderMock.Object);
+            Services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<OptionModel>(Services);
+
+            // ACT
+            parser.Parse(new[] { "tst" }).AssertNoErrors();
+
+            // ASSERT
+            usageBuilderMock.Verify(_ => _.AddSuggestion(It.IsAny<string>()), Times.Never());
+            usageBuilderMock.Verify(_ => _.AddSuggestionHeader(It.IsAny<string>()), Times.Never());
         }
 
         [Fact]
