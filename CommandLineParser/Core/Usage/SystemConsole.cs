@@ -21,5 +21,8 @@ namespace MatthiWare.CommandLine.Core.Usage
 
         /// <inheritdoc/>
         public void WriteLine(string text) => Console.WriteLine(text);
+
+        /// <inheritdoc/>
+        public void WriteLine() => Console.WriteLine();
     }
 }

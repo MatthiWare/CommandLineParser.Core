@@ -341,7 +341,7 @@
         <member name="P:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer.Options">
             <summary>
             Read-only list of available options for this command
-            <see cref="!:ICommandLineParser&lt;TOption&gt;.Configure&lt;TProperty&gt;(Expression&lt;Func&lt;TOption, TProperty&gt;&gt;)"/> to configure or add an option
+            <see cref="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})"/> to configure or add an option
             </summary>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandParser">
@@ -912,6 +912,38 @@
             <summary>
             Read-only collection that contains the parsed commands' results. 
             <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.Command.ICommandParserResult"/>
+            </summary>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IConsole">
+            <summary>
+            <inheritdoc cref="T:System.Console"/>
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IConsole.WriteLine">
+            <summary>
+            <inheritdoc cref="M:System.Console.WriteLine"/>
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IConsole.WriteLine(System.String)">
+            <summary>
+            <inheritdoc cref="M:System.Console.WriteLine(System.String)"/>
+            </summary>
+            <param name="text">Input text</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IConsole.ErrorWriteLine(System.String)">
+            <summary>
+            <inheritdoc cref="P:System.Console.Error"/>
+            </summary>
+            <param name="text">Input text</param>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Usage.IConsole.ForegroundColor">
+            <summary>
+            <inheritdoc cref="P:System.Console.ForegroundColor"/>
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IConsole.ResetColor">
+            <summary>
+            <inheritdoc cref="M:System.Console.ResetColor"/>
             </summary>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService">
@@ -1738,6 +1770,24 @@
         <member name="P:MatthiWare.CommandLine.Core.Usage.EnvironmentVariableService.NoColorRequested">
             <inheritdoc/>
         </member>
+        <member name="T:MatthiWare.CommandLine.Core.Usage.SystemConsole">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Usage.SystemConsole.ForegroundColor">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.SystemConsole.ErrorWriteLine(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.SystemConsole.ResetColor">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.SystemConsole.WriteLine(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.SystemConsole.WriteLine">
+            <inheritdoc/>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Usage.UsageBuilder">
             <inheritdoc/>
         </member>
@@ -1771,19 +1821,27 @@
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
             <inheritdoc/>
         </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddSuggestionHeader(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsageBuilder.AddSuggestion(System.String)">
+            <inheritdoc/>
+        </member>
         <member name="T:MatthiWare.CommandLine.Core.Usage.UsagePrinter">
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.Core.Usage.UsagePrinter.Builder">
             <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService,MatthiWare.CommandLine.Abstractions.Usage.ISuggestionProvider)">
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.#ctor(MatthiWare.CommandLine.Abstractions.Usage.IConsole,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,MatthiWare.CommandLine.Abstractions.Usage.IUsageBuilder,MatthiWare.CommandLine.Abstractions.Usage.IEnvironmentVariablesService,MatthiWare.CommandLine.Abstractions.Usage.ISuggestionProvider)">
             <summary>
             Creates a new CLI output usage printer
             </summary>
+            <param name="console"></param>
             <param name="container"></param>
             <param name="builder"></param>
             <param name="environmentVariablesService"></param>
+            <param name="suggestionProvider"></param>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintErrors(System.Collections.Generic.IReadOnlyCollection{System.Exception})">
             <inheritdoc/>
@@ -1804,6 +1862,9 @@
             <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintUsage(MatthiWare.CommandLine.Abstractions.ICommandLineOption)">
+            <inheritdoc/>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.Usage.UsagePrinter.PrintSuggestion(MatthiWare.CommandLine.Abstractions.Parsing.UnusedArgumentModel)">
             <inheritdoc/>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Utils.ExtensionMethods">

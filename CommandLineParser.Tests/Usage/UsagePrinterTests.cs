@@ -172,21 +172,70 @@ namespace MatthiWare.CommandLine.Tests.Usage
         [Fact]
         public void TestSuggestion()
         {
-            var builder = new UsageBuilder(new CommandLineParserOptions());
-            var commandMock = new Mock<CommandLineCommandBase>();
-            var environmentService = Mock.Of<IEnvironmentVariablesService>();
-            var suggestionsProvider = new DamerauLevenshteinSuggestionProvider();
-            var model = new UnusedArgumentModel("tst", commandMock.Object);
+            // SETUP
+            string result = string.Empty;
+            var expected = "'tst' is not recognized as a valid command or option.\r\n\r\nDid you mean: \r\n\tTest\r\n";
 
-            var printer = new UsagePrinter(commandMock.Object, builder, environmentService, suggestionsProvider);
+            var consoleMock = new Mock<IConsole>();
+            consoleMock.Setup(_ => _.WriteLine(It.IsAny<string>())).Callback((string s) => result = s).Verifiable();
 
+            Services.AddSingleton(consoleMock.Object);
+            Services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<OptionModel>(Services);
+
+            var cmdConfig = parser.AddCommand<OptionModel>();
+            cmdConfig.Name("ZZZZZZZZZZZZZZ").Configure(o => o.Option).Name("tst");
+
+            parser.AddCommand().Name("Test");
+            parser.Configure(o => o.Option).Name("Test1");
+
+            var model = new UnusedArgumentModel("tst", parser);
+            var printer = parser.Services.GetRequiredService<IUsagePrinter>();
+
+            // ACT
             printer.PrintSuggestion(model);
 
-            var result = printer.
+            // ASSERT
+            consoleMock.VerifyAll();
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void TestSuggestionWithParsing()
+        {
+            // SETUP
+            string result = string.Empty;
+            var expected = "'tst' is not recognized as a valid command or option.\r\n\r\nDid you mean: \r\n\tTest\r\n";
+
+            var consoleMock = new Mock<IConsole>();
+            consoleMock.Setup(_ => _.WriteLine(It.IsAny<string>())).Callback((string s) => result += s).Verifiable();
+
+            Services.AddSingleton(consoleMock.Object);
+            Services.AddSingleton(Logger);
+
+            var parser = new CommandLineParser<OptionModel>(Services);
+
+            var cmdConfig = parser.AddCommand<OptionModel>();
+            cmdConfig.Name("ZZZZZZZZZZZZZZ").Configure(o => o.Option).Name("tst");
+
+            parser.AddCommand().Name("Test");
+            parser.Configure(o => o.Option).Name("Test1");
+
+            // ACT
+            parser.Parse(new[] { "tst" }).AssertNoErrors();
+
+            // ASSERT
+            consoleMock.VerifyAll();
+            Assert.Contains(expected, result);
         }
 
         private Times ToTimes(bool input)
             => input ? Times.Once() : Times.Never();
+
+        private class OptionModel
+        {
+            public string Option { get; set; }
+        }
     }
 }
- 

@@ -24,6 +24,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace MatthiWare.CommandLine
 {
@@ -213,7 +214,7 @@ namespace MatthiWare.CommandLine
 
             await AutoExecuteCommandsAsync(result, cancellationToken);
 
-            AutoPrintUsageAndErrors(result, args.Length == 0 || args.Length == argumentManager.UnusedArguments.Count);
+            AutoPrintUsageAndErrors(result, args.Length == 0);
 
             return result;
         }
@@ -267,6 +268,11 @@ namespace MatthiWare.CommandLine
             {
                 PrintHelpRequestedForArgument(result.HelpRequestedFor);
             }
+            else if (!noArgsSupplied && argumentManager.UnusedArguments.Count > 0)
+            {
+                PrintHelp();
+                PrintSuggestionsIfAny();
+            }
             else if (result.HasErrors)
             {
                 PrintErrors(result.Errors);
@@ -296,6 +302,8 @@ namespace MatthiWare.CommandLine
         }
 
         private void PrintHelp() => Printer.PrintUsage();
+
+        private void PrintSuggestionsIfAny() => Printer.PrintSuggestion(argumentManager.UnusedArguments.First());
 
         private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
         {

@@ -44,7 +44,7 @@ namespace MatthiWare.CommandLine.Core.Usage
 
             if (canOutputColor)
             {
-                console = ConsoleColor.Red;
+                console.ForegroundColor = ConsoleColor.Red;
             }
 
             Builder.AddErrors(errors);
@@ -115,12 +115,9 @@ namespace MatthiWare.CommandLine.Core.Usage
                 return;
             }
 
-            Builder.AddSuggestion(model.Key);
+            Builder.AddSuggestionHeader(model.Key);
 
-            foreach (var suggestion in suggestions)
-            {
-                Builder.AddSuggestion(suggestion);
-            }
+            Builder.AddSuggestion(suggestions.First());
 
             console.WriteLine(Builder.Build());
         }

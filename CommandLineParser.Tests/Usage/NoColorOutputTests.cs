@@ -23,15 +23,18 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var envMock = new Mock<IEnvironmentVariablesService>();
             envMock.SetupGet(env => env.NoColorRequested).Returns(() => variableServiceResult);
 
+            var consoleMock = new Mock<IConsole>();
+
             variablesService = envMock.Object;
 
             var usageBuilderMock = new Mock<IUsageBuilder>();
             usageBuilderMock.Setup(m => m.AddErrors(It.IsAny<IReadOnlyCollection<Exception>>())).Callback(() =>
             {
-                consoleColorGetter(((UsagePrinter)parser.Printer).m_currentConsoleColor);
+                consoleColorGetter(consoleMock.Object.ForegroundColor);
             });
 
             Services.AddSingleton(envMock.Object);
+            Services.AddSingleton(consoleMock.Object);
             Services.AddSingleton(usageBuilderMock.Object);
 
             parser = new CommandLineParser<Options>(Services);

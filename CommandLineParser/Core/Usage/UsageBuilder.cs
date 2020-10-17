@@ -120,6 +120,7 @@ namespace MatthiWare.CommandLine.Core.Usage
             }
         }
 
+        /// <inheritdoc/>
         public void AddSuggestionHeader(string inputKey)
         {
             stringBuilder.AppendLine($"'{inputKey}' is not recognized as a valid command or option.");
@@ -127,9 +128,10 @@ namespace MatthiWare.CommandLine.Core.Usage
             stringBuilder.AppendLine("Did you mean: ");
         }
 
+        /// <inheritdoc/>
         public void AddSuggestion(string suggestion)
         {
-            stringBuilder.Append($"\t{suggestion}");
+            stringBuilder.AppendLine($"\t{suggestion}"); 
         }
     }
 }

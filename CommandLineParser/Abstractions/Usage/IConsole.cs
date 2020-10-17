@@ -8,6 +8,11 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
     public interface IConsole
     {
         /// <summary>
+        /// <inheritdoc cref="Console.WriteLine()"/>
+        /// </summary>
+        void WriteLine();
+
+        /// <summary>
         /// <inheritdoc cref="Console.WriteLine(string)"/>
         /// </summary>
         /// <param name="text">Input text</param>
