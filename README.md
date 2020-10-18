@@ -1,8 +1,8 @@
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/4w6ik2k8lx95afp8?svg=true)](https://ci.appveyor.com/api/projects/status/4w6ik2k8lx95afp8?svg=true)
-[![Issues](https://img.shields.io/github/issues/MatthiWare/CommandLineParser.Core.svg)](https://img.shields.io/github/issues/MatthiWare/CommandLineParser.Core.svg)
-[![CodeCov](https://codecov.io/gh/MatthiWare/CommandLineParser.Core/branch/master/graph/badge.svg)](https://codecov.io/gh/MatthiWare/CommandLineParser.Core/branch/master/graph/badge.svg)
-[![CodeFactor](https://www.codefactor.io/repository/github/matthiware/commandlineparser.core/badge)](https://www.codefactor.io/repository/github/matthiware/commandlineparser.core/badge)
-[![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/4w6ik2k8lx95afp8?svg=true)](https://ci.appveyor.com/project/Matthiee/commandlineparser-core)
+[![Issues](https://img.shields.io/github/issues/MatthiWare/CommandLineParser.Core.svg)](https://github.com/MatthiWare/CommandLineParser.Core/issues)
+[![CodeCov](https://codecov.io/gh/MatthiWare/CommandLineParser.Core/branch/master/graph/badge.svg)](https://codecov.io/gh/MatthiWare/CommandLineParser.Core)
+[![CodeFactor](https://www.codefactor.io/repository/github/matthiware/commandlineparser.core/badge)](https://www.codefactor.io/repository/github/matthiware/commandlineparser.core)
+[![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
 [![Nuget](https://buildstats.info/nuget/MatthiWare.CommandLineParser)](https://www.nuget.org/packages/MatthiWare.CommandLineParser)
 
 # CommandLineParser
