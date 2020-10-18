@@ -1,6 +1,7 @@
 ﻿using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
 using Xunit.Abstractions;
+using System.Linq;
 
 namespace MatthiWare.CommandLine.Tests.Parsing
 {
@@ -111,6 +112,11 @@ namespace MatthiWare.CommandLine.Tests.Parsing
             var result = parser.Parse(new[] { "-abc", "works", "cmd", "-abc", "false" });
 
             result.AssertNoErrors();
+
+            var cmdResult = result.CommandResults.First(cmd => cmd.Command.Name == "cmd");
+
+            Assert.True(cmdResult.Found);
+            Assert.True(cmdResult.Executed);
 
             Assert.Equal("works", result.Result.A);
             Assert.Equal("works", result.Result.B);
