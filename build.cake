@@ -161,8 +161,8 @@ Task("Generate-NuGet")
             Information("File: {0}", file);
         }
 
-        NuGetPack(cmdParserProject, nuGetPackSettings);
-        NuGetPack(fveProject, nuGetPackSettings);
+        NuGetPack(nuspecFile, nuGetPackSettings);
+        NuGetPack(fvNuspecFile, nuGetPackSettings);
 
 		Information("NuGetPack: Done");
 	});
