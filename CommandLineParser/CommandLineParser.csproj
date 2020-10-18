@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>MatthiWare.CommandLine</RootNamespace>
     <PackageId>MatthiWare.CommandLineParser</PackageId>
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
     <Authors>Matthias Beerens</Authors>
     <Company>MatthiWare</Company>
     <Product>Command Line Parser</Product>
@@ -14,10 +14,13 @@
     <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
     <PackageTags>Commandline parser commandline-parser cli</PackageTags>
     <LangVersion>7.3</LangVersion>
-    <AssemblyVersion>0.4.0.0</AssemblyVersion>
-    <FileVersion>0.4.0.0</FileVersion>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
+    <FileVersion>0.5.0.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>Improve dependency injection, improve command registration</PackageReleaseNotes>
+    <PackageReleaseNotes>- Option clustering/grouping
+- Suggestions when mistyping command/options
+- Positional parameters
+- Support for all basic datatypes</PackageReleaseNotes>
     <Copyright>Copyright Matthias Beerens 2018</Copyright>
   </PropertyGroup>
 
