@@ -20,8 +20,8 @@
   <copyright>Copyright Matthias Beerens 2018</copyright>
   <tags>commandline parser commandline-parser</tags>
   <dependencies>
-    <dependency id="Microsoft.Extensions.DependencyInjection" version="3.1.7" />
-    <dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.1.7" />
+    <dependency id="Microsoft.Extensions.DependencyInjection" version="3.1.9" />
+    <dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.1.9" />
   </dependencies>
   </metadata>
   <files>
