@@ -1,6 +1,9 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
+using Moq;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -128,6 +131,46 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
             Assert.IsType<CommandParseException>(result.Errors.First());
 
             Assert.Same(parser.Commands.First(), result.Errors.Cast<CommandParseException>().First().Command);
+        }
+
+        [Fact]
+        public void CommandParseException_Should_Contain_Correct_Message_Single()
+        {
+            var cmdMock = new Mock<ICommandLineCommand>();
+            cmdMock.SetupGet(_ => _.Name).Returns("test");
+
+            var exceptionList = new List<Exception>
+            {
+                new Exception("msg1")
+            };
+
+            var parseException = new CommandParseException(cmdMock.Object, exceptionList.AsReadOnly());
+            var msg = parseException.Message;
+            var expected = @"Unable to parse command 'test' because msg1";
+
+            Assert.Equal(expected, msg);
+        }
+
+        [Fact]
+        public void CommandParseException_Should_Contain_Correct_Message_Multiple()
+        {
+            var cmdMock = new Mock<ICommandLineCommand>();
+            cmdMock.SetupGet(_ => _.Name).Returns("test");
+
+            var exceptionList = new List<Exception>
+            {
+                new Exception("msg1"),
+                new Exception("msg2")
+            };
+
+            var parseException = new CommandParseException(cmdMock.Object, exceptionList.AsReadOnly());
+            var msg = parseException.Message;
+            var expected = @"Unable to parse command 'test' because 2 errors occured
+ - msg1
+ - msg2
+";
+
+            Assert.Equal(expected, msg);
         }
 
         [Fact]
