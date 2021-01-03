@@ -1,6 +1,8 @@
 ﻿using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Usage;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System.Collections.Generic;
 using Xunit;
@@ -107,8 +109,11 @@ namespace MatthiWare.CommandLine.Tests.Usage
         }
 
         [Fact]
-        public void Test()
+        public void ShouldPrintSuggestion()
         {
+            var builderMock = new Mock<IUsageBuilder>();
+            Services.AddSingleton(builderMock.Object);
+
             var parser = new CommandLineParser(Services);
 
             parser.AddCommand().Name("cmd");
@@ -116,6 +121,23 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var result = parser.Parse(new[] { "cmdd" });
 
             result.AssertNoErrors();
+            builderMock.Verify(_ => _.AddSuggestion("cmd"), Times.Once());
+        }
+
+        [Fact]
+        public void ShouldNotPrintSuggestionForSkippedArguments()
+        {
+            var builderMock = new Mock<IUsageBuilder>();
+            Services.AddSingleton(builderMock.Object);
+
+            var parser = new CommandLineParser(new CommandLineParserOptions { StopParsingAfter = "--" }, Services);
+
+            parser.AddCommand().Name("cmd");
+
+            var result = parser.Parse(new[] { "--", "cmdd" });
+
+            result.AssertNoErrors();
+            builderMock.Verify(_ => _.AddSuggestion("cmd"), Times.Never());
         }
     }
 }

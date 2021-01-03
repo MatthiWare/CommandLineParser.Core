@@ -1,6 +1,8 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Usage;
 using MatthiWare.CommandLine.Core.Attributes;
 using MatthiWare.CommandLine.Core.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -134,6 +136,27 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         }
 
         [Fact]
+        public async Task CommandParseException_Prints_Errors()
+        {
+            var printerMock = new Mock<IUsagePrinter>();
+
+            Services.AddSingleton(printerMock.Object);
+
+            var parser = new CommandLineParser<OtherOptions>(Services);
+
+            parser.AddCommand<Options>()
+                .Name("missing")
+                .Required()
+                .Configure(opt => opt.MissingOption)
+                .Name("o")
+                .Required();
+
+            var result = await parser.ParseAsync(new string[] { "-a", "1", "-b", "2", "-a", "10" ,"20" ,"30", "missing" });
+
+            printerMock.Verify(_ => _.PrintErrors(It.IsAny<IReadOnlyCollection<Exception>>()));
+        }
+
+        [Fact]
         public void CommandParseException_Should_Contain_Correct_Message_Single()
         {
             var cmdMock = new Mock<ICommandLineCommand>();
@@ -146,7 +169,7 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
 
             var parseException = new CommandParseException(cmdMock.Object, exceptionList.AsReadOnly());
             var msg = parseException.Message;
-            var expected = @"Unable to parse command 'test' because msg1";
+            var expected = @"Unable to parse command 'test' reason: msg1";
 
             Assert.Equal(expected, msg);
         }
@@ -199,6 +222,15 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
             Assert.IsType<OptionParseException>(result.Errors.First());
 
             Assert.Same(parser.Options.First(), result.Errors.Cast<OptionParseException>().First().Option);
+        }
+
+        private class OtherOptions
+        {
+            [Required, Name("a")]
+            public int A { get; set; }
+
+            [Required, Name("b")]
+            public int B { get; set; }
         }
 
         private class Options
