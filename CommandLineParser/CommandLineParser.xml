@@ -767,9 +767,21 @@
             Managers the arguments
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.UnprocessedArguments">
+            <summary>
+            Returns a read-only list of arguments that never got processed because they appeared after the <see cref="P:MatthiWare.CommandLine.CommandLineParserOptions.StopParsingAfter"/> flag.
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.UnusedArguments">
             <summary>
-            Returns a read-only list of unused arguments
+            Returns a read-only list of unused arguments. 
+            In most cases this will be mistyped arguments that are not mapped to the actual option/command names.
+            You can pass these arguments inside the <see cref="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintSuggestion(MatthiWare.CommandLine.Abstractions.Parsing.UnusedArgumentModel)"/> to get a suggestion of what could be the correct argument.
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.StopParsingFlagSpecified">
+            <summary>
+            Returns if the <see cref="P:MatthiWare.CommandLine.CommandLineParserOptions.StopParsingAfter"/> flag was found. 
             </summary>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">
@@ -1083,6 +1095,13 @@
             Print errors
             </summary>
             <param name="errors">list of errors</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.Usage.IUsagePrinter.PrintSuggestion(MatthiWare.CommandLine.Abstractions.Parsing.UnusedArgumentModel)">
+            <summary>
+            Prints suggestions based on the input arguments
+            </summary>
+            <param name="model">Input model</param>
+            <returns>True if a suggestion was found and printed, otherwise false</returns>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Validations.IValidator">
             <summary>
@@ -1644,6 +1663,12 @@
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.UnusedArguments">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.UnprocessedArguments">
+            <inheritdoc/>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.StopParsingFlagSpecified">
             <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">

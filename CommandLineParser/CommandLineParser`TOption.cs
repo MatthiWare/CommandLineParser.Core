@@ -214,9 +214,22 @@ namespace MatthiWare.CommandLine
 
             await AutoExecuteCommandsAsync(result, cancellationToken);
 
-            AutoPrintUsageAndErrors(result, args.Length == 0);
+            AutoPrintUsageAndErrors(result, NoActualArgsSupplied(args.Length));
 
             return result;
+        }
+
+        private bool NoActualArgsSupplied(int argsCount)
+        {
+            int leftOverAmountOfArguments = argsCount;
+
+            if (argumentManager.StopParsingFlagSpecified)
+            {
+                leftOverAmountOfArguments--; // the flag itself
+                leftOverAmountOfArguments -= argumentManager.UnprocessedArguments.Count;
+            }
+
+            return leftOverAmountOfArguments == 0;
         }
 
         private async Task ValidateAsync<T>(T @object, ParseResult<TOption> parseResult, List<Exception> errors, CancellationToken token)
@@ -268,6 +281,10 @@ namespace MatthiWare.CommandLine
             {
                 PrintHelpRequestedForArgument(result.HelpRequestedFor);
             }
+            else if (!noArgsSupplied && result.HasErrors && result.Errors.Any(e => e is CommandParseException || e is OptionParseException))
+            {
+                PrintErrors(result.Errors);
+            }
             else if (!noArgsSupplied && argumentManager.UnusedArguments.Count > 0)
             {
                 PrintHelp();
@@ -303,7 +320,16 @@ namespace MatthiWare.CommandLine
 
         private void PrintHelp() => Printer.PrintUsage();
 
-        private void PrintSuggestionsIfAny() => Printer.PrintSuggestion(argumentManager.UnusedArguments.First());
+        private void PrintSuggestionsIfAny()
+        {
+            foreach (var argument in argumentManager.UnusedArguments)
+            {
+                if (Printer.PrintSuggestion(argument))
+                {
+                    return;
+                }
+            }
+        }
 
         private async Task AutoExecuteCommandsAsync(ParseResult<TOption> result, CancellationToken cancellationToken)
         {
