@@ -40,7 +40,6 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         private static string CreateSingleExceptionMessage(ICommandLineCommand command, Exception exception)
             => $"Unable to parse command '{command.Name}' reason: {exception.Message}";
 
-
         private static string CreateMultipleExceptionsMessage(ICommandLineCommand command, IReadOnlyCollection<Exception> exceptions)
         {
             var message = new StringBuilder();
