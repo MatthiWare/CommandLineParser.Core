@@ -25,8 +25,8 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
         /// Print an argument
         /// </summary>
         /// <param name="argument">The given argument</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
         [Obsolete("Use PrintCommandUsage or PrintOptionUsage instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         void PrintUsage(IArgument argument);
 
         /// <summary>
@@ -63,6 +63,11 @@ namespace MatthiWare.CommandLine.Abstractions.Usage
         /// <param name="errors">list of errors</param>
         void PrintErrors(IReadOnlyCollection<Exception> errors);
 
-        void PrintSuggestion(UnusedArgumentModel model);
+        /// <summary>
+        /// Prints suggestions based on the input arguments
+        /// </summary>
+        /// <param name="model">Input model</param>
+        /// <returns>True if a suggestion was found and printed, otherwise false</returns>
+        bool PrintSuggestion(UnusedArgumentModel model);
     }
 }

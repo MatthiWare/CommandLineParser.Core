@@ -106,13 +106,13 @@ namespace MatthiWare.CommandLine.Core.Usage
             => PrintOptionUsage(option);
 
         /// <inheritdoc/>
-        public void PrintSuggestion(UnusedArgumentModel model)
+        public virtual bool PrintSuggestion(UnusedArgumentModel model)
         {
             var suggestions = suggestionProvider.GetSuggestions(model.Key, model.Argument as ICommandLineCommandContainer);
 
             if (!suggestions.Any())
             {
-                return;
+                return false;
             }
 
             Builder.AddSuggestionHeader(model.Key);
@@ -120,6 +120,8 @@ namespace MatthiWare.CommandLine.Core.Usage
             Builder.AddSuggestion(suggestions.First());
 
             console.WriteLine(Builder.Build());
+
+            return true;
         }
     }
 }
