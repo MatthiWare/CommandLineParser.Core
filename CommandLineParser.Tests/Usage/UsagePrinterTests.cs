@@ -9,6 +9,7 @@ using MatthiWare.CommandLine.Core.Usage;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -67,17 +68,37 @@ namespace MatthiWare.CommandLine.Tests.Usage
         [InlineData(new string[] { }, true)]
         [InlineData(new string[] { "-o", "bla" }, false)]
         [InlineData(new string[] { "-xd", "bla" }, true)]
+        [InlineData(new string[] { "--", "test" }, true)]
         public void UsagePrintGetsCalledInCorrectCases(string[] args, bool called)
         {
             var printerMock = new Mock<IUsagePrinter>();
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(Services);
+            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(new CommandLineParserOptions { StopParsingAfter = "--" }, Services);
 
             parser.Parse(args);
 
             printerMock.Verify(mock => mock.PrintUsage(), called ? Times.Once() : Times.Never());
+        }
+
+        [Theory]
+        [InlineData(new string[] { "--", "get-al" }, false)]
+        [InlineData(new string[] { "--", "get-all" }, false)]
+        public async Task PrintUsage_ShouldBeCalled_When_Command_Is_Defined_After_StopParsingFlag(string[] args, bool _)
+        {
+            var printerMock = new Mock<IUsagePrinter>();
+
+            Services.AddSingleton(printerMock.Object);
+
+            var parser = new CommandLineParser(new CommandLineParserOptions { StopParsingAfter = "--" }, Services);
+
+            parser.AddCommand().Name("get-all");
+
+            await parser.ParseAsync(args);
+
+            printerMock.Verify(mock => mock.PrintUsage(), Times.Once());
+            printerMock.Verify(mock => mock.PrintSuggestion(It.IsAny<UnusedArgumentModel>()), Times.Never());
         }
 
         [Fact]
