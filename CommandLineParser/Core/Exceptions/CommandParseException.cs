@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using MatthiWare.CommandLine.Abstractions.Command;
 
 namespace MatthiWare.CommandLine.Core.Exceptions
@@ -20,7 +22,35 @@ namespace MatthiWare.CommandLine.Core.Exceptions
         /// <param name="command">the failed command</param>
         /// <param name="innerExceptions">collection of inner exception</param>
         public CommandParseException(ICommandLineCommand command, IReadOnlyCollection<Exception> innerExceptions)
-            : base(command, "", new AggregateException(innerExceptions))
+            : base(command, CreateMessage(command, innerExceptions), new AggregateException(innerExceptions))
         { }
+
+        private static string CreateMessage(ICommandLineCommand command, IReadOnlyCollection<Exception> exceptions)
+        {
+            if (exceptions.Count > 1)
+            {
+                return CreateMultipleExceptionsMessage(command, exceptions);
+            }
+            else
+            {
+                return CreateSingleExceptionMessage(command, exceptions.First());
+            }
+        }
+
+        private static string CreateSingleExceptionMessage(ICommandLineCommand command, Exception exception)
+            => $"Unable to parse command '{command.Name}' reason: {exception.Message}";
+
+        private static string CreateMultipleExceptionsMessage(ICommandLineCommand command, IReadOnlyCollection<Exception> exceptions)
+        {
+            var message = new StringBuilder();
+            message.AppendLine($"Unable to parse command '{command.Name}' because {exceptions.Count} errors occured");
+
+            foreach (var exception in exceptions)
+            {
+                message.AppendLine($" - {exception.Message}");
+            }
+
+            return message.ToString();
+        }
     }
 }

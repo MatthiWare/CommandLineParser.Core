@@ -20,11 +20,17 @@ namespace MatthiWare.CommandLine.Core.Parsing
         private IEnumerator<ArgumentRecord> enumerator;
         private readonly Dictionary<IArgument, ArgumentModel> results = new Dictionary<IArgument, ArgumentModel>();
         private readonly List<UnusedArgumentModel> unusedArguments = new List<UnusedArgumentModel>();
+        private readonly List<UnusedArgumentModel> unprocessedArguments = new List<UnusedArgumentModel>();
         private ProcessingContext CurrentContext;
-        private bool isFirstUnprocessedArgument = true;
 
         /// <inheritdoc/>
         public IReadOnlyList<UnusedArgumentModel> UnusedArguments => unusedArguments;
+
+        /// <inheritdoc/>
+        public IReadOnlyList<UnusedArgumentModel> UnprocessedArguments => unprocessedArguments;
+
+        /// <inheritdoc/>
+        public bool StopParsingFlagSpecified { get; private set; }
 
         /// <inheritdoc/>
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
@@ -46,8 +52,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
             enumerator = new ArgumentRecordEnumerator(options, arguments);
             CurrentContext = new ProcessingContext(null, commandContainer, logger);
 
-            isFirstUnprocessedArgument = true;
-
             try
             {
                 while (enumerator.MoveNext())
@@ -56,7 +60,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
                     if (!processed)
                     {
-                        AddUnprocessedArgument(enumerator.Current);
+                        AddUnusedArgument(enumerator.Current);
                     }
                 }
             }
@@ -108,12 +112,22 @@ namespace MatthiWare.CommandLine.Core.Parsing
 
         private bool StopProcessing()
         {
+            StopParsingFlagSpecified = true;
+
             while (enumerator.MoveNext())
             {
-                // do nothing
+                AddUnprocessedArgument(enumerator.Current);
             }
 
-            return false;
+            return true;
+        }
+
+        private void AddUnusedArgument(ArgumentRecord rec)
+        {
+            var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
+            var item = new UnusedArgumentModel(rec.RawData, arg);
+
+            unusedArguments.Add(item);
         }
 
         private void AddUnprocessedArgument(ArgumentRecord rec)
@@ -121,7 +135,7 @@ namespace MatthiWare.CommandLine.Core.Parsing
             var arg = CurrentContext.CurrentOption != null ? (IArgument)CurrentContext.CurrentOption : (IArgument)CurrentContext.CurrentCommand;
             var item = new UnusedArgumentModel(rec.RawData, arg);
 
-            unusedArguments.Add(item);
+            unprocessedArguments.Add(item);
         }
 
         private bool ProcessOption(OptionRecord rec)
