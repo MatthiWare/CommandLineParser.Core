@@ -4,21 +4,23 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>MatthiWare.CommandLine.Extensions.FluentValidations</RootNamespace>
     <AssemblyName>CommandLineParser.FluentValidations</AssemblyName>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
     <Authors>Matthias Beerens</Authors>
     <Company>MatthiWare</Company>
-    <Product>FluentValidations Extension For CommandLineParser.Core</Product>
-    <Description>FluentValidations extension for CommandLineParser.Core</Description>
+    <Product>FluentValidations Extension For MatthiWare.CommandLineParser</Product>
+    <Description>FluentValidations extension for MatthiWare.CommandLineParser</Description>
     <PackageProjectUrl>https://github.com/MatthiWare/CommandLineParser.Core</PackageProjectUrl>
     <PackageLicenseUrl></PackageLicenseUrl>
     <RepositoryUrl>https://github.com/MatthiWare/CommandLineParser.Core</RepositoryUrl>
     <PackageTags>Commandline parser commandline-parser cli fluent-validations extension</PackageTags>
     <LangVersion>7.3</LangVersion>
-    <AssemblyVersion>0.5.1.0</AssemblyVersion>
-    <FileVersion>0.5.1.0</FileVersion>
+    <AssemblyVersion>0.5.2.0</AssemblyVersion>
+    <FileVersion>0.5.2.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Update dependencies</PackageReleaseNotes>
+    <PackageReleaseNotes>- Remove generic new constraint</PackageReleaseNotes>
     <Copyright>Copyright Matthias Beerens 2019</Copyright>
+    <PackageId>MatthiWare.CommandLineParser.Extensions.FluentValidations</PackageId>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
