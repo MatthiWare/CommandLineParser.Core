@@ -50,7 +50,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         /// <typeparam name="V">Validator type</typeparam>
         /// <returns>Self</returns>
         public FluentValidationConfiguration AddValidator<K, V>()
-            where V : AbstractValidator<K>, new()
+            where V : AbstractValidator<K>
         {
             GetValidatorCollection(typeof(K)).AddValidator<V>();
 
@@ -65,7 +65,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations.Core
         /// <param name="instance">Instance</param>
         /// <returns>Self</returns>
         public FluentValidationConfiguration AddValidatorInstance<K, V>(V instance)
-            where V : AbstractValidator<K>, new()
+            where V : AbstractValidator<K>
         {
             if (instance is null)
             {
