@@ -5,6 +5,8 @@ using MatthiWare.CommandLine;
 using MatthiWare.CommandLine.Extensions.FluentValidations;
 using MatthiWare.CommandLine.Extensions.FluentValidations.Core;
 using MatthiWare.CommandLine.Tests;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -80,6 +82,27 @@ namespace FluentValidationsExtensions.Tests
             var result = parser.Parse(new string[] { "-f", "JamesJames1", "-l", "BondBond1231456", "cmd", "-e", "jane.doe@provider.com", "-i", "0" });
 
             Assert.True(result.AssertNoErrors(false));
+        }
+
+        [Fact]
+        public void GenericAddValidatorWithDependencyShouldWork()
+        {
+            var dependencyMock = new Mock<IValidationDependency>();
+            dependencyMock.Setup(_ => _.IsValid(It.IsAny<string>())).Returns(true).Verifiable();
+
+            Services.AddSingleton(dependencyMock.Object);
+
+            var parser = new CommandLineParser<EmailModel>(Services);
+
+            parser.UseFluentValidations(config =>
+            {
+                config.AddValidator<EmailModel, ValidatorWithDependency>();
+            });
+
+            var result = parser.Parse(new string[] { "-e", "jane.doe@provider.com", "-i", "0" });
+
+            result.AssertNoErrors();
+            dependencyMock.Verify();
         }
 
         private void OnConfigureFluentValidations(FluentValidationConfiguration config, bool useGeneric, bool useInstantiated)
