@@ -89,7 +89,7 @@ namespace MatthiWare.CommandLine.Core
 
         private static IServiceCollection AddParserOptions(this IServiceCollection services, CommandLineParserOptions options)
         {
-            services.AddSingleton(options);
+            services.AddSingleton(options ?? new CommandLineParserOptions());
 
             return services;
         }
