@@ -16,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.ComponentModel;
 
 namespace MatthiWare.CommandLine.Core
 {
@@ -33,11 +35,39 @@ namespace MatthiWare.CommandLine.Core
         /// <param name="parser">Current instance reference</param>
         /// <param name="options">Current options reference</param>
         /// <returns>Input service collection to allow method chaining</returns>
+        [Obsolete("Use AddCommandLineParser method instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddInternalCommandLineParserServices<TOption>(this IServiceCollection services, CommandLineParser<TOption> parser, CommandLineParserOptions options)
             where TOption : class, new()
         {
             return services
                 .AddCommandLineParser(parser)
+                .AddArgumentManager()
+                .AddValidatorContainer()
+                .AddParserOptions(options)
+                .AddDefaultResolvers()
+                .AddCLIPrinters()
+                .AddCommandDiscoverer()
+                .AddEnvironmentVariables()
+                .AddDefaultLogger()
+                .AddModelInitializer()
+                .AddSuggestionProvider();
+        }
+
+        /// <summary>
+        /// Adds internal services used by <see cref="CommandLineParser"/>. 
+        /// This won't overwrite existing services.
+        /// </summary>
+        /// <typeparam name="TOption">Base option type</typeparam>
+        /// <param name="services">Current service collection</param>
+        /// <param name="parserFactory">Factory method to create a new CommandLineParser instance</param>
+        /// <param name="options">Current options reference</param>
+        /// <returns>Input service collection to allow method chaining</returns>
+        public static IServiceCollection AddInternalCommandLineParserServices<TOption>(this IServiceCollection services, Func<IServiceProvider, CommandLineParser<TOption>> parserFactory, CommandLineParserOptions options)
+            where TOption : class, new()
+        {
+            return services
+                .AddCommandLineParserFactory(parserFactory)
                 .AddArgumentManager()
                 .AddValidatorContainer()
                 .AddParserOptions(options)
@@ -69,6 +99,16 @@ namespace MatthiWare.CommandLine.Core
         {
             services.AddSingleton<ICommandLineCommandContainer>(parser);
             services.AddSingleton<ICommandLineParser<TOption>>(parser);
+
+            return services;
+        }
+
+        private static IServiceCollection AddCommandLineParserFactory<TOption>(this IServiceCollection services, Func<IServiceProvider, CommandLineParser<TOption>> parserFactory)
+             where TOption : class, new()
+        {
+            services.AddSingleton(parserFactory);
+            services.AddSingleton<ICommandLineCommandContainer>((provider) => provider.GetService<CommandLineParser<TOption>>());
+            services.AddSingleton<ICommandLineParser<TOption>>((provider) => provider.GetService<CommandLineParser<TOption>>());
 
             return services;
         }
