@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 
 [assembly: InternalsVisibleTo("CommandLineParser.Tests")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
@@ -41,7 +42,9 @@ namespace MatthiWare.CommandLine
         private readonly string m_helpOptionName;
         private readonly string m_helpOptionNameLong;
         private readonly ILogger<CommandLineParser> logger;
-        private readonly IArgumentManager argumentManager;
+
+        /// <inheritdoc/>
+        public IArgumentManager ArgumentManager => Services.GetRequiredService<IArgumentManager>();
 
         /// <summary>
         /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
@@ -52,29 +55,23 @@ namespace MatthiWare.CommandLine
         /// <inheritdoc/>
         public IUsagePrinter Printer => Services.GetRequiredService<IUsagePrinter>();
 
-        /// <summary>
-        /// Read-only collection of options specified
-        /// </summary>
+        /// <inheritdoc/>
         public IReadOnlyList<ICommandLineOption> Options => new ReadOnlyCollectionWrapper<string, CommandLineOptionBase>(m_options.Values);
 
         /// <inheritdoc/>
         public IServiceProvider Services { get; }
 
-        /// <summary>
-        /// Read-only list of commands specified
-        /// </summary>
+        /// <inheritdoc/>
         public IReadOnlyList<ICommandLineCommand> Commands => m_commands.AsReadOnly();
 
-        /// <summary>
-        /// Container for all validators
-        /// </summary>
+        /// <inheritdoc/>
         public IValidatorsContainer Validators => Services.GetRequiredService<IValidatorsContainer>();
 
         /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
         public CommandLineParser()
-            : this(new CommandLineParserOptions(), null)
+            : this(new CommandLineParserOptions(), null as IServiceProvider)
         { }
 
         /// <summary>
@@ -82,13 +79,15 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="parserOptions">The parser options</param>
         public CommandLineParser(CommandLineParserOptions parserOptions)
-            : this(parserOptions, null)
+            : this(parserOptions, null as IServiceProvider)
         { }
 
         /// <summary>
         /// Creates a new instance of the commandline parser
         /// </summary>
         /// <param name="servicesCollection">container resolver to use</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use extension method 'AddCommandLineParser' to register the parser with DI")]
         public CommandLineParser(IServiceCollection servicesCollection)
             : this(new CommandLineParserOptions(), servicesCollection)
         { }
@@ -98,6 +97,8 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="servicesCollection">container resolver to use</param>
         /// <param name="parserOptions">The options the parser will use</param>
+        [Obsolete("Use extension method 'AddCommandLineParser' to register the parser with DI")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public CommandLineParser(CommandLineParserOptions parserOptions, IServiceCollection servicesCollection)
         {
             ValidateOptions(parserOptions);
@@ -111,7 +112,47 @@ namespace MatthiWare.CommandLine
             Services = services.BuildServiceProvider();
 
             logger = Services.GetRequiredService<ILogger<CommandLineParser>>();
-            argumentManager = Services.GetRequiredService<IArgumentManager>();
+
+            m_option = new TOption();
+
+            (m_helpOptionName, m_helpOptionNameLong) = parserOptions.GetConfiguredHelpOption();
+
+            InitialzeModel();
+        }
+
+        /// <summary>
+        /// Creates a new instance of the commandline parser
+        /// </summary>
+        /// <param name="serviceProvider">Service provider to resolve internal services with</param>
+        public CommandLineParser(IServiceProvider serviceProvider)
+            : this(new CommandLineParserOptions(), serviceProvider)
+        { }
+
+        /// <summary>
+        /// Creates a new instance of the commandline parser
+        /// </summary>
+        /// <param name="serviceProvider">Service provider to resolve internal services with</param>
+        /// <param name="parserOptions">The options the parser will use</param>
+        public CommandLineParser(CommandLineParserOptions parserOptions, IServiceProvider serviceProvider)
+        {
+            ValidateOptions(parserOptions);
+
+            ParserOptions = UpdateOptionsIfNeeded(parserOptions);
+
+            if (serviceProvider == null)
+            {
+                var services = new ServiceCollection();
+
+                services.AddInternalCommandLineParserServices(this, ParserOptions);
+
+                Services = services.BuildServiceProvider();
+            }
+            else
+            {
+                Services = serviceProvider;
+            }
+
+            logger = Services.GetRequiredService<ILogger<CommandLineParser>>();
 
             m_option = new TOption();
 
@@ -200,7 +241,7 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            argumentManager.Process(args, errors);
+            ArgumentManager.Process(args, errors);
 
             CheckForGlobalHelpOption(result);
 
@@ -223,10 +264,10 @@ namespace MatthiWare.CommandLine
         {
             int leftOverAmountOfArguments = argsCount;
 
-            if (argumentManager.StopParsingFlagSpecified)
+            if (ArgumentManager.StopParsingFlagSpecified)
             {
                 leftOverAmountOfArguments--; // the flag itself
-                leftOverAmountOfArguments -= argumentManager.UnprocessedArguments.Count;
+                leftOverAmountOfArguments -= ArgumentManager.UnprocessedArguments.Count;
             }
 
             return leftOverAmountOfArguments == 0;
@@ -260,7 +301,7 @@ namespace MatthiWare.CommandLine
 
         private void CheckForGlobalHelpOption(ParseResult<TOption> result)
         {
-            if (argumentManager.TryGetValue(this, out var model))
+            if (ArgumentManager.TryGetValue(this, out var model))
             {
                 HelpRequested(result, this, model);
             }
@@ -285,7 +326,7 @@ namespace MatthiWare.CommandLine
             {
                 PrintErrors(result.Errors);
             }
-            else if (!noArgsSupplied && argumentManager.UnusedArguments.Count > 0)
+            else if (!noArgsSupplied && ArgumentManager.UnusedArguments.Count > 0)
             {
                 PrintHelp();
                 PrintSuggestionsIfAny();
@@ -322,7 +363,7 @@ namespace MatthiWare.CommandLine
 
         private void PrintSuggestionsIfAny()
         {
-            foreach (var argument in argumentManager.UnusedArguments)
+            foreach (var argument in ArgumentManager.UnusedArguments)
             {
                 if (Printer.PrintSuggestion(argument))
                 {
@@ -420,7 +461,7 @@ namespace MatthiWare.CommandLine
 
         private async Task ParseCommandAsync(CommandLineCommandBase cmd, ParseResult<TOption> result, CancellationToken cancellationToken)
         {
-            var found = argumentManager.TryGetValue(cmd, out var model);
+            var found = ArgumentManager.TryGetValue(cmd, out var model);
 
             if (!found)
             {
@@ -478,7 +519,7 @@ namespace MatthiWare.CommandLine
 
         private void ParseOption(CommandLineOptionBase option, ParseResult<TOption> result)
         {
-            bool found = argumentManager.TryGetValue(option, out ArgumentModel model);
+            bool found = ArgumentManager.TryGetValue(option, out ArgumentModel model);
 
             if (found && HelpRequested(result, option, model))
             {

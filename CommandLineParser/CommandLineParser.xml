@@ -427,6 +427,16 @@
             Resolver that is used to instantiate types by an given container
             </summary>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Validators">
+            <summary>
+            Container for all validators
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ArgumentManager">
+            <summary>
+            Token based argument parser
+            </summary>
+        </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Parse(System.String[])">
             <summary>
             Parses the arguments
@@ -1288,6 +1298,9 @@
             </summary>
             <typeparam name="TOption">Options model</typeparam>
         </member>
+        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ArgumentManager">
+            <inheritdoc/>
+        </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ParserOptions">
             <summary>
             <see cref="T:MatthiWare.CommandLine.CommandLineParserOptions"/> this parser is currently using. 
@@ -1298,22 +1311,16 @@
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Options">
-            <summary>
-            Read-only collection of options specified
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Services">
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Commands">
-            <summary>
-            Read-only list of commands specified
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Validators">
-            <summary>
-            Container for all validators
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor">
             <summary>
@@ -1337,6 +1344,19 @@
             Creates a new instance of the commandline parser
             </summary>
             <param name="servicesCollection">container resolver to use</param>
+            <param name="parserOptions">The options the parser will use</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="serviceProvider">Service provider to resolve internal services with</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="serviceProvider">Service provider to resolve internal services with</param>
             <param name="parserOptions">The options the parser will use</param>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
@@ -1547,6 +1567,17 @@
             <typeparam name="TOption">Base option type</typeparam>
             <param name="services">Current service collection</param>
             <param name="parser">Current instance reference</param>
+            <param name="options">Current options reference</param>
+            <returns>Input service collection to allow method chaining</returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Core.DependencyInjectionExtensions.AddInternalCommandLineParserServices``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{System.IServiceProvider,MatthiWare.CommandLine.CommandLineParser{``0}},MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds internal services used by <see cref="T:MatthiWare.CommandLine.CommandLineParser"/>. 
+            This won't overwrite existing services.
+            </summary>
+            <typeparam name="TOption">Base option type</typeparam>
+            <param name="services">Current service collection</param>
+            <param name="parserFactory">Factory method to create a new CommandLineParser instance</param>
             <param name="options">Current options reference</param>
             <returns>Input service collection to allow method chaining</returns>
         </member>

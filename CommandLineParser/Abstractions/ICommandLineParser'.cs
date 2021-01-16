@@ -1,6 +1,7 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
+using MatthiWare.CommandLine.Abstractions.Validations;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,7 +14,7 @@ namespace MatthiWare.CommandLine.Abstractions
     /// Command line parser
     /// </summary>
     /// <typeparam name="TOption">Argument options model</typeparam>
-    public interface ICommandLineParser<TOption>
+    public interface ICommandLineParser<TOption> : ICommandLineCommandContainer
         where TOption : class, new()
     {
         #region Properties
@@ -27,6 +28,16 @@ namespace MatthiWare.CommandLine.Abstractions
         /// Resolver that is used to instantiate types by an given container
         /// </summary>
         IServiceProvider Services { get; }
+
+        /// <summary>
+        /// Container for all validators
+        /// </summary>
+        IValidatorsContainer Validators { get; }
+
+        /// <summary>
+        /// Token based argument parser
+        /// </summary>
+        IArgumentManager ArgumentManager { get; }
 
         #endregion
 
