@@ -54,7 +54,7 @@
             FluentValidations Extensions for CommandLineParser
             </summary>
         </member>
-        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.FluentValidationsExtensions.UseFluentValidations``1(MatthiWare.CommandLine.CommandLineParser{``0},System.Action{MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration})">
+        <member name="M:MatthiWare.CommandLine.Extensions.FluentValidations.FluentValidationsExtensions.UseFluentValidations``1(MatthiWare.CommandLine.Abstractions.ICommandLineParser{``0},System.Action{MatthiWare.CommandLine.Extensions.FluentValidations.Core.FluentValidationConfiguration})">
             <summary>
             Extensions to configure FluentValidations for the Parser
             </summary>
