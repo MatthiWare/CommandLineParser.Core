@@ -85,7 +85,9 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             Services.AddSingleton(argResolverMock.Object);
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.DiscoverCommands(typeof(NonGenericDiscoverableCommand).Assembly);
 

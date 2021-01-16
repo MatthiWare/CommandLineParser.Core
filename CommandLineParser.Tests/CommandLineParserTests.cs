@@ -35,6 +35,8 @@ namespace MatthiWare.CommandLine.Tests
         {
             Assert.Throws<ArgumentNullException>(() => new CommandLineParser((CommandLineParserOptions)null));
             Assert.Throws<ArgumentNullException>(() => new CommandLineParser((CommandLineParserOptions)null, (IServiceProvider)null));
+            Assert.Throws<ArgumentNullException>(() => new CommandLineParser<OrderModel>((CommandLineParserOptions)null, (IServiceProvider)null));
+            Assert.Throws<ArgumentNullException>(() => new CommandLineParser<OrderModel>((CommandLineParserOptions)null, (IServiceProvider)null));
         }
 
         [Fact]
@@ -43,7 +45,9 @@ namespace MatthiWare.CommandLine.Tests
             var from = @"path/from/file";
             var to = @"path/to/file";
 
-            var parser = new CommandLineParser<OrderModel>(Services);
+            Services.AddCommandLineParser<OrderModel>();
+
+            var parser = ResolveGenericParser<OrderModel>();
 
             var result = parser.Parse(new string[] { from, to });
 
@@ -59,7 +63,9 @@ namespace MatthiWare.CommandLine.Tests
             var from = @"path/from/file";
             var to = @"path/to/file";
 
-            var parser = new CommandLineParser<OrderModel>(Services);
+            Services.AddCommandLineParser<OrderModel>();
+
+            var parser = ResolveGenericParser<OrderModel>();
 
             var result = parser.Parse(new string[] { "-r", "5", from, to });
 
@@ -75,7 +81,9 @@ namespace MatthiWare.CommandLine.Tests
             var from = @"path/from/file";
             var to = @"path/to/file";
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<OrderModel>().Name("cmd").Required().OnExecuting((o, model) => 
             {
@@ -94,7 +102,9 @@ namespace MatthiWare.CommandLine.Tests
             var from = @"path/from/file";
             var to = @"path/to/file";
 
-            var parser = new CommandLineParser<OrderModel>(Services);
+            Services.AddCommandLineParser<OrderModel>();
+
+            var parser = ResolveGenericParser<OrderModel>();
 
             var result = parser.Parse(new string[] { from, "-r", "5", to });
 
@@ -110,7 +120,9 @@ namespace MatthiWare.CommandLine.Tests
             var from = 5;
             var to = 10;
 
-            var parser = new CommandLineParser<OrderModelInt>(Services);
+            Services.AddCommandLineParser<OrderModelInt>();
+
+            var parser = ResolveGenericParser<OrderModelInt>();
 
             var result = parser.Parse(new string[] { from.ToString(), "oops", to.ToString() });
 
@@ -128,7 +140,9 @@ namespace MatthiWare.CommandLine.Tests
                 StopParsingAfter = "--"
             };
 
-            var parser = new CommandLineParser<OrderModelInt>(options, Services);
+            Services.AddCommandLineParser<OrderModelInt>(options);
+
+            var parser = ResolveGenericParser<OrderModelInt>();
 
             var result = parser.Parse(new string[] { "10", "20", "--", "some random stuff", "nothing to see here", "yadi yadi yadi", "-r", "10" });
 
@@ -152,6 +166,7 @@ namespace MatthiWare.CommandLine.Tests
             };
 
             Assert.Throws<ArgumentException>(() => new CommandLineParser(options, Services));
+            Assert.Throws<ArgumentException>(() => new CommandLineParser<OrderModel>(options, Services));
         }
 
         [Theory]
@@ -177,7 +192,9 @@ namespace MatthiWare.CommandLine.Tests
         {
             var opt = new CommandLineParserOptions();
 
-            var parser = new CommandLineParser(opt, Services);
+            Services.AddCommandLineParser(opt);
+
+            var parser = ResolveParser();
 
             Assert.Equal(opt, parser.ParserOptions);
         }
@@ -199,7 +216,9 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddSingleton(commandMock.Object);
 
-            var parser = new CommandLineParser<object>(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             if (generic)
             {
@@ -234,7 +253,9 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddSingleton(commandMock.Object);
 
-            var parser = new CommandLineParser<object>(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             if (generic)
             {
@@ -255,7 +276,9 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void AutoExecuteCommandsWithExceptionDoesntCrashTheParser()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             var ex = new Exception("uh-oh");
 
@@ -275,7 +298,9 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public async Task AutoExecuteCommandsWithExceptionDoesntCrashTheParserAsync()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             var ex = new Exception("uh-oh");
 
@@ -659,7 +684,9 @@ namespace MatthiWare.CommandLine.Tests
         {
             int outcome = -1;
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             var cmd = parser.AddCommand<IntOptions>()
                 .Name("cmd")

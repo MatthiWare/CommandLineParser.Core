@@ -23,7 +23,9 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddSingleton(mockedService.Object);
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.RegisterCommand<MyCommandThatUsesService>();
 
@@ -41,7 +43,9 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddSingleton(mockedService);
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             var resolved = parser.Services.GetRequiredService<MySerice>();
 

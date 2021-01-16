@@ -417,6 +417,12 @@
             </summary>
             <typeparam name="TOption">Argument options model</typeparam>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ParserOptions">
+            <summary>
+            <see cref="T:MatthiWare.CommandLine.CommandLineParserOptions"/> this parser is currently using. 
+            NOTE: In order to use the options they need to be passed using the constructor. 
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Printer">
             <summary>
             Utility to print usage information to the output
@@ -450,6 +456,13 @@
             </summary>
             <param name="args">CLI Arguments</param>
             <param name="cancellationToken"></param>
+            <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ParseAsync(System.String[])">
+            <summary>
+            Parses the arguments async
+            </summary>
+            <param name="args">CLI Arguments</param>
             <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.DiscoverCommands(System.Reflection.Assembly)">
@@ -1320,10 +1333,7 @@
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ParserOptions">
-            <summary>
-            <see cref="T:MatthiWare.CommandLine.CommandLineParserOptions"/> this parser is currently using. 
-            NOTE: In order to use the options they need to be passed using the constructor. 
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Printer">
             <inheritdoc/>
@@ -1388,6 +1398,13 @@
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Parse(System.String[])">
             <summary>
             Parses the commandline arguments
+            </summary>
+            <param name="args">arguments from the commandline</param>
+            <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.ParseAsync(System.String[])">
+            <summary>
+            Parses the commandline arguments async
             </summary>
             <param name="args">arguments from the commandline</param>
             <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>

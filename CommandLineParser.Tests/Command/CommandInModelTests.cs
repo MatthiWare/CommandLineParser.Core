@@ -65,7 +65,9 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void FindCommandsInCommandModel()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.RegisterCommand<GenericSubCommandWithOwnOptions, SubCommandModelWithCommands>();
 

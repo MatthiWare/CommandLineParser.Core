@@ -50,7 +50,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public void CommandNotFoundTest()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("missing").Required();
 
@@ -66,7 +68,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task CommandNotFoundTestAsync()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("missing").Required();
 
@@ -96,7 +100,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public void CommandParseExceptionTest()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<Options>()
                 .Name("missing")
@@ -117,7 +123,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task CommandParseExceptionTestAsync()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<Options>()
                 .Name("missing")

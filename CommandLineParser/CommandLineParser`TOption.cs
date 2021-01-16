@@ -46,10 +46,7 @@ namespace MatthiWare.CommandLine
         /// <inheritdoc/>
         public IArgumentManager ArgumentManager => Services.GetRequiredService<IArgumentManager>();
 
-        /// <summary>
-        /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
-        /// NOTE: In order to use the options they need to be passed using the constructor. 
-        /// </summary>
+        /// <inheritdoc/>
         public CommandLineParserOptions ParserOptions { get; }
 
         /// <inheritdoc/>
@@ -229,10 +226,16 @@ namespace MatthiWare.CommandLine
         /// </summary>
         /// <param name="args">arguments from the commandline</param>
         /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
-        public IParserResult<TOption> Parse(string[] args)
-        {
-            return ParseAsync(args).GetAwaiter().GetResult();
-        }
+        public IParserResult<TOption> Parse(string[] args) 
+            => ParseAsync(args).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Parses the commandline arguments async
+        /// </summary>
+        /// <param name="args">arguments from the commandline</param>
+        /// <returns>The result of the parsing, <see cref="IParserResult{TResult}"/></returns>
+        public Task<IParserResult<TOption>> ParseAsync(string[] args)
+            => ParseAsync(args, default);
 
         /// <summary>
         /// Parses the commandline arguments async

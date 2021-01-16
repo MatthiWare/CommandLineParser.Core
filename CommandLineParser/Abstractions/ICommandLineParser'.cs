@@ -20,6 +20,12 @@ namespace MatthiWare.CommandLine.Abstractions
         #region Properties
 
         /// <summary>
+        /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
+        /// NOTE: In order to use the options they need to be passed using the constructor. 
+        /// </summary>
+        CommandLineParserOptions ParserOptions { get; }
+
+        /// <summary>
         /// Utility to print usage information to the output
         /// </summary>
         IUsagePrinter Printer { get; }
@@ -57,6 +63,13 @@ namespace MatthiWare.CommandLine.Abstractions
         /// <param name="cancellationToken"></param>
         /// <returns>The task that resolves to the result. <see cref="IParserResult{TOption}"/></returns>
         Task<IParserResult<TOption>> ParseAsync(string[] args, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Parses the arguments async
+        /// </summary>
+        /// <param name="args">CLI Arguments</param>
+        /// <returns>The task that resolves to the result. <see cref="IParserResult{TOption}"/></returns>
+        Task<IParserResult<TOption>> ParseAsync(string[] args);
 
         #endregion
 

@@ -62,7 +62,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsInCommandWork()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<ClusteredOptions<bool>>().Name("cmd").Required().OnExecuting((o, model) =>
             {
