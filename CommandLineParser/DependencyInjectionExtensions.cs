@@ -7,11 +7,12 @@ namespace MatthiWare.CommandLine
 {
     public static class DependencyInjectionExtensions
     {
-        public static void AddCommandLineParser<TOption>(this IServiceCollection services, CommandLineParserOptions options)
+        public static void AddCommandLineParser<TOption>(this IServiceCollection services, CommandLineParserOptions options = null)
             where TOption : class, new()
         {
             Func<IServiceProvider, CommandLineParser<TOption>> resolver = (IServiceProvider provider) 
                 => new CommandLineParser<TOption>(provider.GetService<CommandLineParserOptions>(), provider);
+
             services.AddInternalCommandLineParserServices(resolver, options);
         }
     }
