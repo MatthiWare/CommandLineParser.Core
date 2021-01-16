@@ -21,8 +21,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         {
             Assert.Throws<ArgumentNullException>(() => new DefaultResolver<object>(null, null));
             Assert.Throws<ArgumentNullException>(() => new DefaultResolver<object>(NullLogger<CommandLineParser>.Instance, null));
-            Assert.Throws<NotImplementedException>(() => new DefaultResolver<object>(NullLogger<CommandLineParser>.Instance, ServiceProvider).CanResolve(""));
-            Assert.Throws<NotImplementedException>(() => new DefaultResolver<object>(NullLogger<CommandLineParser>.Instance, ServiceProvider).Resolve(""));
         }
 
         [Fact]
@@ -31,7 +29,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             var resolver = new DefaultResolver<object>(NullLogger<CommandLineParser>.Instance, ServiceProvider);
 
             Assert.False(resolver.CanResolve((ArgumentModel)null));
+            Assert.False(resolver.CanResolve((string)null));
             Assert.Null(resolver.Resolve((ArgumentModel)null));
+            Assert.Null(resolver.Resolve((string)null));
         }
 
         [Theory]
@@ -43,6 +43,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.CanResolve(model));
+            Assert.Equal(expected, resolver.CanResolve(value));
         }
 
         [Theory]
@@ -54,6 +55,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.CanResolve(model));
+            Assert.Equal(expected, resolver.CanResolve(value));
         }
 
         [Theory]
@@ -65,6 +67,7 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
             var model = new ArgumentModel(key, value);
 
             Assert.Equal(expected, resolver.Resolve(model).Result);
+            Assert.Equal(expected, resolver.Resolve(value).Result);
         }
 
         public class MyTestType
