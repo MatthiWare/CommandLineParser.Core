@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MatthiWare.CommandLine.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 
@@ -7,7 +8,7 @@ namespace MatthiWare.CommandLine
     /// <summary>
     /// Command line parser
     /// </summary>
-    public class CommandLineParser : CommandLineParser<object>
+    public class CommandLineParser : CommandLineParser<object>, ICommandLineParser
     {
         /// <summary>
         /// Creates a new instance of the commandline parser
