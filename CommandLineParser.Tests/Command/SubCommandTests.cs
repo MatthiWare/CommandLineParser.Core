@@ -27,7 +27,8 @@ namespace MatthiWare.CommandLine.Tests.Command
             Services.AddSingleton(new MainCommand(lock1, autoExecute, bla, i, n));
             Services.AddSingleton(new SubCommand(lock2, autoExecute, bla, i, n));
 
-            var parser = new CommandLineParser<MainModel>(Services);
+            Services.AddCommandLineParser<MainModel>();
+            var parser = ResolveParser<MainModel>();
 
             var result = await parser.ParseAsync(new[] { "main", "-b", bla, "sub", "-i", i.ToString(), "-n", n.ToString() });
 

@@ -249,7 +249,7 @@ namespace MatthiWare.CommandLine
 
             var result = new ParseResult<TOption>();
 
-            ArgumentManager.Process(args, errors);
+            ArgumentManager.Process(args, errors, this);
 
             CheckForGlobalHelpOption(result);
 

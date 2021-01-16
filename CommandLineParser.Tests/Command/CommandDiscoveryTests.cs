@@ -43,7 +43,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
             Services.AddCommandLineParser<SomeBaseType>();
 
-            var parser = ResolveGenericParser<SomeBaseType>();
+            var parser = ResolveParser<SomeBaseType>();
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -66,7 +66,8 @@ namespace MatthiWare.CommandLine.Tests.Command
             Services.AddSingleton(envMock.Object);
             Services.AddSingleton(myServiceMock.Object);
 
-            var parser = new CommandLineParser<MyCommandWithInjectionsOptions>(Services);
+            Services.AddCommandLineParser<MyCommandWithInjectionsOptions>();
+            var parser = ResolveParser<MyCommandWithInjectionsOptions>();
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -86,7 +87,6 @@ namespace MatthiWare.CommandLine.Tests.Command
             Services.AddSingleton(argResolverMock.Object);
 
             Services.AddCommandLineParser();
-
             var parser = ResolveParser();
 
             parser.DiscoverCommands(typeof(NonGenericDiscoverableCommand).Assembly);

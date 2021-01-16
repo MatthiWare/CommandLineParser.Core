@@ -47,7 +47,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddCommandLineParser<OrderModel>();
 
-            var parser = ResolveGenericParser<OrderModel>();
+            var parser = ResolveParser<OrderModel>();
 
             var result = parser.Parse(new string[] { from, to });
 
@@ -65,7 +65,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddCommandLineParser<OrderModel>();
 
-            var parser = ResolveGenericParser<OrderModel>();
+            var parser = ResolveParser<OrderModel>();
 
             var result = parser.Parse(new string[] { "-r", "5", from, to });
 
@@ -104,7 +104,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddCommandLineParser<OrderModel>();
 
-            var parser = ResolveGenericParser<OrderModel>();
+            var parser = ResolveParser<OrderModel>();
 
             var result = parser.Parse(new string[] { from, "-r", "5", to });
 
@@ -122,7 +122,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddCommandLineParser<OrderModelInt>();
 
-            var parser = ResolveGenericParser<OrderModelInt>();
+            var parser = ResolveParser<OrderModelInt>();
 
             var result = parser.Parse(new string[] { from.ToString(), "oops", to.ToString() });
 
@@ -142,7 +142,7 @@ namespace MatthiWare.CommandLine.Tests
 
             Services.AddCommandLineParser<OrderModelInt>(options);
 
-            var parser = ResolveGenericParser<OrderModelInt>();
+            var parser = ResolveParser<OrderModelInt>();
 
             var result = parser.Parse(new string[] { "10", "20", "--", "some random stuff", "nothing to see here", "yadi yadi yadi", "-r", "10" });
 
@@ -176,7 +176,8 @@ namespace MatthiWare.CommandLine.Tests
         {
             var query = $"{(useShort ? "-" : "--")}p=some text";
 
-            var parser = new CommandLineParser<AddOption>();
+            Services.AddCommandLineParser<AddOption>();
+            var parser = ResolveParser<AddOption>();
 
             parser.Configure(p => p.Message).Name("p", "p").Required();
 
@@ -324,7 +325,8 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void ParseTests()
         {
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+            var parser = ResolveParser<Options>();
 
             parser.Configure(opt => opt.Option1)
                 .Name("o")
@@ -348,7 +350,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new[] { "-e" }, true, default(EnumOption))]
         public void ParseEnumInArguments(string[] args, bool hasErrors, EnumOption enumOption)
         {
-            var parser = new CommandLineParser<EnumOptions>(Services);
+            Services.AddCommandLineParser<EnumOptions>();
+            var parser = ResolveParser<EnumOptions>();
 
             parser.Configure(opt => opt.EnumOption)
                 .Name("e")
@@ -413,7 +416,8 @@ namespace MatthiWare.CommandLine.Tests
 
         private void TestParsingWithDefaults<T>(string[] args, T defaultValue, T result1, T result2, T result3)
         {
-            var parser = new CommandLineParser<OptionsWithThreeParams<T>>(Services);
+            Services.AddCommandLineParser<OptionsWithThreeParams<T>>();
+            var parser = ResolveParser<OptionsWithThreeParams<T>>();
 
             parser.Configure(opt => opt.Option1)
                 .Name("1")
@@ -444,7 +448,8 @@ namespace MatthiWare.CommandLine.Tests
         {
             var wait = new ManualResetEvent(false);
 
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+            var parser = ResolveParser<Options>();
 
             parser.Configure(opt => opt.Option1)
                 .Name("o")
@@ -489,7 +494,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         public void ParseCommandTests(string[] args, string result1, string result2)
         {
-            var parser = new CommandLineParser<AddOption>(Services);
+            Services.AddCommandLineParser<AddOption>();
+            var parser = ResolveParser<AddOption>();
             var wait = new ManualResetEvent(false);
 
             parser.AddCommand<AddOption>()
@@ -525,7 +531,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new[] { "-m", "message1", "add", "-m", "message2" }, "message1", "message2")]
         public async Task ParseCommandTestsAsync(string[] args, string result1, string result2)
         {
-            var parser = new CommandLineParser<AddOption>(Services);
+            Services.AddCommandLineParser<AddOption>();
+            var parser = ResolveParser<AddOption>();
             var wait = new ManualResetEvent(false);
 
             parser.AddCommand<AddOption>()
@@ -564,7 +571,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new string[] { "-x", "false" }, false)]
         public void BoolResolverSpecialCaseParsesCorrectly(string[] args, bool expected)
         {
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+            var parser = ResolveParser<Options>();
 
             parser.Configure(opt => opt.Option2)
                 .Name("x", "xsomething")
@@ -584,7 +592,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new string[] { "command", "-v" }, true)]
         public void BoolResolverSpecialCaseParsesCorrectlyWithDefaultValueAndNotBeingSpecified(string[] args, bool expected)
         {
-            var parser = new CommandLineParser<Model_Issue_35>(Services);
+            Services.AddCommandLineParser<Model_Issue_35>();
+            var parser = ResolveParser<Model_Issue_35>();
 
             parser.AddCommand().Name("command");
 
@@ -606,7 +615,8 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void ConfigureTests()
         {
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+            var parser = ResolveParser<Options>();
 
             parser.Configure(opt => opt.Option1)
                 .Name("o", "opt")
@@ -640,7 +650,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new string[] { "--message", "test" }, "testtransformed", false)]
         public void TransformationWorksAsExpected(string[] args, string expected, bool errors)
         {
-            var parser = new CommandLineParser<AddOption>(Services);
+            Services.AddCommandLineParser<AddOption>();
+            var parser = ResolveParser<AddOption>();
 
             parser.Configure(a => a.Message)
                 .Name("m", "message")
@@ -661,7 +672,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new string[] { "--int", "10" }, 20, false)]
         public void TransformationWorksAsExpectedForInts(string[] args, int expected, bool errors)
         {
-            var parser = new CommandLineParser<IntOptions>(Services);
+            Services.AddCommandLineParser<IntOptions>();
+            var parser = ResolveParser<IntOptions>();
 
             parser.Configure(a => a.SomeInt)
                 .Name("i", "int")
@@ -713,7 +725,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test" }, "test", false)]
         public void CustomTypeWithStringTryParseGetsParsedCorrectly(string[] args, string expected, bool errors)
         {
-            var parser = new CommandLineParser<StringTryParseTypeOptions>(Services);
+            Services.AddCommandLineParser<StringTryParseTypeOptions>();
+            var parser = ResolveParser<StringTryParseTypeOptions>();
 
             var result = parser.Parse(args);
 
@@ -733,7 +746,8 @@ namespace MatthiWare.CommandLine.Tests
         [InlineData(new string[] { "cmd", "--string", "test", "-s2", "test", "-s3", "test" }, "test", false)]
         public void CustomTypeWithStringConstructorGetsParsedCorrectly(string[] args, string expected, bool errors)
         {
-            var parser = new CommandLineParser<StringTypeOptions>(Services);
+            Services.AddCommandLineParser<StringTypeOptions>();
+            var parser = ResolveParser<StringTypeOptions>();
 
             var result = parser.Parse(args);
 

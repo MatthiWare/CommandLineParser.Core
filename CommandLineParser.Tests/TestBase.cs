@@ -28,7 +28,7 @@ namespace MatthiWare.CommandLine.Tests
             }
         }
 
-        public ICommandLineParser<TOption> ResolveGenericParser<TOption>()
+        public ICommandLineParser<TOption> ResolveParser<TOption>()
             where TOption : class, new()
         {
             return ServiceProvider.GetRequiredService<ICommandLineParser<TOption>>();

@@ -7,15 +7,17 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
 {
     public class GlobalParserTests : TestBase
     {
+        private readonly Abstractions.ICommandLineParser<CollectionModel> parser;
+
         public GlobalParserTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
+            Services.AddCommandLineParser<CollectionModel>();
+            parser = ResolveParser<CollectionModel>();
         }
 
         [Fact]
         public void ParseByte()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-byte", "1" });
 
             result.AssertNoErrors();
@@ -26,8 +28,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseString()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-str", "text" });
 
             result.AssertNoErrors();
@@ -38,8 +38,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseSByte()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-sbyte", "1" });
 
             result.AssertNoErrors();
@@ -50,8 +48,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseInt()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-int", "1" });
 
             result.AssertNoErrors();
@@ -62,8 +58,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseLong()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-long", "1" });
 
             result.AssertNoErrors();
@@ -74,8 +68,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseULong()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-ulong", "1" });
 
             result.AssertNoErrors();
@@ -86,8 +78,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseUShort()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-ushort", "1" });
 
             result.AssertNoErrors();
@@ -98,8 +88,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseShort()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-short", "1" });
 
             result.AssertNoErrors();
@@ -110,8 +98,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseUint()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-uint", "1" });
 
             result.AssertNoErrors();
@@ -122,8 +108,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseDecimal()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-decimal", "1.0" });
 
             result.AssertNoErrors();
@@ -134,8 +118,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseFloat()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-float", "1.0" });
 
             result.AssertNoErrors();
@@ -146,8 +128,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [Fact]
         public void ParseBool()
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(new[] { "-bool", "true" });
 
             result.AssertNoErrors();
@@ -162,8 +142,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntArray(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -180,8 +158,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseStringArray(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -198,8 +174,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntList(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -216,8 +190,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntEnumerable(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -234,8 +206,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntCollection(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -252,8 +222,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntReadonlyList(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -270,8 +238,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntReadonlyCollection(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -288,8 +254,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntSet(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();
@@ -306,8 +270,6 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Resolvers
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1026:Theory methods should use all of their parameters", Justification = "Compiler Error")]
         public void ParseIntISet(string[] args, bool avoidCompilerError)
         {
-            var parser = new CommandLineParser<CollectionModel>(Services);
-
             var result = parser.Parse(args);
 
             result.AssertNoErrors();

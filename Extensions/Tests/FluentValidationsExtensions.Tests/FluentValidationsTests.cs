@@ -28,7 +28,8 @@ namespace FluentValidationsExtensions.Tests
         [InlineData(false, false)]
         public void FluentValidationsShouldWork(bool useGeneric, bool useInstance)
         {
-            var parser = new CommandLineParser<FirstModel>(Services);
+            Services.AddCommandLineParser<FirstModel>();
+            var parser = ResolveParser<FirstModel>();
 
             parser.UseFluentValidations(config =>
             {
@@ -49,7 +50,8 @@ namespace FluentValidationsExtensions.Tests
         [InlineData(false, false)]
         public void WrongArgumentsShouldThrowValidationError(bool useGeneric, bool useInstance)
         {
-            var parser = new CommandLineParser<FirstModel>(Services);
+            Services.AddCommandLineParser<FirstModel>();
+            var parser = ResolveParser<FirstModel>();
 
             parser.UseFluentValidations(config =>
             {
@@ -70,7 +72,8 @@ namespace FluentValidationsExtensions.Tests
         [InlineData(false, false)]
         public void SubCommandShouldFailIfValidationFailsForModel(bool useGeneric, bool useInstance)
         {
-            var parser = new CommandLineParser<FirstModel>(Services);
+            Services.AddCommandLineParser<FirstModel>();
+            var parser = ResolveParser<FirstModel>();
 
             parser.UseFluentValidations(config =>
             {
@@ -92,7 +95,8 @@ namespace FluentValidationsExtensions.Tests
 
             Services.AddSingleton(dependencyMock.Object);
 
-            var parser = new CommandLineParser<EmailModel>(Services);
+            Services.AddCommandLineParser<EmailModel>();
+            var parser = ResolveParser<EmailModel>();
 
             parser.UseFluentValidations(config =>
             {

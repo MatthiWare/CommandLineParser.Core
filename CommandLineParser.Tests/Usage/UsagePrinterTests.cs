@@ -43,7 +43,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser<Options_Issue60>(Services);
+            Services.AddCommandLineParser<Options_Issue60>();
+            var parser = ResolveParser<Options_Issue60>();
 
             parser.Parse(args);
 
@@ -75,7 +76,9 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(new CommandLineParserOptions { StopParsingAfter = "--" }, Services);
+            var opt = new CommandLineParserOptions { StopParsingAfter = "--" };
+            Services.AddCommandLineParser<UsagePrinterGetsCalledOptions>(opt);
+            var parser = ResolveParser<UsagePrinterGetsCalledOptions>();
 
             parser.Parse(args);
 
@@ -91,7 +94,9 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser(new CommandLineParserOptions { StopParsingAfter = "--" }, Services);
+            var opt = new CommandLineParserOptions { StopParsingAfter = "--" };
+            Services.AddCommandLineParser(opt);
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("get-all");
 
@@ -108,7 +113,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(Services);
+            Services.AddCommandLineParser< UsagePrinterGetsCalledOptions>();
+            var parser = ResolveParser< UsagePrinterGetsCalledOptions>();
 
             parser.Parse(new[] { "-o", "--help" });
 
@@ -122,7 +128,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(Services);
+            Services.AddCommandLineParser<UsagePrinterGetsCalledOptions>();
+            var parser = ResolveParser<UsagePrinterGetsCalledOptions>();
 
             parser.AddCommand<UsagePrinterCommandOptions>()
                 .Name("cmd")
@@ -148,7 +155,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(builderMock.Object);
 
-            var parser = new CommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions, Services);
+            Services.AddCommandLineParser<UsagePrinterGetsCalledOptions>(parserOptions);
+            var parser = ResolveParser<UsagePrinterGetsCalledOptions>();
 
             parser.AddCommand<UsagePrinterCommandOptions>()
                 .Name("cmd")
@@ -204,7 +212,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
             Services.AddSingleton(consoleMock.Object);
             Services.AddSingleton(Logger);
 
-            var parser = new CommandLineParser<OptionModel>(Services);
+            Services.AddCommandLineParser<OptionModel>();
+            var parser = ResolveParser<OptionModel>();
 
             var cmdConfig = parser.AddCommand<OptionModel>();
             cmdConfig.Name("ZZZZZZZZZZZZZZ").Configure(o => o.Option).Name("tst");
@@ -212,7 +221,7 @@ namespace MatthiWare.CommandLine.Tests.Usage
             parser.AddCommand().Name("Test");
             parser.Configure(o => o.Option).Name("Test1");
 
-            var model = new UnusedArgumentModel("tst", parser);
+            var model = new UnusedArgumentModel("tst", (IArgument)parser);
             var printer = parser.Services.GetRequiredService<IUsagePrinter>();
 
             // ACT
@@ -237,7 +246,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
             Services.AddSingleton(suggestionProviderMock.Object);
             Services.AddSingleton(Logger);
 
-            var parser = new CommandLineParser<OptionModel>(Services);
+            Services.AddCommandLineParser<OptionModel>();
+            var parser = ResolveParser<OptionModel>();
 
             // ACT
             parser.Parse(new[] { "tst" }).AssertNoErrors();
@@ -260,7 +270,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
             Services.AddSingleton(consoleMock.Object);
             Services.AddSingleton(Logger);
 
-            var parser = new CommandLineParser<OptionModel>(Services);
+            Services.AddCommandLineParser<OptionModel>();
+            var parser = ResolveParser<OptionModel>();
 
             var cmdConfig = parser.AddCommand<OptionModel>();
             cmdConfig.Name("ZZZZZZZZZZZZZZ").Configure(o => o.Option).Name("tst");
