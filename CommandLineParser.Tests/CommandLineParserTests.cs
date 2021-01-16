@@ -31,6 +31,13 @@ namespace MatthiWare.CommandLine.Tests
         }
 
         [Fact]
+        public void NullOptionsAreNotAllowed()
+        {
+            Assert.Throws<ArgumentNullException>(() => new CommandLineParser((CommandLineParserOptions)null));
+            Assert.Throws<ArgumentNullException>(() => new CommandLineParser((CommandLineParserOptions)null, (IServiceProvider)null));
+        }
+
+        [Fact]
         public void OrderAttributeWorks()
         {
             var from = @"path/from/file";

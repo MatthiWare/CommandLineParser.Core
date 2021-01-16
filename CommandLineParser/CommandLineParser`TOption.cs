@@ -163,6 +163,11 @@ namespace MatthiWare.CommandLine
 
         private void ValidateOptions(CommandLineParserOptions options)
         {
+            if (options is null)
+            {
+                throw new ArgumentNullException("The provided options cannot be null.");
+            }
+
             if (string.IsNullOrWhiteSpace(options.PrefixShortOption))
             {
                 throw new ArgumentException($"The provided options are not valid. {nameof(options.PrefixShortOption)} cannot be null or empty.");

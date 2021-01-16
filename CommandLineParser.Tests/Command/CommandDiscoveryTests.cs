@@ -41,7 +41,9 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void DiscoveredCommandsAreRegisteredCorrectly()
         {
-            var parser = new CommandLineParser<SomeBaseType>(Services);
+            Services.AddCommandLineParser<SomeBaseType>();
+
+            var parser = ResolveGenericParser<SomeBaseType>();
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -110,7 +112,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
         }
 
-        public class MyCommandWithInjectionsOptions 
+        public class MyCommandWithInjectionsOptions
         {
         }
 

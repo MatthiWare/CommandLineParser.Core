@@ -511,6 +511,11 @@
             </summary>
             <param name="commandType">The type of the command</param>
         </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser">
+            <summary>
+            Command line parser
+            </summary>
+        </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder">
             <summary>
             API for configuring options
@@ -1243,6 +1248,19 @@
             <param name="parserOptions">options that the parser will use</param>
             <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="serviceProvider">Services provider to use</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="parserOptions">options that the parser will use</param>
+            <param name="serviceProvider">Services Provider to use</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.CommandLineParserOptions">
             <summary>
             Configuration options for <see cref="T:MatthiWare.CommandLine.CommandLineParser"></see>
@@ -1567,17 +1585,6 @@
             <typeparam name="TOption">Base option type</typeparam>
             <param name="services">Current service collection</param>
             <param name="parser">Current instance reference</param>
-            <param name="options">Current options reference</param>
-            <returns>Input service collection to allow method chaining</returns>
-        </member>
-        <member name="M:MatthiWare.CommandLine.Core.DependencyInjectionExtensions.AddInternalCommandLineParserServices``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Func{System.IServiceProvider,MatthiWare.CommandLine.CommandLineParser{``0}},MatthiWare.CommandLine.CommandLineParserOptions)">
-            <summary>
-            Adds internal services used by <see cref="T:MatthiWare.CommandLine.CommandLineParser"/>. 
-            This won't overwrite existing services.
-            </summary>
-            <typeparam name="TOption">Base option type</typeparam>
-            <param name="services">Current service collection</param>
-            <param name="parserFactory">Factory method to create a new CommandLineParser instance</param>
             <param name="options">Current options reference</param>
             <returns>Input service collection to allow method chaining</returns>
         </member>
@@ -1988,6 +1995,28 @@
             <param name="input"></param>
             <param name="equals"></param>
             <returns></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.DependencyInjectionExtensions">
+            <summary>
+            Extension methods to allow DI services to be registered.
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.DependencyInjectionExtensions.AddCommandLineParser``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds <see cref="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1"/> to the services
+            This won't overwrite existing services.
+            </summary>
+            <typeparam name="TOption">Base option type</typeparam>
+            <param name="services">Current service collection</param>
+            <param name="options">Current options reference</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.DependencyInjectionExtensions.AddCommandLineParser(Microsoft.Extensions.DependencyInjection.IServiceCollection,MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds <see cref="T:MatthiWare.CommandLine.CommandLineParser"/> to the services
+            This won't overwrite existing services.
+            </summary>
+            <param name="services">Current service collection</param>
+            <param name="options">Current options reference</param>
         </member>
     </members>
 </doc>
