@@ -1,7 +1,7 @@
 #tool "nuget:?package=xunit.runner.console&version=2.4.1"
-#tool nuget:?package=Codecov
-#addin "nuget:?package=Cake.Codecov&version=0.9.1""
-#addin nuget:?package=Cake.Coverlet
+#tool "nuget:?package=Codecov"
+#addin "nuget:?package=Cake.Codecov&version=0.9.1"
+#addin "nuget:?package=Cake.Coverlet&version=2.5.1"
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
