@@ -417,6 +417,12 @@
             </summary>
             <typeparam name="TOption">Argument options model</typeparam>
         </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ParserOptions">
+            <summary>
+            <see cref="T:MatthiWare.CommandLine.CommandLineParserOptions"/> this parser is currently using. 
+            NOTE: In order to use the options they need to be passed using the constructor. 
+            </summary>
+        </member>
         <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Printer">
             <summary>
             Utility to print usage information to the output
@@ -425,6 +431,16 @@
         <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Services">
             <summary>
             Resolver that is used to instantiate types by an given container
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Validators">
+            <summary>
+            Container for all validators
+            </summary>
+        </member>
+        <member name="P:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ArgumentManager">
+            <summary>
+            Token based argument parser
             </summary>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.Parse(System.String[])">
@@ -440,6 +456,13 @@
             </summary>
             <param name="args">CLI Arguments</param>
             <param name="cancellationToken"></param>
+            <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.ParseAsync(System.String[])">
+            <summary>
+            Parses the arguments async
+            </summary>
+            <param name="args">CLI Arguments</param>
             <returns>The task that resolves to the result. <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
         </member>
         <member name="M:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1.DiscoverCommands(System.Reflection.Assembly)">
@@ -500,6 +523,11 @@
             Registers a new command
             </summary>
             <param name="commandType">The type of the command</param>
+        </member>
+        <member name="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser">
+            <summary>
+            Command line parser
+            </summary>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.IOptionBuilder">
             <summary>
@@ -792,12 +820,13 @@
             <param name="model">The result arguments</param>
             <returns>True if arguments are found, false if not</returns>
         </member>
-        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IList{System.Exception})">
+        <member name="M:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IList{System.Exception},MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
             <summary>
             Processes the argument list
             </summary>
             <param name="arguments">Input arguments</param>
             <param name="errors">List of processesing errors</param>
+            <param name="commandContainer">Container for the commands and options</param>
         </member>
         <member name="T:MatthiWare.CommandLine.Abstractions.Parsing.IArgumentResolver`1">
             <summary>
@@ -1233,6 +1262,19 @@
             <param name="parserOptions">options that the parser will use</param>
             <param name="serviceCollection">Services collection to use, if null will create an internal one</param>
         </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="serviceProvider">Services provider to use</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="parserOptions">options that the parser will use</param>
+            <param name="serviceProvider">Services Provider to use</param>
+        </member>
         <member name="T:MatthiWare.CommandLine.CommandLineParserOptions">
             <summary>
             Configuration options for <see cref="T:MatthiWare.CommandLine.CommandLineParser"></see>
@@ -1288,32 +1330,26 @@
             </summary>
             <typeparam name="TOption">Options model</typeparam>
         </member>
+        <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ArgumentManager">
+            <inheritdoc/>
+        </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.ParserOptions">
-            <summary>
-            <see cref="T:MatthiWare.CommandLine.CommandLineParserOptions"/> this parser is currently using. 
-            NOTE: In order to use the options they need to be passed using the constructor. 
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Printer">
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Options">
-            <summary>
-            Read-only collection of options specified
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Services">
             <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Commands">
-            <summary>
-            Read-only list of commands specified
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="P:MatthiWare.CommandLine.CommandLineParser`1.Validators">
-            <summary>
-            Container for all validators
-            </summary>
+            <inheritdoc/>
         </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor">
             <summary>
@@ -1339,6 +1375,19 @@
             <param name="servicesCollection">container resolver to use</param>
             <param name="parserOptions">The options the parser will use</param>
         </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="serviceProvider">Service provider to resolve internal services with</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,System.IServiceProvider)">
+            <summary>
+            Creates a new instance of the commandline parser
+            </summary>
+            <param name="serviceProvider">Service provider to resolve internal services with</param>
+            <param name="parserOptions">The options the parser will use</param>
+        </member>
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Configure``1(System.Linq.Expressions.Expression{System.Func{`0,``0}})">
             <summary>
             Configures an option in the model
@@ -1350,6 +1399,13 @@
         <member name="M:MatthiWare.CommandLine.CommandLineParser`1.Parse(System.String[])">
             <summary>
             Parses the commandline arguments
+            </summary>
+            <param name="args">arguments from the commandline</param>
+            <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
+        </member>
+        <member name="M:MatthiWare.CommandLine.CommandLineParser`1.ParseAsync(System.String[])">
+            <summary>
+            Parses the commandline arguments async
             </summary>
             <param name="args">arguments from the commandline</param>
             <returns>The result of the parsing, <see cref="T:MatthiWare.CommandLine.Abstractions.Parsing.IParserResult`1"/></returns>
@@ -1674,10 +1730,10 @@
         <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.TryGetValue(MatthiWare.CommandLine.Abstractions.IArgument,MatthiWare.CommandLine.Abstractions.Models.ArgumentModel@)">
             <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer,Microsoft.Extensions.Logging.ILogger{MatthiWare.CommandLine.CommandLineParser})">
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.#ctor(MatthiWare.CommandLine.CommandLineParserOptions,Microsoft.Extensions.Logging.ILogger{MatthiWare.CommandLine.CommandLineParser})">
             <inheritdoc/>
         </member>
-        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IList{System.Exception})">
+        <member name="M:MatthiWare.CommandLine.Core.Parsing.ArgumentManager.Process(System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IList{System.Exception},MatthiWare.CommandLine.Abstractions.Command.ICommandLineCommandContainer)">
             <inheritdoc/>
         </member>
         <member name="T:MatthiWare.CommandLine.Core.Parsing.Resolvers.Collections.ArrayResolver`1">
@@ -1957,6 +2013,28 @@
             <param name="input"></param>
             <param name="equals"></param>
             <returns></returns>
+        </member>
+        <member name="T:MatthiWare.CommandLine.DependencyInjectionExtensions">
+            <summary>
+            Extension methods to allow DI services to be registered.
+            </summary>
+        </member>
+        <member name="M:MatthiWare.CommandLine.DependencyInjectionExtensions.AddCommandLineParser``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds <see cref="T:MatthiWare.CommandLine.Abstractions.ICommandLineParser`1"/> to the services
+            This won't overwrite existing services.
+            </summary>
+            <typeparam name="TOption">Base option type</typeparam>
+            <param name="services">Current service collection</param>
+            <param name="options">Current options reference</param>
+        </member>
+        <member name="M:MatthiWare.CommandLine.DependencyInjectionExtensions.AddCommandLineParser(Microsoft.Extensions.DependencyInjection.IServiceCollection,MatthiWare.CommandLine.CommandLineParserOptions)">
+            <summary>
+            Adds <see cref="T:MatthiWare.CommandLine.CommandLineParser"/> to the services
+            This won't overwrite existing services.
+            </summary>
+            <param name="services">Current service collection</param>
+            <param name="options">Current options reference</param>
         </member>
     </members>
 </doc>

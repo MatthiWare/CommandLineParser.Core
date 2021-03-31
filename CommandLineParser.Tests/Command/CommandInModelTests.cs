@@ -2,6 +2,7 @@
 using MatthiWare.CommandLine.Core.Attributes;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MatthiWare.CommandLine.Tests.Command
 {
@@ -13,10 +14,13 @@ namespace MatthiWare.CommandLine.Tests.Command
 
         #region FindCommandsInModel
 
-        [Fact]
+        [Fact(Timeout = 1000)]
         public void FindCommandsInModel()
         {
-            var parser = new CommandLineParser<ModelWithCommands>(Services);
+            Services.AddLogging();
+            Services.AddCommandLineParser<ModelWithCommands>();
+
+            var parser = ResolveParser<ModelWithCommands>();
 
             Assert.Equal(3, parser.Commands.Count);
         }
@@ -65,7 +69,9 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void FindCommandsInCommandModel()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.RegisterCommand<GenericSubCommandWithOwnOptions, SubCommandModelWithCommands>();
 

@@ -18,7 +18,8 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Validation
         [Fact]
         public void ParsingCallsValidation()
         {
-            var parser = new CommandLineParser<OptionWithCommand>();
+            Services.AddCommandLineParser<OptionWithCommand>();
+            var parser = ResolveParser<OptionWithCommand>();
 
             var validValidationResultMock = new Mock<IValidationResult>();
             validValidationResultMock.SetupGet(v => v.IsValid).Returns(true);
@@ -49,7 +50,8 @@ namespace MatthiWare.CommandLine.Tests.Parsing.Validation
         [Fact]
         public async Task ParsingCallsValidationAsync()
         {
-            var parser = new CommandLineParser<OptionWithCommand>();
+            Services.AddCommandLineParser<OptionWithCommand>();
+            var parser = ResolveParser<OptionWithCommand>();
 
             var validValidationResultMock = new Mock<IValidationResult>();
             validValidationResultMock.SetupGet(v => v.IsValid).Returns(true);

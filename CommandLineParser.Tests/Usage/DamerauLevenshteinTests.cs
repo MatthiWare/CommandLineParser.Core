@@ -114,7 +114,9 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var builderMock = new Mock<IUsageBuilder>();
             Services.AddSingleton(builderMock.Object);
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("cmd");
 
@@ -130,7 +132,10 @@ namespace MatthiWare.CommandLine.Tests.Usage
             var builderMock = new Mock<IUsageBuilder>();
             Services.AddSingleton(builderMock.Object);
 
-            var parser = new CommandLineParser(new CommandLineParserOptions { StopParsingAfter = "--" }, Services);
+            var options = new CommandLineParserOptions { StopParsingAfter = "--" };
+            Services.AddCommandLineParser(options);
+
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("cmd");
 

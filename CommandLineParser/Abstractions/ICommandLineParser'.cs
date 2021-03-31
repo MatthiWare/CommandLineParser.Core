@@ -1,6 +1,7 @@
 ﻿using MatthiWare.CommandLine.Abstractions.Command;
 using MatthiWare.CommandLine.Abstractions.Parsing;
 using MatthiWare.CommandLine.Abstractions.Usage;
+using MatthiWare.CommandLine.Abstractions.Validations;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,10 +14,16 @@ namespace MatthiWare.CommandLine.Abstractions
     /// Command line parser
     /// </summary>
     /// <typeparam name="TOption">Argument options model</typeparam>
-    public interface ICommandLineParser<TOption>
+    public interface ICommandLineParser<TOption> : ICommandLineCommandContainer
         where TOption : class, new()
     {
         #region Properties
+
+        /// <summary>
+        /// <see cref="CommandLineParserOptions"/> this parser is currently using. 
+        /// NOTE: In order to use the options they need to be passed using the constructor. 
+        /// </summary>
+        CommandLineParserOptions ParserOptions { get; }
 
         /// <summary>
         /// Utility to print usage information to the output
@@ -27,6 +34,16 @@ namespace MatthiWare.CommandLine.Abstractions
         /// Resolver that is used to instantiate types by an given container
         /// </summary>
         IServiceProvider Services { get; }
+
+        /// <summary>
+        /// Container for all validators
+        /// </summary>
+        IValidatorsContainer Validators { get; }
+
+        /// <summary>
+        /// Token based argument parser
+        /// </summary>
+        IArgumentManager ArgumentManager { get; }
 
         #endregion
 
@@ -46,6 +63,13 @@ namespace MatthiWare.CommandLine.Abstractions
         /// <param name="cancellationToken"></param>
         /// <returns>The task that resolves to the result. <see cref="IParserResult{TOption}"/></returns>
         Task<IParserResult<TOption>> ParseAsync(string[] args, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Parses the arguments async
+        /// </summary>
+        /// <param name="args">CLI Arguments</param>
+        /// <returns>The task that resolves to the result. <see cref="IParserResult{TOption}"/></returns>
+        Task<IParserResult<TOption>> ParseAsync(string[] args);
 
         #endregion
 

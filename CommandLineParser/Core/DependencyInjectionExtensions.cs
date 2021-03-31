@@ -16,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using System;
+using System.ComponentModel;
 
 namespace MatthiWare.CommandLine.Core
 {
@@ -33,6 +35,8 @@ namespace MatthiWare.CommandLine.Core
         /// <param name="parser">Current instance reference</param>
         /// <param name="options">Current options reference</param>
         /// <returns>Input service collection to allow method chaining</returns>
+        [Obsolete("Use AddCommandLineParser method instead")]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddInternalCommandLineParserServices<TOption>(this IServiceCollection services, CommandLineParser<TOption> parser, CommandLineParserOptions options)
             where TOption : class, new()
         {
@@ -50,7 +54,22 @@ namespace MatthiWare.CommandLine.Core
                 .AddSuggestionProvider();
         }
 
-        internal static IServiceCollection AddArgumentManager(this IServiceCollection services)
+        internal static IServiceCollection AddInternalCommandLineParserServices2(this IServiceCollection services, CommandLineParserOptions options)
+        {
+            return services
+                .AddArgumentManager()
+                .AddValidatorContainer()
+                .AddParserOptions(options)
+                .AddDefaultResolvers()
+                .AddCLIPrinters()
+                .AddCommandDiscoverer()
+                .AddEnvironmentVariables()
+                .AddDefaultLogger()
+                .AddModelInitializer()
+                .AddSuggestionProvider();
+        }
+
+        private static IServiceCollection AddArgumentManager(this IServiceCollection services)
         {
             services.TryAddScoped<IArgumentManager, ArgumentManager>();
 
@@ -59,7 +78,7 @@ namespace MatthiWare.CommandLine.Core
 
         private static IServiceCollection AddParserOptions(this IServiceCollection services, CommandLineParserOptions options)
         {
-            services.AddSingleton(options);
+            services.TryAddSingleton(options ?? new CommandLineParserOptions());
 
             return services;
         }
@@ -67,22 +86,42 @@ namespace MatthiWare.CommandLine.Core
         private static IServiceCollection AddCommandLineParser<TOption>(this IServiceCollection services, CommandLineParser<TOption> parser)
              where TOption : class, new()
         {
-            services.AddSingleton<ICommandLineCommandContainer>(parser);
-            services.AddSingleton<ICommandLineParser<TOption>>(parser);
+            services.TryAddSingleton<ICommandLineCommandContainer>(parser);
+            services.TryAddSingleton<ICommandLineParser<TOption>>(parser);
+
+            return services;
+        }
+
+        internal static IServiceCollection AddCommandLineParserFactoryGeneric<TOption>(this IServiceCollection services, Func<IServiceProvider, CommandLineParser<TOption>> parserFactory)
+             where TOption : class, new()
+        {
+            services.TryAddSingleton(parserFactory);
+            services.TryAddSingleton<ICommandLineCommandContainer>((provider) => provider.GetService<CommandLineParser<TOption>>());
+            services.TryAddSingleton<ICommandLineParser<TOption>>((provider) => provider.GetService<CommandLineParser<TOption>>());
+
+            return services;
+        }
+
+        internal static IServiceCollection AddCommandLineParserFactory(this IServiceCollection services, Func<IServiceProvider, CommandLineParser> parserFactory)
+        {
+            services.TryAddSingleton(parserFactory);
+            services.TryAddSingleton<ICommandLineCommandContainer>((provider) => provider.GetService<CommandLineParser>());
+            services.TryAddSingleton<ICommandLineParser>((provider) => provider.GetService<CommandLineParser>());
+            services.TryAddSingleton<ICommandLineParser<object>>((provider) => provider.GetService<CommandLineParser>());
 
             return services;
         }
 
         private static IServiceCollection AddValidatorContainer(this IServiceCollection services)
         {
-            services.AddSingleton<IValidatorsContainer, ValidatorsContainer>();
+            services.TryAddSingleton<IValidatorsContainer, ValidatorsContainer>();
 
             return services;
         }
 
         private static IServiceCollection AddSuggestionProvider(this IServiceCollection services)
         {
-            services.AddSingleton<ISuggestionProvider, DamerauLevenshteinSuggestionProvider>();
+            services.TryAddSingleton<ISuggestionProvider, DamerauLevenshteinSuggestionProvider>();
 
             return services;
         }

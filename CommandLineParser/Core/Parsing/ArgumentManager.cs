@@ -15,7 +15,6 @@ namespace MatthiWare.CommandLine.Core.Parsing
     public class ArgumentManager : IArgumentManager
     {
         private readonly CommandLineParserOptions options;
-        private readonly ICommandLineCommandContainer commandContainer;
         private readonly ILogger logger;
         private IEnumerator<ArgumentRecord> enumerator;
         private readonly Dictionary<IArgument, ArgumentModel> results = new Dictionary<IArgument, ArgumentModel>();
@@ -36,15 +35,14 @@ namespace MatthiWare.CommandLine.Core.Parsing
         public bool TryGetValue(IArgument argument, out ArgumentModel model) => results.TryGetValue(argument, out model);
 
         /// <inheritdoc/>
-        public ArgumentManager(CommandLineParserOptions options, ICommandLineCommandContainer commandContainer, ILogger<CommandLineParser> logger)
+        public ArgumentManager(CommandLineParserOptions options, ILogger<CommandLineParser> logger)
         {
             this.options = options ?? throw new ArgumentNullException(nameof(options));
-            this.commandContainer = commandContainer ?? throw new ArgumentNullException(nameof(commandContainer));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <inheritdoc/>
-        public void Process(IReadOnlyList<string> arguments, IList<Exception> errors)
+        public void Process(IReadOnlyList<string> arguments, IList<Exception> errors, ICommandLineCommandContainer commandContainer)
         {
             results.Clear();
             unusedArguments.Clear();

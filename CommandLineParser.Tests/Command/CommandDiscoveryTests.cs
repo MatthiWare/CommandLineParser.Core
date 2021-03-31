@@ -41,7 +41,9 @@ namespace MatthiWare.CommandLine.Tests.Command
         [Fact]
         public void DiscoveredCommandsAreRegisteredCorrectly()
         {
-            var parser = new CommandLineParser<SomeBaseType>(Services);
+            Services.AddCommandLineParser<SomeBaseType>();
+
+            var parser = ResolveParser<SomeBaseType>();
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -64,7 +66,8 @@ namespace MatthiWare.CommandLine.Tests.Command
             Services.AddSingleton(envMock.Object);
             Services.AddSingleton(myServiceMock.Object);
 
-            var parser = new CommandLineParser<MyCommandWithInjectionsOptions>(Services);
+            Services.AddCommandLineParser<MyCommandWithInjectionsOptions>();
+            var parser = ResolveParser<MyCommandWithInjectionsOptions>();
 
             parser.DiscoverCommands(Assembly.GetExecutingAssembly());
 
@@ -83,7 +86,8 @@ namespace MatthiWare.CommandLine.Tests.Command
 
             Services.AddSingleton(argResolverMock.Object);
 
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+            var parser = ResolveParser();
 
             parser.DiscoverCommands(typeof(NonGenericDiscoverableCommand).Assembly);
 
@@ -110,7 +114,7 @@ namespace MatthiWare.CommandLine.Tests.Command
         {
         }
 
-        public class MyCommandWithInjectionsOptions 
+        public class MyCommandWithInjectionsOptions
         {
         }
 

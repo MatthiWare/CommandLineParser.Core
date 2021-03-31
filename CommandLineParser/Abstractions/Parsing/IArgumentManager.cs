@@ -1,4 +1,5 @@
-﻿using MatthiWare.CommandLine.Abstractions.Models;
+﻿using MatthiWare.CommandLine.Abstractions.Command;
+using MatthiWare.CommandLine.Abstractions.Models;
 using MatthiWare.CommandLine.Abstractions.Usage;
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,7 @@ namespace MatthiWare.CommandLine.Abstractions.Parsing
         /// </summary>
         /// <param name="arguments">Input arguments</param>
         /// <param name="errors">List of processesing errors</param>
-        void Process(IReadOnlyList<string> arguments, IList<Exception> errors);
+        /// <param name="commandContainer">Container for the commands and options</param>
+        void Process(IReadOnlyList<string> arguments, IList<Exception> errors, ICommandLineCommandContainer commandContainer);
     }
 }

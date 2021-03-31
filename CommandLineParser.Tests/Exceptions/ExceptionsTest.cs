@@ -22,7 +22,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public void SubCommandNotFoundTest()
         {
-            var parser = new CommandLineParser<Options2>(Services);
+            Services.AddCommandLineParser<Options2>();
+
+            var parser = ResolveParser<Options2>();
 
             var result = parser.Parse(new string[] { "cmd" });
 
@@ -36,7 +38,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task SubCommandNotFoundTestAsync()
         {
-            var parser = new CommandLineParser<Options2>(Services);
+            Services.AddCommandLineParser<Options2>();
+
+            var parser = ResolveParser<Options2>();
 
             var result = await parser.ParseAsync(new string[] { "cmd" });
 
@@ -50,7 +54,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public void CommandNotFoundTest()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("missing").Required();
 
@@ -66,7 +72,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task CommandNotFoundTestAsync()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand().Name("missing").Required();
 
@@ -82,7 +90,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task OptionNotFoundTestAsync()
         {
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+
+            var parser = ResolveParser<Options>();
 
             var result = await parser.ParseAsync(new string[] { });
 
@@ -96,7 +106,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public void CommandParseExceptionTest()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<Options>()
                 .Name("missing")
@@ -117,7 +129,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task CommandParseExceptionTestAsync()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<Options>()
                 .Name("missing")
@@ -142,7 +156,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
 
             Services.AddSingleton(printerMock.Object);
 
-            var parser = new CommandLineParser<OtherOptions>(Services);
+            Services.AddCommandLineParser<OtherOptions>();
+
+            var parser = ResolveParser<OtherOptions>();
 
             parser.AddCommand<Options>()
                 .Name("missing")
@@ -199,7 +215,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public void OptionParseExceptionTest()
         {
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+
+            var parser = ResolveParser<Options>();
 
             var result = parser.Parse(new string[] { "-m", "bla" });
 
@@ -213,7 +231,9 @@ namespace MatthiWare.CommandLine.Tests.Exceptions
         [Fact]
         public async Task OptionParseExceptionTestAsync()
         {
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+
+            var parser = ResolveParser<Options>();
 
             var result = await parser.ParseAsync(new string[] { "-m", "bla" });
 

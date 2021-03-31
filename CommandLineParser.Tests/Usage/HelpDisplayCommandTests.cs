@@ -85,7 +85,8 @@ namespace MatthiWare.CommandLine.Tests.Usage
 
             Services.AddSingleton(usagePrinterMock.Object);
 
-            var parser = new CommandLineParser<Options>(Services);
+            Services.AddCommandLineParser<Options>();
+            var parser = ResolveParser<Options>();
 
             var cmd = parser.AddCommand<CommandOptions>()
                 .Name("db")

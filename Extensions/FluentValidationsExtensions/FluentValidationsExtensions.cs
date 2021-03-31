@@ -1,4 +1,5 @@
-﻿using MatthiWare.CommandLine.Extensions.FluentValidations.Core;
+﻿using MatthiWare.CommandLine.Abstractions;
+using MatthiWare.CommandLine.Extensions.FluentValidations.Core;
 using System;
 
 namespace MatthiWare.CommandLine.Extensions.FluentValidations
@@ -14,7 +15,7 @@ namespace MatthiWare.CommandLine.Extensions.FluentValidations
         /// <typeparam name="T"></typeparam>
         /// <param name="parser"></param>
         /// <param name="configAction">Configuration action</param>
-        public static void UseFluentValidations<T>(this CommandLineParser<T> parser, Action<FluentValidationConfiguration> configAction)
+        public static void UseFluentValidations<T>(this ICommandLineParser<T> parser, Action<FluentValidationConfiguration> configAction)
             where T : class, new()
         {
             var config = new FluentValidationConfiguration(parser.Validators, parser.Services);

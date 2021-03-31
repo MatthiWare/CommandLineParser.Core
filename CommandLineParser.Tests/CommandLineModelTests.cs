@@ -14,7 +14,8 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void TestBasicModel()
         {
-            var parser = new CommandLineParser<Model>(Services);
+            Services.AddCommandLineParser<Model>();
+            var parser = ResolveParser<Model>();
 
             Assert.Equal(1, parser.Options.Count);
 
@@ -36,7 +37,8 @@ namespace MatthiWare.CommandLine.Tests
         [Fact]
         public void TestBasicModelWithOverwritingUsingFluentApi()
         {
-            var parser = new CommandLineParser<Model>(Services);
+            Services.AddCommandLineParser<Model>();
+            var parser = ResolveParser<Model>();
 
             parser.Configure(_ => _.Message)
                 .Required(false)

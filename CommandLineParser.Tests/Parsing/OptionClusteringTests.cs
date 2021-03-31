@@ -14,7 +14,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsAreParsedCorrectly()
         {
-            var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
+            Services.AddCommandLineParser<ClusteredOptions<bool>>();
+
+            var parser = ResolveParser<ClusteredOptions<bool>>();
 
             var result = parser.Parse(new[] { "-abc" });
 
@@ -30,7 +32,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsAllSetTheSameValue()
         {
-            var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
+            Services.AddCommandLineParser<ClusteredOptions<bool>>();
+
+            var parser = ResolveParser<ClusteredOptions<bool>>();
 
             var result = parser.Parse(new[] { "-abc", "false" });
 
@@ -46,7 +50,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsAreIgnoredWhenRepeated()
         {
-            var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
+            Services.AddCommandLineParser<ClusteredOptions<bool>>();
+
+            var parser = ResolveParser<ClusteredOptions<bool>>();
 
             var result = parser.Parse(new[] { "-abc", "false", "-abc", "true" });
 
@@ -62,7 +68,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsInCommandWork()
         {
-            var parser = new CommandLineParser(Services);
+            Services.AddCommandLineParser();
+
+            var parser = ResolveParser();
 
             parser.AddCommand<ClusteredOptions<bool>>().Name("cmd").Required().OnExecuting((o, model) =>
             {
@@ -79,7 +87,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsInCommandAndReusedInParentWork()
         {
-            var parser = new CommandLineParser<ClusteredOptions<bool>>(Services);
+            Services.AddCommandLineParser<ClusteredOptions<bool>>();
+
+            var parser = ResolveParser<ClusteredOptions<bool>>();
 
             parser.AddCommand<ClusteredOptions<bool>>().Name("cmd").Required().OnExecuting((o, model) =>
             {
@@ -100,7 +110,9 @@ namespace MatthiWare.CommandLine.Tests.Parsing
         [Fact]
         public void ClusterdOptionsInCommandAndReusedInParentWork_String_Version()
         {
-            var parser = new CommandLineParser<ClusteredOptions<string>>(Services);
+            Services.AddCommandLineParser<ClusteredOptions<string>>();
+
+            var parser = ResolveParser<ClusteredOptions<string>>();
 
             parser.AddCommand<ClusteredOptions<string>>().Name("cmd").Required().OnExecuting((o, model) =>
             {

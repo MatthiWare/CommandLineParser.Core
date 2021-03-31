@@ -32,15 +32,9 @@ namespace MatthiWare.CommandLine.Core.Parsing.Resolvers
 
         public override bool CanResolve(ArgumentModel model) => TryResolve(model, out _);
 
-        public override bool CanResolve(string value)
-        {
-            throw new NotImplementedException();
-        }
+        public override bool CanResolve(string value) => CanResolve(new ArgumentModel(string.Empty, value));
 
-        public override T Resolve(string value)
-        {
-            throw new NotImplementedException();
-        }
+        public override T Resolve(string value) => Resolve(new ArgumentModel(string.Empty, value));
 
         public override T Resolve(ArgumentModel model)
         {
