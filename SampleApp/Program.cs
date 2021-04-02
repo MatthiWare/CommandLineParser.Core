@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using MatthiWare.CommandLine;
+using MatthiWare.CommandLine.Abstractions;
 using MatthiWare.CommandLine.Extensions.FluentValidations;
 using Microsoft.Extensions.DependencyInjection;
 using SampleApp.DependencyInjection;
@@ -27,7 +28,11 @@ namespace SampleApp
 
             var parserOptions = new CommandLineParserOptions { AppName = "Sample App" };
 
-            var parser = new CommandLineParser<Options>(parserOptions, services);
+            services.AddCommandLineParser<Options>(parserOptions);
+
+            var provider = services.BuildServiceProvider();
+
+            var parser = provider.GetRequiredService<ICommandLineParser<Options>>();
 
             #region Example to add FluentValidations to the project 
             parser.UseFluentValidations((config) =>
