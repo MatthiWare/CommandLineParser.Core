@@ -2,7 +2,7 @@
 [![Issues](https://img.shields.io/github/issues/MatthiWare/CommandLineParser.Core.svg)](https://github.com/MatthiWare/CommandLineParser.Core/issues)
 [![CodeCov](https://codecov.io/gh/MatthiWare/CommandLineParser.Core/branch/master/graph/badge.svg)](https://codecov.io/gh/MatthiWare/CommandLineParser.Core)
 [![CodeFactor](https://www.codefactor.io/repository/github/matthiware/commandlineparser.core/badge)](https://www.codefactor.io/repository/github/matthiware/commandlineparser.core)
-[![License](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://tldrlegal.com/license/mit-license))
 [![Nuget](https://buildstats.info/nuget/MatthiWare.CommandLineParser)](https://www.nuget.org/packages/MatthiWare.CommandLineParser)
 
 # CommandLineParser
