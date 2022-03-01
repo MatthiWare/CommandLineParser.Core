@@ -25,3 +25,8 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
+    - name: Upload Release Build Artifacts
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: Release Build
+        path: /home/runner/work/CommandLineParser.Core/CommandLineParser.Core/CommandLineParser/bin/Release/**/*
