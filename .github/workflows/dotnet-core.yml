@@ -30,3 +30,8 @@ jobs:
       with:
         name: Release Build
         path: /home/runner/work/CommandLineParser.Core/CommandLineParser.Core/CommandLineParser/bin/Release/**/*
+    - name: Upload Release Build Artifacts
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: Release Build Extensions
+        path: /home/runner/work/CommandLineParser.Core/CommandLineParser.Core/Extensions/FluentValidationsExtensions/bin/Release/**/*
